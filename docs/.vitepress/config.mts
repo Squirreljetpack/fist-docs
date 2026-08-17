@@ -13,6 +13,7 @@ export default defineConfig({
 	lastUpdated: true,
 	cleanUrls: true,
 	head: [
+		["link", { rel: "icon", type: "image/png", href: "/fist-docs/favicon.png" }],
 		["meta", { name: "theme-color", content: "#08090a" }],
 		["link", { rel: "preconnect", href: "https://fonts.googleapis.com" }],
 		[
@@ -28,6 +29,7 @@ export default defineConfig({
 		],
 	],
 	themeConfig: {
+		logo: "/logo.png",
 		siteTitle: "f:ist",
 		nav: [{ text: "Docs", link: "/" }],
 		socialLinks: [

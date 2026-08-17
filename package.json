@@ -7,7 +7,9 @@
   "scripts": {
     "dev": "vitepress dev docs",
     "build": "vitepress build docs",
-    "preview": "vitepress preview docs"
+    "preview": "vitepress preview docs",
+    "icons": "node scripts/generate-icons.js",
+    "generate-icons": "node scripts/generate-icons.js"
   },
   "devDependencies": {
     "vitepress": "^1.6.4"
