@@ -18,7 +18,7 @@ One loop covers everything in f:ist: **filter → inspect → act → undo**. Ev
 | `ctrl-shift-a` | Clear all selections |
 | `ctrl-e` | Menu of actions for the selection (or cursor, or cwd) |
 
-The **menu** (`ctrl-e`) shows the actions that make sense for what you have selected — `New`, `Rename`, `Cut`, `Copy`, `Trash`, `Open With`, plus your [custom actions](13-menu-actions.md). Type the highlighted letter (or an alias like `C`) to trigger one.
+The **menu** (`ctrl-e`) shows the actions that make sense for what you have selected — `New`, `Rename`, `Cut`, `Copy`, `Trash`, `Open With`, plus your [custom actions](menu-actions.md). Type the highlighted letter (or an alias like `C`) to trigger one.
 
 ## Cut, copy, and paste
 
@@ -42,9 +42,9 @@ File transfer is a two-step dance backed by an **operation queue**:
 | `Enter` | Execute the row |
 | `delete` | Remove the row |
 
-The queue is *destination-lazy*: destinations resolve against the directory you're in **at paste time**, not at copy time. For the full semantics — queue kinds, selectors, and progress — see [The queue](09-queue.md).
+The queue is *destination-lazy*: destinations resolve against the directory you're in **at paste time**, not at copy time. For the full semantics — queue kinds, selectors, and progress — see [The queue](queue.md).
 
-Note: the queue lives in memory for the run. For mission-critical transfers, prefer a [custom menu action](13-menu-actions.md) that performs the transfer itself.
+Note: the queue lives in memory for the run. For mission-critical transfers, prefer a [custom menu action](menu-actions.md) that performs the transfer itself.
 
 ## Search
 
@@ -52,9 +52,9 @@ Three panes answer "where is it?":
 
 | Pane | Shortcut | Backend | Use for |
 | --- | --- | --- | --- |
-| **Find** | `ctrl-f` | `fd` | Recursive filename search — [see docs](05-find-pane.md) |
-| **Search** | `ctrl-r` | `ripgrep` | Full-text content search — [see docs](06-search-pane.md) |
-| **History** | `ctrl-g` | SQLite | Recently visited folders & files — [see docs](07-history-database.md) |
+| **Find** | `ctrl-f` | `fd` | Recursive filename search — [see docs](find-pane.md) |
+| **Search** | `ctrl-r` | `ripgrep` | Full-text content search — [see docs](search-pane.md) |
+| **History** | `ctrl-g` | SQLite | Recently visited folders & files — [see docs](history-database.md) |
 
 Search results are ordinary panes: preview, edit, queue, trash, and open-with all work on them.
 
@@ -70,7 +70,7 @@ Search results are ordinary panes: preview, edit, queue, trash, and open-with al
 | `alt-n` | Edit the current file |
 | `ctrl-enter` / `alt-o` | Open with the system handler |
 
-Every key above is a [lessfilter](12-lessfilter.md) preset — you can redefine any of it.
+Every key above is a [lessfilter](lessfilter.md) preset — you can redefine any of it.
 
 ## Other everyday actions
 
@@ -109,6 +109,4 @@ ctrl-v                     # paste earlier queued copies into the current dir
 
 **Can I run an action on many files at once?**
 
-Select rows with `tab`, then `ctrl-e` — the menu targets the whole selection. Custom actions receive the full path list (see [Menu actions](13-menu-actions.md)).
-
-[← Previous: Getting started](01-getting-started.md) · [Next: Panes →](03-panes.md)
+Select rows with `tab`, then `ctrl-e` — the menu targets the whole selection. Custom actions receive the full path list (see [Menu actions](menu-actions.md)).

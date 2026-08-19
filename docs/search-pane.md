@@ -86,7 +86,7 @@ The lessfilter **edit** preset consumes these and opens the file at the right sp
 
 ## Sorting and stability
 
-Sort options: `name` (path), `mtime` (`--sortr=modified`), `atime` (`--sortr=accessed`), `none` (match order — the default). An inherited `size` sort drops to `none` rather than erroring. In filter mode, sorting is nucleo-side with a stability threshold so live results don't thrash.
+The search pane sorts by `name`, `mtime`, `atime`, or `none` (match order — the default); `size` is not available here (see [Sorting](sorting.md#per-pane-notes)). Sort options translate to rg flags (`--sort=path`, `--sortr=modified|accessed`). In filter mode, sorting is nucleo-side with a stability threshold so live results don't thrash.
 
 ## Status templates
 
@@ -113,5 +113,3 @@ Single quotes in query mode: `'search this'`.
 **How do I exclude files?**
 
 Pass rg flags raw: `fs :rg -- --glob '!vendor/**' pattern`.
-
-[← Previous: The find pane (`fd`)](05-find-pane.md) · [Next: History & the database →](07-history-database.md)

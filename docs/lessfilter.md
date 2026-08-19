@@ -1,4 +1,4 @@
-# Previewing with lessfilter
+# lessfilter
 
 **lessfilter** is f:ist's context-aware file handler: it turns a path into a *command* based on its content and the context you're in. Previews, metadata panes, "edit", "open" — all of them go through lessfilter presets.
 
@@ -81,7 +81,7 @@ The `edit` preset is special: `Text` becomes the editor (below), `Directory` ope
 | Visual (directories) | `FS_VISUAL` → `$VISUAL` → `fs :open` |
 | Image viewer | `run.image_viewer` setting |
 
-Line/column placement works for `micro` (`path:line`), `vim`/`nvim` (`+line`), and `nano` (`+line,col`) — fed from the `HIGHLIGHT_LINE` / `HIGHLIGHT_COLUMN` variables f:ist exports when you advance on a [search hit](06-search-pane.md). The same variables let the previewer jump to the matching line.
+Line/column placement works for `micro` (`path:line`), `vim`/`nvim` (`+line`), and `nano` (`+line,col`) — fed from the `HIGHLIGHT_LINE` / `HIGHLIGHT_COLUMN` variables f:ist exports when you advance on a [search hit](search-pane.md). The same variables let the previewer jump to the matching line.
 
 ## Custom commands and categories
 
@@ -131,6 +131,4 @@ Add a rule to the preset in `lessfilter.toml`, e.g. `[[preview.rules]] patterns 
 
 **Where do `HIGHLIGHT_LINE` and friends come from?**
 
-The app sets them when you advance on a search match; the edit preset uses them to open at the right line. See [The search pane](06-search-pane.md).
-
-[← Previous: Shell integration](11-shell-integration.md) · [Next: Menu actions →](13-menu-actions.md)
+The app sets them when you advance on a search match; the edit preset uses them to open at the right line. See [The search pane](search-pane.md).

@@ -71,6 +71,4 @@ It's `transient` by default — intentionally in-memory. Configure a named stash
 
 **What's the difference between a stash and the queue?**
 
-A stash is a list you curate and revisit. The queue holds pending copy/cut operations — see [The queue](09-queue.md).
-
-[← Previous: History & the database](07-history-database.md) · [Next: The queue →](09-queue.md)
+A stash is a list you curate and revisit. The queue holds pending copy/cut operations — see [The queue](queue.md).

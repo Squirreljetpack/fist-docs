@@ -73,5 +73,3 @@ The same mode — `:dir` uses `-l` (`--list`), the panes use `--list`.
 **Why does `{a}` print literally?**
 
 Templates use numeric component indexes, not names. `{0=0}` is the full path; see the table above.
-
-[← Previous: Tools (`fs :tool`)](15-tools.md)

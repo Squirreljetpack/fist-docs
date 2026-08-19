@@ -128,5 +128,3 @@ They don't — decay is per-visit (event clock), not per-second. Only activity m
 **Can I have frecency instead of the event clock?**
 
 Set `history.lambda = none` for wall-clock, zoxide-style scoring.
-
-[← Previous: The search pane (`rg`)](06-search-pane.md) · [Next: Stash panes →](08-stash-panes.md)

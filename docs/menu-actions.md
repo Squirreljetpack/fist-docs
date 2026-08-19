@@ -4,21 +4,22 @@ Menu actions are user-defined commands shown in the menu overlay (`ctrl-e`).
 They are declared as TOML tables keyed by name; the insertion order is the
 menu display order.
 
+Effectively, these act as f:st's _plugins_. Actions execute with the full capacity of standard [lua](https://www.lua.org/about.html) virtual machine. Some hooks into the main app are available from within:
+- `set_progress` is available for actions with `ExecuteStrategy::Queue/Batch` to display their progress in the [queue](queue.md).
+- `toast`, `toast_push` are available to create notification toasts.
+
+In time and if there is demand, more hooks may be added, such as sending arbitrary actions or creating overlays.
+
 ![The menu](images/13-menu.png)
 
-Actions live in `actions.toml` next to `config.toml`, plus every `*.toml` file
+Menu actions live in `actions.toml` next to `config.toml`, plus every `*.toml` file
 in the `actions/` folder next to it, merged in sorted filename order (numeric
 prefixes order them). `--dump-config` writes the shipped `actions.toml`.
 
-The action key serves two roles:
+The key (name of the action) serves two roles:
 
 - the **name** shown in the menu,
-- the **queue kind**: `ExecuteQueue(kind)` / `ClearQueue(kind)` select queue
-  rows by the exact key.
-
-The following keys are reserved and rejected (case-insensitively): the
-builtin queue kinds `copy`, `cut`, `symlink`, `none`, the selectors `all`,
-`builtins`, `first`, `last`, and the empty key.
+- For actions which execute by enqueuing, the same name serves as the [queue kind](queue.md).
 
 ## Fields
 
@@ -42,26 +43,11 @@ builtin queue kinds `copy`, `cut`, `symlink`, `none`, the selectors `all`,
 | `QueueBatch`    | —     | no          | Enqueue the targets in chunks of at most *n* paths.     |
 
 `Queue`/`QueueBatch` create queue rows of the action's key; the row's
-destination is editable in the [queue](09-queue.md) overlay (`ctrl-u`).
+destination is editable in the [queue](queue.md) overlay (`ctrl-u`).
 
 ## The Lua environment & global contract
 
-Commands run inside an isolated Lua VM per execution. Arguments are provided
-both as function arguments `(...)` and directly as globals:
-
-### Provided globals & arguments
-
-- `paths` (table) — array of targeted absolute paths as strings.
-- `dst` (string) — the destination string (empty for direct menu calls; the queue row's destination for queued runs).
-- `nav_cwd` (string) — the Nav pane directory (injected if present).
-
-### Built-in global functions
-
-- `toast(style, msg)` — displays a footer notice toast. `style` accepts `"info"`, `"success"`, `"warning"` (`"warn"`), `"error"` (`"err"`), or `"normal"` (`nil`).
-- `toast_push(style, prefix, item)` — appends an item to a grouped list with a styled prefix (e.g. `toast_push("success", "set +x: ", "script.sh")` or `toast_push("success", "Compressed: ", "archive.zip")`).
-- `set_progress(0-255)` — updates the executing queue item's progress bar (0–255 scale).
-- `os.exit(code)` — safely stops script execution with the given exit code without terminating the host `fs` process.
-- `error(...)` — raises a runtime error, stopping execution and displaying a failure notice toast.
+Each action's `command` runs in an isolated Lua VM with `paths`, `dst`, and `nav_cwd` passed in, plus globals for toasts and progress. The full reference — arguments, built-in functions, `@file` loading, and binding the same Lua to keys — is on [Lua scripting](lua.md).
 
 `@file` commands load the script from disk (`~/` and absolute paths work; relative paths resolve against the actions folder).
 
@@ -122,7 +108,7 @@ against the current directory (strict: the Nav directory); for *n* and
 | `git`                                                   | The path is inside a git work tree.                                 |
 | `*`                                                     | Anything.                                                           |
 
-Prefix with `!` to invert (`!ext:rs`). (Same vocabulary as [lessfilter rules](12-lessfilter.md).)
+Prefix with `!` to invert (`!ext:rs`). (Same vocabulary as [lessfilter rules](lessfilter.md).)
 
 ## Examples
 
@@ -207,6 +193,4 @@ Yes — the same action key can be bound directly in `mm.toml` (`"ctrl-x" = "Men
 
 **How do I validate everything?**
 
-`fs :tool check` parses the configs and validates every action's Lua script, failing non-zero on errors. See [Tools](15-tools.md).
-
-[← Previous: Previewing with lessfilter](12-lessfilter.md) · [Next: Command line →](14-command-line.md)
+`fs :tool check` parses the configs and validates every action's Lua script, failing non-zero on errors. See [Tools](tools.md).

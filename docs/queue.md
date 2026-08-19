@@ -1,6 +1,6 @@
 # The queue
 
-The **queue** is f:ist's task overview: a list of pending operations — file transfers, or custom tasks defined through the [menu](13-menu-actions.md) — that you review, reorder, filter, and execute when ready.
+The **queue** is f:ist's task overview: a list of pending operations — file transfers, or custom tasks defined through the [menu](menu-actions.md) — that you review, reorder, filter, and execute when ready.
 
 ![Queue overlay](images/03-queue.png)
 
@@ -27,9 +27,9 @@ Every row has a **kind**, which decides how it executes:
 | `copy` / `cut` | Built-in transfer: files and directories moved or copied with live progress |
 | `symlink` | Built-in symlink creation |
 | `none` | Explicit no-op |
-| *any other name* | The [menu action](13-menu-actions.md) with that key: its Lua runs with `(paths, dst, nav_cwd)` |
+| *any other name* | The [menu action](menu-actions.md) with that key: its Lua runs with `(paths, dst, nav_cwd)` |
 
-Custom kinds are how you define repeatable tasks — see [Queue strategies in menu actions](13-menu-actions.md#strategies). A row whose kind has no matching action fails with an error toast.
+Custom kinds are how you define repeatable tasks — see [Queue strategies in menu actions](menu-actions.md#strategies). A row whose kind has no matching action fails with an error toast.
 
 ## The overlay
 
@@ -65,7 +65,7 @@ Rows move through **pending → started → done/error**. Transfers show bytes c
 
 `All` and `Builtins` silently skip rows whose destination is missing; exact-kind and `First`/`Last` selectors report an error instead. A custom `requires_dest` kind refuses to run with an empty destination.
 
-Note: the queue lives in memory for the run. For mission-critical transfers, prefer a custom menu action that performs the transfer itself (see [Menu actions](13-menu-actions.md)).
+Note: the queue lives in memory for the run. For mission-critical transfers, prefer a custom menu action that performs the transfer itself (see [Menu actions](menu-actions.md)).
 
 ## FAQ
 
@@ -75,10 +75,8 @@ Yes — cut + paste. The kind shows as `cut`; reordering rows changes execution 
 
 **How do I queue custom work?**
 
-Define a menu action with a `Queue` or `QueueBatch` strategy — its Lua runs once per row at execution time, receiving `(paths, dst, nav_cwd)`. See [Menu actions](13-menu-actions.md).
+Define a menu action with a `Queue` or `QueueBatch` strategy — its Lua runs once per row at execution time, receiving `(paths, dst, nav_cwd)`. See [Menu actions](menu-actions.md).
 
 **What happens if a paste fails halfway through?**
 
 The row moves to the error state with the failure logged; other rows continue. You can retry the row from the overlay.
-
-[← Previous: Stash panes](08-stash-panes.md) · [Next: Configuration →](10-configuration.md)

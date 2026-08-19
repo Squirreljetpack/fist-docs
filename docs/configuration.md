@@ -1,13 +1,14 @@
 # Configuration
 
-F:ist reads four TOML files (plus a folder of action files). Most options have shipped defaults, so a fresh install works with zero config — this page documents what's there and what each knob does.
+F:ist reads five TOML files (plus a folder of action files). Most options have shipped defaults, so a fresh install works with zero config — this page documents what's there and what each knob does.
 
 ## Overview
 
 - **`config.toml`** — application settings: panes, fd/rg behavior, history, styles, watcher.
-- **`mm.toml`** — the matchmaker (UI) layer: layout, preview, overlays, and **keybindings**.
-- **`lessfilter.toml`** — preview presets and rules (see [Previewing with lessfilter](12-lessfilter.md)).
-- **`actions.toml`** plus **`actions/`** — custom menu actions (see [Menu actions](13-menu-actions.md)).
+- **`mm.toml`** — the matchmaker (UI) layer: layout, preview, overlays, and **keybindings** (see [mm.toml](mm.toml.md)).
+- **`lessfilter.toml`** — preview presets and rules (see [lessfilter](lessfilter.md)).
+- **`pager.toml`** — pager options passed to bat (see [The pager](pager.md)).
+- **`actions.toml`** plus **`actions/`** — custom menu actions (see [Menu actions](menu-actions.md)).
 
 All live in the config directory (`~/.config/fist/`).
 
@@ -19,7 +20,7 @@ All live in the config directory (`~/.config/fist/`).
 | `--dump-config` | Print the resolved config; on a TTY, writes the config files |
 | `--style <style>` | `icons` `icon-colors` `colors` `none` `all` `auto` |
 
-`fs :tool check` validates everything: configs, binds, and every menu-action script (see [Tools](15-tools.md)).
+`fs :tool check` validates everything: configs, binds, and every menu-action script (see [Tools](tools.md)).
 
 ## `config.toml`
 
@@ -27,7 +28,7 @@ All live in the config directory (`~/.config/fist/`).
 
 | Setting | Default | Meaning |
 | --- | --- | --- |
-| `prompt_locking` | `false` (shipped config: `true`) | Master switch for prompt locking (see [Navigation](04-navigation-in-depth.md)) |
+| `prompt_locking` | `false` (shipped config: `true`) | Master switch for prompt locking (see [Navigation](navigation-in-depth.md)) |
 | `advance_command` | `fs :tool lessfilter edit {}` | What advancing on a file runs |
 | `alt_accept` | `false` | Accept prints the path instead of opening (used by `--cd` flows) |
 | `no_multi_accept` | `false` | Don't accept multiple selections at once |
@@ -47,21 +48,21 @@ All live in the config directory (`~/.config/fist/`).
 
 ### `[fd]` and `[rg]`
 
-Search backends (documented in [The find pane](05-find-pane.md) and [The search pane](06-search-pane.md)). Highlights: `[fd] dot_query_show_hidden`, `default_search_in_home`, `exclusions`; `[rg] base_args`, `empty_pattern`.
+Search backends (documented in [The find pane](find-pane.md) and [The search pane](search-pane.md)). Highlights: `[fd] dot_query_show_hidden`, `default_search_in_home`, `default_search_ignore`, `exclusions` — all of which shape default [visibility](visibility.md#what-adjusts-it); `[rg] base_args`, `empty_pattern`.
 
 ### `[panes]`
 
-Per-pane settings, applied when you switch to that pane type. Common fields: `show_preview`, `lock_prompt`, `preview_layout_index`.
+Per-pane settings, applied when you switch to that pane type. Common fields: `show_preview`, `lock_prompt`, `preview_layout_index`, plus `default_sort` / `default_visibility` (see [Sorting](sorting.md) and [Visibility](visibility.md)).
 
 | Section | Notable defaults |
 | --- | --- |
-| `[panes.nav]` | `show_preview = 60`, `lock_prompt = false`, default sort `mtime` |
+| `[panes.nav]` | `show_preview = 60`, `lock_prompt = false`, default sort `mtime` (see [Sorting](sorting.md)) |
 | `[panes.find]` | `show_preview = 60`, `lock_prompt = true` |
 | `[panes.search]` | `lock_prompt = true`, `show_preview = 20`, `preview_layout_index = 1`, `one_line = true`, `default_sort = "none"`, status templates |
 | `[panes.app]` | `preview_layout_index = 3`, `show_preview = true` |
 | `[panes.history]` | preview/prompt settings for Files/Folders panes |
 | `[panes.custom]` | preview/prompt settings for custom panes |
-| `[panes.stashes.<name>]` | per-stash `kind` / `insert` (see [Stash panes](08-stash-panes.md)) |
+| `[panes.stashes.<name>]` | per-stash `kind` / `insert` (see [Stash panes](stash-panes.md)) |
 
 Top-level pane plumbing:
 
@@ -69,13 +70,13 @@ Top-level pane plumbing:
 | --- | --- | --- |
 | `display_script_simultaneous_count` | `15` | Concurrent display scripts |
 | `display_script_batch_size` | `1000` | Script batch size |
-| `apply_default_sort` | `true` | Re-apply a pane's default sort when switching to it |
+| `apply_default_sort` | `true` | Re-apply a pane's default sort when switching to it (see [Sorting](sorting.md)) |
 
 ### `[styles]`
 
-Two groups — **path display** and **toasts** (see `src/config/styles.rs`):
+Two groups — **path display** and **toasts**:
 
-- `[styles.path]` — `collapse_home`, `relative`, `file_icons`, `file_colors`, `dir_icons`, `dir_colors`, `icon_colors` (all default `true`); per-`FileCategory` colors.
+- `[styles.path]` — `collapse_home`, `relative`, `file_icons`, `file_colors`, `dir_icons`, `dir_colors`, `icon_colors` (all default `true`); per-file-type colors.
 - `[styles.toast]` — `normal` (dark gray italic), `info` (light blue), `success` (green), `warning` (yellow), `error` (red).
 
 ### `[notify]`
@@ -100,39 +101,11 @@ The filesystem watcher that refreshes panes live:
 
 ### `[history]`
 
-Documented in [History & the database](07-history-database.md): `lambda`, `refind`, `exclude`, `base_dir`, `show_missing`, `query_strategy`, `case_sensitive`, `resolve_symlinks`, plus `prune_max` / `prune_min`.
+Documented in [History & the database](history-database.md): `lambda`, `refind`, `exclude`, `base_dir`, `show_missing`, `query_strategy`, `case_sensitive`, `resolve_symlinks`, plus `prune_max` / `prune_min`.
 
-## `mm.toml` (matchmaker UI)
+## The matchmaker layer
 
-Sections, in the shipped file:
-
-| Section | Contents |
-| --- | --- |
-| `[tui]` | Main pane size (`percentage`, `min`, `max`), OSC52 clipboard, `copy_trailing_newline` |
-| `[ui]` | `mouse_events` |
-| `[results]` | `wrap`, `scroll_wrap`, `row_connection` |
-| `[[preview.layout]]` | Preview layouts — 4 shipped: right 40%, top 50% (find), wide right 80%, left 70% (apps) |
-| `[preview]` | `wrap`, `scroll_wrap` |
-| `[overlay]` | Base overlay border (`Rounded`, `darkGrey`, padding 1) |
-| `[query]` | Query border, `word_boundaries` (`['.', '/']`) |
-| `[binds]` | **Keybindings** (below) |
-
-### Keybindings
-
-`[binds]` maps keys to actions; the action name is the `FsAction` variant with the `fs:` prefix stripped (e.g. `FsAction::ToggleHidden` → `ToggleHidden`), plus matchmaker builtins (`Accept`, `Down`, `HScroll`, …). Multiple actions per key are arrays (`"tab" = ["ToggleSelection", "Down"]`). Custom arguments use parens: `AutoJump(3)`, `Lessfilter(Edit)`, `PushStash(bookmark)`.
-
-```toml
-[binds]
-"ctrl-f" = "Find"                    # one action
-"tab" = ["ToggleSelection", "Down"]  # a chain
-"alt-s" = "PushStash"                # your own binds override the defaults
-```
-
-Hardcoded defaults (in code, cannot be unbound) include `shift-↑`/`shift-↓` = preview scroll, `?` = `LFPreview(Preview)`, `alt-/` = `LFPreview(Info)`, `alt-h` = Help, and the character-edit keys.
-
-- Print the fully resolved map: `fs :tool show-binds`.
-- The in-app help (`alt-h`) shows the same list.
-- Keys that require terminal keyboard enhancement (CSI-u) are noted in the shipped file: `ctrl-[`, `ctrl-]`, `ctrl-shift-z`, `ctrl-backtick`, and `ctrl-esc`. Terminals without it can use the `alt-` variants where they exist.
+`mm.toml` — layout, preview, overlays, and keybindings — is covered on its own page: see [mm.toml](mm.toml.md).
 
 ## FAQ
 
@@ -149,5 +122,3 @@ fs --dump-config > resolved.toml
 ```
 
 That snapshot is a complete, current reference to copy settings from or diff against. (On a TTY, `--dump-config` also writes the config files back — useful for migrating schema changes, but it overwrites your formatting.)
-
-[← Previous: The queue](09-queue.md) · [Next: Shell integration →](11-shell-integration.md)

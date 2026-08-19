@@ -28,13 +28,21 @@ curl -fsSL https://raw.githubusercontent.com/Squirreljetpack/fist/main/install.s
 cargo install fd-find ripgrep bat eza
 ```
 
-### Shell integration (zsh)
+### Shell integration
 
 ```shell
-echo '\neval "$(fs :tool shell)"' >> ~/.zshrc
+# Zsh / Bash
+eval "$(fs :tool shell)"
+
+# Fish
+fs :tool shell --shell=fish | source
+
+# Nushell
+fs :tool shell --shell=nu --aliases | save -f ~/.config/nushell/fist.nu
+# (then add `source ~/.config/nushell/fist.nu` to config.nu)
 ```
 
-This adds the `z` jump function (type a folder name to `cd` to your best match) and `zz` (jump and open). See [Shell integration](11-shell-integration.md) for the full story, including aliases and widgets.
+This adds the `z` jump function (type a folder name to `cd` to your best match), `x` (jump and navigate), `zz` (jump and open), and keybinding widgets. See [Shell integration](shell-integration.md) for the full story, including aliases and widgets.
 
 ## Your first session
 
@@ -47,7 +55,7 @@ You're in the **Nav** pane, listing the current directory.
 ![Nav pane](images/02-nav-pane.png)
 
 - Type to fuzzy-filter the listing. `Esc` clears the query.
-- `Enter` accepts the current row: directories `cd` in, files open via [lessfilter](12-lessfilter.md) (the edit preset by default).
+- `Enter` accepts the current row: directories `cd` in, files open via [lessfilter](lessfilter.md) (the edit preset by default).
 - `←` / `→` move to the parent directory / advance into the selection.
 - `ctrl-z` / `ctrl-shift-z` undo and redo your navigation.
 - `?` previews the current item.
@@ -100,9 +108,9 @@ fs :info                # database stats
 
 ## Next steps
 
-- [Core workflows](02-core-workflows.md) — the everyday loop.
-- [Panes](03-panes.md) — what each list view is for.
-- [Configuration](10-configuration.md) — make f:ist yours.
+- [Core workflows](core-workflows.md) — the everyday loop.
+- [Panes](panes.md) — what each list view is for.
+- [Configuration](configuration.md) — make f:ist yours.
 
 ## FAQ
 
@@ -114,8 +122,6 @@ Config: `~/.config/fist/`. Database and logs: `~/.local/state/fist/`. Helper scr
 
 Fist was designed to sit beside the other two-letter commands (`fd`, `rg`, `ls`). The name is a backronym: **F**ist: **I**nteractive **S**earch **T**ool.
 
-**Does it work in bash/fish?**
+**Does it work in bash/fish/nushell?**
 
-The shell integration is zsh-only for now. The interactive app itself is shell-agnostic.
-
-[Next: Core workflows →](02-core-workflows.md)
+Full shell integration (directory jumping, hooks, aliases, and line-editor widgets) is supported for **Zsh**, **Bash** (4.3+), **Fish**, and **Nushell**, with core `z`/`x`/`zz` functions available for standard **POSIX** shells (`sh`, `dash`, `ash`, `ksh`).

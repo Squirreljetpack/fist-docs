@@ -6,8 +6,8 @@
 
 | Tool | Alias | Purpose | See |
 | --- | --- | --- | --- |
-| `shell` | — | Print shell integration | [Shell integration](11-shell-integration.md) |
-| `lessfilter` | `lf` | Run a preview/edit preset on files | [Previewing with lessfilter](12-lessfilter.md) |
+| `shell` | — | Print shell integration | [Shell integration](shell-integration.md) |
+| `lessfilter` | `lf` | Run a preview/edit preset on files | [lessfilter](lessfilter.md) |
 | `liza` | `lz` | eza-style directory listing with f:ist's colors | below |
 | `pager` | `pg` | Render text through the pager | below |
 | `colors` | — | Interactive color reference | below |
@@ -68,7 +68,7 @@ fs :tool bump --reset files       # reset a table (or the whole db)
 fs :tool bump --glob '*.log'      # bump everything matching a glob
 ```
 
-The shell integration calls `bump` on every `cd` — see [History & the database](07-history-database.md) for what gets recorded and when.
+The shell integration calls `bump` on every `cd` — see [History & the database](history-database.md) for what gets recorded and when.
 
 ## `trash` — safe deletion
 
@@ -92,7 +92,7 @@ fs :tool ds a b c            # a tree rooted at their common ancestor
 
 ## `show-binds` — resolved keybindings
 
-Prints the effective keybindings: shipped defaults, your `mm.toml` `[binds]`, and the matchmaker builtins, as one list. See [Configuration](10-configuration.md).
+Prints the effective keybindings: shipped defaults, your `mm.toml` `[binds]`, and the matchmaker builtins, as one list. See [Configuration](configuration.md).
 
 ## `check` — validate everything
 
@@ -106,7 +106,7 @@ Parses `config.toml`, `mm.toml`, `lessfilter.toml`, `actions.toml` and the `acti
 
 **Where do the tools log?**
 
-`fist.tools.log`, next to the main log — see [History & the database](07-history-database.md) for paths.
+`fist.tools.log`, next to the main log — see [History & the database](history-database.md) for paths.
 
 **Why is `colors` silent when piped?**
 
@@ -114,6 +114,4 @@ It draws its swatches with the terminal UI; it needs a real terminal.
 
 **How do I add more tools?**
 
-The `:tool` subcommands are the built-in set. For your own commands, write [menu actions](13-menu-actions.md) or shell functions — they compose with the same output formats.
-
-[← Previous: Command line](14-command-line.md) · [Next: Output & templates →](16-output-templates.md)
+The `:tool` subcommands are the built-in set. For your own commands, write [menu actions](menu-actions.md) or shell functions — they compose with the same output formats.

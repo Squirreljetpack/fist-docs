@@ -74,13 +74,15 @@ While the prompt is active, the preview hides when `hide_preview_when_cursor_dis
 
 ## Visibility and sort
 
+Visibility and sort are per-pane state — see the dedicated [Visibility](visibility.md) and [Sorting](sorting.md) pages. The keys:
+
 | Keys | Action |
 | --- | --- |
 | `ctrl-s` | Toggle hidden files |
 | `ctrl-d` | Toggle "only directories" (in History/Apps panes: cycle sort instead) |
 | `ctrl-p` | Options overlay: visibility, sort, search context |
 
-New panes inherit sensible defaults per pane type; `apply_default_sort` re-applies each pane's default sort when you switch to it.
+New panes inherit sensible defaults per pane type; each pane's default sort is a config value (`[panes.*] default_sort`, see [Sorting](sorting.md)), and `apply_default_sort` re-applies it when you switch to the pane.
 
 ## How navigation feeds history
 
@@ -89,11 +91,11 @@ Navigation isn't just UI state — it feeds the database:
 - entering a directory (Advance, `z`, `--cd`, the shell chpwd hook) **bumps** that directory,
 - opening a file (Advance on a file, `fs :open`, tracked lessfilter presets) **bumps** that file.
 
-Bumps are score adjustments in the [event-clock model](07-history-database.md) that power `ctrl-g`, `fs :dir`, and the `z` function.
+Bumps are score adjustments in the [event-clock model](history-database.md) that power `ctrl-g`, `fs :dir`, and the `z` function.
 
 ## Pane-specific notes
 
-- **Search panes** keep match context when you navigate: advancing on a hit exports `HIGHLIGHT_LINE` / `HIGHLIGHT_COLUMN` so the editor opens at the match (see [The search pane](06-search-pane.md)).
+- **Search panes** keep match context when you navigate: advancing on a hit exports `HIGHLIGHT_LINE` / `HIGHLIGHT_COLUMN` so the editor opens at the match (see [The search pane](search-pane.md)).
 - **Custom panes** run their command with the pane's cwd as working directory; re-advancing re-runs the filter.
 - **Stash panes** are lists, not directories — `←` returns to the previous pane and entries survive navigation.
 
@@ -114,5 +116,3 @@ Advance is context-aware: a directory becomes a new Nav pane, an archive becomes
 **What does prompt locking actually change?**
 
 Locked, your keystrokes go into the query instead of filtering the listing — so on Find and Search, pressing `ctrl-r` / `ctrl-f` drops you straight into typing the pattern, and arrow keys still move you through results. Unlocked, the query bar becomes a fuzzy filter over the current listing. `alt-space` toggles the mode at any time; `interface.prompt_locking` is the master switch.
-
-[← Previous: Panes](03-panes.md) · [Next: The find pane (`fd`) →](05-find-pane.md)

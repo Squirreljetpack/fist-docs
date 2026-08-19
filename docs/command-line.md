@@ -1,6 +1,6 @@
 # Command line
 
-`fs` is one binary with several command faces. Each face starts a different pane; every one is scriptable via [output & templates](16-output-templates.md), and the interactive TUI is only one of the outputs.
+`fs` is one binary with several command faces. Each face starts a different pane; every one is scriptable via [output & templates](output-templates.md), and the interactive TUI is only one of the outputs.
 
 ## Overview
 
@@ -13,7 +13,7 @@
 | `fs :o` | `:open` | Open files and apps |
 | `fs :custom` | `:c` | A piped listing or command output |
 | `fs :info` | — | Stats and database records |
-| `fs :tool` | `:t` | Plugins & utilities — see [Tools](15-tools.md) |
+| `fs :tool` | `:t` | Plugins & utilities — see [Tools](tools.md) |
 
 ## `fs ::` / `:fd` — find
 
@@ -30,7 +30,7 @@ fs :: --cd -- .            # print a picked path for `cd` (used by z)
 fs :: --list .             # print results, no TUI (see output)
 ```
 
-Key flags: `--sort` (`name` `mtime` `atime` `size` `none`), visibility (`-h`/`-I`/`-a`/`-F`/`-f`, `-A`), `-t`/`--types` (see [The find pane](05-find-pane.md)), `--transform`, `--cd`, `--list`, `--reset-visibility`.
+Key flags: `--sort` (`name` `mtime` `atime` `size` `none`), visibility (`-h`/`-I`/`-a`/`-F`/`-f`, `-A`), `-t`/`--types` (see [The find pane](find-pane.md)), `--transform`, `--cd`, `--list`, `--reset-visibility`.
 
 ## `fs :` / `:rg` — search
 
@@ -44,11 +44,11 @@ fs : -- -l '*.rs' 'TODOs'    # flags after -- go to ripgrep
 fs : --list 'fn main' -p src/   # print matches, no TUI
 ```
 
-Flags: `-p/--path`, `-i`, `-s`, `-S` (smart case), `-A/-B/-C` context, `-1` (one match per line), `--query`, `--preserve-whitespace`, `--fixed-strings`, `--filtering`, `--rebase`. See [The search pane](06-search-pane.md).
+Flags: `-p/--path`, `-i`, `-s`, `-S` (smart case), `-A/-B/-C` context, `-1` (one match per line), `--query`, `--preserve-whitespace`, `--fixed-strings`, `--filtering`, `--rebase`. See [The search pane](search-pane.md).
 
 ## `fs :dir` and `fs :file` — recents
 
-The history panes, ranked by the [event-clock score](07-history-database.md):
+The history panes, ranked by the [event-clock score](history-database.md):
 
 ```shell
 fs :dir                     # recent folders
@@ -100,7 +100,7 @@ Trailing arguments run as a command; an empty command reads stdin. `--tail-sep` 
 | `--lock-prompt` | Lock the query prompt |
 | `--alt-accept` | Accept prints instead of opening (scripting) |
 | `--opener` | Command for opening picked files |
-| `--output-sep` / `--format` | Output shaping — see [Output & templates](16-output-templates.md) |
+| `--output-sep` / `--format` | Output shaping — see [Output & templates](output-templates.md) |
 | `-q` / `-v` | Quieten / increase logging (or `FS_VERBOSITY`) |
 
 ## Exit codes
@@ -120,10 +120,8 @@ None — `fs` with no subcommand is the find pane. `::` is the explicit alias.
 
 **How do I print results without the TUI?**
 
-Use `--list` (see [Output & templates](16-output-templates.md)).
+Use `--list` (see [Output & templates](output-templates.md)).
 
 **How do I make accept print a path for scripting?**
 
 `--alt-accept` — accept outputs the path instead of opening it. This is how the `z` shell function works.
-
-[← Previous: Menu actions](13-menu-actions.md) · [Next: Tools (`fs :tool`) →](15-tools.md)

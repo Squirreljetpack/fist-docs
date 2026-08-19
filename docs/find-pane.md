@@ -64,16 +64,16 @@ raster = ["image/png", "image/jpeg"]
 
 ## Visibility
 
-Visibility is a small state machine, toggled in-app with `ctrl-s` (hidden) and `ctrl-d` (dirs only), and set per command:
+The Find pane supports the same visibility as every filesystem pane — mode defaults and the git-aware behavior are described fully on the [Visibility](visibility.md) page. Here is the CLI surface for the `fs`/fd command:
 
 | Mode | Meaning |
 | --- | --- |
-| default | Hidden files off; git-ignored files hidden inside repos, shown outside them |
+| default | Git-aware (see [Visibility](visibility.md)) |
 | `hidden` (`-h`, `ctrl-s`) | Show dotfiles |
 | `ignore` (`-I`) | Hide git-ignored files |
 | `all` (`-a`) | Show everything (`--hidden --no-ignore`) |
 
-Queries that start with `.` (like `.git`) automatically enable hidden files, and a directory containing only hidden files reveals them. Both are controlled by `fd.dot_query_show_hidden` (`Auto` / `Always` / `Never`).
+`--reset-visibility` ignores any configured default visibility. Dot queries and directories containing only hidden files are also covered on the [Visibility](visibility.md) page.
 
 ## fd configuration (`[fd]` in config.toml)
 
@@ -96,25 +96,28 @@ Queries that start with `.` (like `.git`) automatically enable hidden files, and
 
 ## The `--transform` hook
 
-`--transform` runs a Lua function on every row before display:
+`--transform` runs a Lua function on every row before display.
 
-```lua
-return function(path, tail)
-  local parent = path:gsub("/%.git$", "")
-  if parent ~= path then
+For example, to list every git repository under given directories sorted by last modification, mapping each `.git` folder to its parent:
+
+```shell
+fs -a --transform '
+local path, tail = ...
+local parent = path:gsub("/%.git$", "")
+if parent ~= path then
     return parent, parent:match("[^/]+$")
-  end
-  return path, path
 end
+return path, path
+' --sort mtime $HOME/gh $SSdir '\\.git$'
 ```
 
-Returning a missing `path` omits the row; missing `display` / `tail` keep the current values. Prefix the argument with `@` to load the script from a file.
+Omitting `path` omits the row; missing `display` / `tail` keep the current values. Prefix the argument with `@` to load the script from a file.
 
-Note: transforms are stateless — each row starts clean, so don't rely on state from a previous row.
+Note: transforms run in a shared vm — but this behavior should not be relied upon, don't modify state!
 
 ## Sorting
 
-Sort with `--sort` or the options overlay (`ctrl-p`). The find pane supports `name`, `mtime`, `atime`, `size`, and `none` (insertion order). Size sorting requires metadata, which loads lazily in the background.
+Sort with `--sort` or the options overlay (`ctrl-p`). The find pane supports `name`, `mtime`, `atime`, `size`, and `none` (insertion order). Size sorting requires metadata, which loads lazily in the background. See [Sorting](sorting.md) for the full story.
 
 ## Non-interactive use: `--list`
 
@@ -126,7 +129,7 @@ fs -t d --list ~/notes . -- --max-depth 1 | while read -r d; do
 done
 ```
 
-See [Output & templates](16-output-templates.md) for the `--format` template language.
+See [Output & templates](output-templates.md) for the `--format` template language.
 
 ## FAQ
 
@@ -141,5 +144,3 @@ Queries starting with `.` enable hidden files automatically, so `.git` and frien
 **What's the difference between `--` and the rest of the arguments?**
 
 Arguments before `--` are interpreted by f:ist (`-t`, `-h`, paths); arguments after it are passed to `fd` raw.
-
-[← Previous: Navigation, in depth](04-navigation-in-depth.md) · [Next: The search pane (`rg`) →](06-search-pane.md)
