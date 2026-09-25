@@ -16,9 +16,9 @@ One loop covers everything in f:ist: **filter → inspect → act → undo**. Ev
 | `tab` | Toggle selection on the current row (and move down) |
 | `ctrl-a` | Cycle through selections |
 | `ctrl-shift-a` | Clear all selections |
-| `ctrl-e` | Menu of actions for the selection (or cursor, or cwd) |
+| `ctrl-e` / `alt-e` | Menu of actions for the selection (or cursor, or cwd) |
 
-The **menu** (`ctrl-e`) shows the actions that make sense for what you have selected — `New`, `Rename`, `Cut`, `Copy`, `Trash`, `Open With`, plus your [custom actions](menu-actions.md). Type the highlighted letter (or an alias like `C`) to trigger one.
+The **menu** (`ctrl-e` / `alt-e`) shows the actions that make sense for what you have selected — `New`, `Rename`, `Cut`, `Copy`, `Trash`, `Open With`, plus your [custom actions](menu-actions.md). Type the highlighted letter (or an alias like `C`) to trigger one.
 
 ## Cut, copy, and paste
 
@@ -30,14 +30,14 @@ File transfer is a two-step dance backed by an **operation queue**:
 
 ![Queue overlay](images/03-queue.png)
 
-`ctrl-u` opens the queue overlay at any time. Each row shows **kind · source · destination · progress**:
+`alt-u` opens the queue overlay at any time. Each row shows **kind · source · destination · progress**:
 
 | Keys | Row action |
 | --- | --- |
 | `↑` / `↓` | Move |
 | `space` | Select rows |
 | `shift-↑` / `shift-↓` | Reorder rows |
-| `ctrl-e` | Edit the source |
+| `ctrl-e` / `alt-e` | Edit the source |
 | `ctrl-shift-r` | Edit the destination |
 | `Enter` | Execute the row |
 | `delete` | Remove the row |
@@ -81,8 +81,8 @@ Every key above is a [lessfilter](lessfilter.md) preset — you can redefine any
 | `alt-r` | Reload the current listing |
 | `ctrl-s` | Toggle hidden files |
 | `ctrl-d` | Toggle "only directories" |
-| `ctrl-p` | Options overlay: visibility, sort order, search context |
-| `alt-u` | Clear the query |
+| `ctrl-p` / `alt-p` | Options overlay: visibility, sort order, search context |
+| `ctrl-u` | Clear the query |
 | `ctrl-esc` | Drop to a shell in the current directory |
 
 ## Example: a real task
@@ -91,7 +91,7 @@ Every key above is a [lessfilter](lessfilter.md) preset — you can redefine any
 fs -t .md ~/notes          # list all markdown under ~/notes
 ctrl-r "meeting"           # full-text search for "meeting"
 tab                        # select the interesting hit
-ctrl-e → R                 # rename it
+ctrl-e (or alt-e) → R                 # rename it
 alt-n                      # open it in your editor
 ctrl-z                     # undo the pane walk — back to where you were
 ctrl-v                     # paste earlier queued copies into the current dir
@@ -101,7 +101,7 @@ ctrl-v                     # paste earlier queued copies into the current dir
 
 **How do I move files between directories?**
 
-`ctrl-x` on the file, navigate to the destination, `ctrl-v`. The queue shows the pending cut with `ctrl-u`.
+`ctrl-x` on the file, navigate to the destination, `ctrl-v`. The queue shows the pending cut with `alt-u`.
 
 **Is there a way to delete without the trash?**
 
@@ -109,4 +109,4 @@ ctrl-v                     # paste earlier queued copies into the current dir
 
 **Can I run an action on many files at once?**
 
-Select rows with `tab`, then `ctrl-e` — the menu targets the whole selection. Custom actions receive the full path list (see [Menu actions](menu-actions.md)).
+Select rows with `tab`, then `ctrl-e` / `alt-e` — the menu targets the whole selection. Custom actions receive the full path list (see [Menu actions](menu-actions.md)).

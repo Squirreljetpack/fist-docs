@@ -55,19 +55,19 @@ You're in the **Nav** pane, listing the current directory.
 ![Nav pane](images/02-nav-pane.png)
 
 - Type to fuzzy-filter the listing. `Esc` clears the query.
-- `Enter` accepts the current row: directories `cd` in, files open via [lessfilter](lessfilter.md) (the edit preset by default).
-- `←` / `→` move to the parent directory / advance into the selection.
+- `Enter` **accepts** the current row: the path is handed to the system opener (`xdg-open`), or printed instead when `--alt-accept` is set.
+- `→` **advances**: a directory opens as a new Nav pane, a file runs the [lessfilter](lessfilter.md) **edit** preset (your `$EDITOR` for text). `←` goes back to the parent.
 - `ctrl-z` / `ctrl-shift-z` undo and redo your navigation.
 - `?` previews the current item.
 
 ## Core keybindings
 
-The complete list is always available in-app (`alt-h`) or from the shell (`fs :tool show-binds`). These are the ones you'll reach for daily:
+The complete list is always available in-app (`alt-h`) or from the shell (`fs :tool showbinds`). These are the ones you'll reach for daily:
 
 | Keys | Action |
 | --- | --- |
 | `↑` / `↓` | Move the cursor |
-| `Enter` | Accept (enter directory / open file) |
+| `Enter` | **Accept** — open the item with the system opener (print it with `--alt-accept`) |
 | `←` / `→` | Parent directory / advance into the item |
 | `ctrl-z` / `ctrl-shift-z` | Undo / Redo pane history |
 | `ctrl-f` | **Find** — recursive search (fd) |
@@ -75,8 +75,8 @@ The complete list is always available in-app (`alt-h`) or from the shell (`fs :t
 | `ctrl-g` | **History** — visited folders & files |
 | `alt-enter` | **Print** the current path (scripting) |
 | `tab` | Toggle selection on the current row |
-| `ctrl-e` | **Menu** of context-aware actions |
-| `ctrl-u` | **Queue** overlay (pending copy/cut operations) |
+| `ctrl-e` / `alt-e` | **Menu** of context-aware actions |
+| `alt-u` | **Queue** overlay (pending copy/cut operations) |
 | `ctrl-x` / `ctrl-c` / `ctrl-v` | Cut / Copy / Paste |
 | `delete` / `shift-delete` | Trash / Permanently delete |
 | `ctrl-n` / `ctrl-shift-n` | New file / New directory |

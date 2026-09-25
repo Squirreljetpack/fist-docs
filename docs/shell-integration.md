@@ -56,7 +56,7 @@ The last argument decides the behavior:
 | --- | --- | --- |
 | an existing directory | — | `cd` directly |
 | `.` or `..` | `fs :: -F --style=colors --cd -- …` | Interactive picker of directories (find pane, dirs only) |
-| `./` | `fs :: -a --cd -- …` | Nav pane at the current directory |
+| `./` | `fs :: -u --cd -- …` | Nav pane at the current directory |
 | anything else | `fs :dir --sort atime --style=colors --lock-prompt=false --cd -- …` | Best match from the database, printed + `cd`; no match falls back to the interactive `fs :dir` picker |
 
 The picked path is printed by f:ist (`alt-accept` prints instead of opening) and piped back into `cd`.
@@ -123,7 +123,7 @@ Every embedded default is a flag on `fs :tool shell`:
 | --- | --- | --- |
 | `--z-name` | `z` | Jump function name |
 | `--z-dot-args` | `-F --style=colors` | Args for the `.`/`..` picker |
-| `--z-slash-args` | `-a` | Args for the `./` picker |
+| `--z-slash-args` | `-u` | Args for the `./` picker |
 | `--z-dir-args` | `--sort atime --style=colors --lock-prompt=false` | Args for the keyword jump |
 | `--nav-name` | `x` | Nav function name |
 | `--open-name` | `zz` | Open function name |

@@ -22,7 +22,7 @@ An empty command reads from standard input; otherwise `fs :custom` runs the comm
 | `--sort <sort>` | `name` `mtime` `atime` `size` `none` (see [Sorting](sorting.md)) |
 | `--cd` | Print the best match and exit |
 | `--opener <program>` | Program used to open files on accept |
-| visibility flags | `-h` / `-I` / `-a` / `-F` / `-f` (see [Visibility](visibility.md)) |
+| visibility flags | `-h` / `-H`, `-i` / `-I`, `-u` / `-U`, `-F` / `-f` (see [Visibility](visibility.md)) |
 
 ### The `--transform` hook
 

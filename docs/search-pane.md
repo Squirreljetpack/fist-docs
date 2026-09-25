@@ -20,7 +20,7 @@ The **Search** pane runs full-text search through `ripgrep`. Every result is an 
 
 ```shell
 fs :rg "TODO" -p src                    # pattern + paths
-fs :rg -i -C 2 "error" .                # case-insensitive, 2 lines of context
+fs :rg -c -C 2 "error" .                # ignore case, 2 lines of context
 fs :rg -- --glob '!vendor/**' "fix"     # anything after `--` goes to rg raw
 echo -e "src\nlib" | fs :rg "foo"       # paths can come from stdin
 ```
@@ -61,7 +61,7 @@ path_filter % context_filter
 | `--no-read` | Don't read paths from stdin |
 | `--sort <sort>` | `name` `mtime` `atime` `none` (size is not available) |
 
-In-app, the same knobs live in the options overlay (`ctrl-p`): context before/after, case, one-line, regex/fixed, and sort.
+In-app, the same knobs live in the options overlay (`ctrl-p` / `alt-p`): context before/after, case, one-line, regex/fixed, and sort.
 
 ## What rg actually runs
 

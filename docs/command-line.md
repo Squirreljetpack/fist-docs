@@ -30,7 +30,7 @@ fs :: --cd -- .            # print a picked path for `cd` (used by z)
 fs :: --list .             # print results, no TUI (see output)
 ```
 
-Key flags: `--sort` (`name` `mtime` `atime` `size` `none`), visibility (`-h`/`-I`/`-a`/`-F`/`-f`, `-A`), `-t`/`--types` (see [The find pane](find-pane.md)), `--transform`, `--cd`, `--list`, `--reset-visibility`.
+Key flags: `--sort` (`name` `mtime` `atime` `size` `none`), visibility (`-h`/`-H`, `-i`/`-I`, `-u`/`-U`, `-F`/`-f`; see [Visibility](visibility.md)), `-t`/`--types` (see [The find pane](find-pane.md)), `--transform`, `--cd`, `--list`.
 
 ## `fs :` / `:rg` — search
 
@@ -39,12 +39,12 @@ Full-text search. Patterns are positionals (`-e` in rg terms); roots come from `
 ```shell
 fs : 'fn main' -p src/      # pattern in a path
 find src -type f | fs : todo  # paths via stdin
-fs : -i 'todo'               # case-insensitive, current directory
+fs : -c 'todo'               # ignore case, current directory
 fs : -- -l '*.rs' 'TODOs'    # flags after -- go to ripgrep
 fs : --list 'fn main' -p src/   # print matches, no TUI
 ```
 
-Flags: `-p/--path`, `-i`, `-s`, `-S` (smart case), `-A/-B/-C` context, `-1` (one match per line), `--query`, `--preserve-whitespace`, `--fixed-strings`, `--filtering`, `--rebase`. See [The search pane](search-pane.md).
+Flags: `-p/--path`, `-c`/`-s`/`-S` (ignore / force / smart case), `-A/-B/-C` context, `-1` (one match per line), `--query`, `--preserve-whitespace`, `--fixed-strings`, `--filtering`, `--rebase`. See [The search pane](search-pane.md).
 
 ## `fs :dir` and `fs :file` — recents
 

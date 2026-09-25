@@ -15,7 +15,7 @@
 | `bump` | — | Maintain the history database | below |
 | `trash` | — | Trash files, follow symlink chains | below |
 | `diskspace` | `ds` | Directory size trees | below |
-| `show-binds` | — | Print the resolved keybindings | below |
+| `showbinds` | — | Print the resolved keybindings | below |
 | `check` | — | Validate configs and action scripts | below |
 
 ## `liza` — directory listings
@@ -90,7 +90,7 @@ fs :tool ds a b c            # a tree rooted at their common ancestor
 
 `-d`/`-F`/`-m` shape the tree per branch.
 
-## `show-binds` — resolved keybindings
+## `showbinds` — resolved keybindings
 
 Prints the effective keybindings: shipped defaults, your `mm.toml` `[binds]`, and the matchmaker builtins, as one list. See [Configuration](configuration.md).
 

@@ -48,7 +48,7 @@ All live in the config directory (`~/.config/fist/`).
 
 ### `[fd]` and `[rg]`
 
-Search backends (documented in [The find pane](find-pane.md) and [The search pane](search-pane.md)). Highlights: `[fd] dot_query_show_hidden`, `default_search_in_home`, `default_search_ignore`, `exclusions` — all of which shape default [visibility](visibility.md#what-adjusts-it); `[rg] base_args`, `empty_pattern`.
+Search backends (documented in [The find pane](find-pane.md) and [The search pane](search-pane.md)). Highlights: `[fd] default_search_in_home`, `default_search_ignore`, `exclusions` and `[smart_visibility] dot_query_show_hidden`, `dot_query_show_ignored`, `empty_folders` — all of which shape default [visibility](visibility.md#what-adjusts-it); `[rg] base_args`, `empty_pattern`.
 
 ### `[panes]`
 
@@ -111,7 +111,7 @@ Documented in [History & the database](history-database.md): `lambda`, `refind`,
 
 **Where do I put a custom keybinding?**
 
-`~/.config/fist/mm.toml` under `[binds]`, then check it with `fs :tool show-binds` or `fs :tool check`.
+`~/.config/fist/mm.toml` under `[binds]`, then check it with `fs :tool showbinds` or `fs :tool check`.
 
 **How do I begin configuration?**
 

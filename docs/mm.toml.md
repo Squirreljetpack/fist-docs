@@ -62,7 +62,7 @@ Some actions take an argument, written in parentheses after the name:
 To see the *fully resolved* map — every key with the action or actions it fires, defaults and your overrides merged — run:
 
 ```sh
-fs :tool show-binds
+fs :tool showbinds
 ```
 
 The in-app help (`Alt-h`) shows the same list.

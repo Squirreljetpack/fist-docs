@@ -30,15 +30,15 @@ Everything after `--` is passed to `fd` verbatim.
 
 | Flag | Meaning |
 | --- | --- |
-| `-h` / `-I` / `-a` | Show hidden / hide ignored / show all |
-| `-A`, `--no-all` | Clear the "all" visibility |
+| `-h` / `-H` | Show / hide hidden files |
+| `-i` / `-I` | Show / hide ignored files |
+| `-u` / `-U` | Show everything / clear it |
 | `-F` / `-f` | Only directories / only files |
 | `-t, --types` | Restrict by type, extension, or category |
 | `--sort <sort>` | `name` `mtime` `atime` `size` `none` |
 | `--transform <lua>` | Rewrite each entry `(path, tail) → (path, display, tail)` |
 | `--list` | Print results instead of launching the TUI |
 | `--cd` | `cd` to the best match — the backend for the `z` shell function (with keywords, prints the database's best match and exits) |
-| `--reset-visibility` | Ignore any configured default visibility |
 
 ## Types (`-t`)
 
@@ -69,23 +69,24 @@ The Find pane supports the same visibility as every filesystem pane — mode def
 | Mode | Meaning |
 | --- | --- |
 | default | Git-aware (see [Visibility](visibility.md)) |
-| `hidden` (`-h`, `ctrl-s`) | Show dotfiles |
-| `ignore` (`-I`) | Hide git-ignored files |
-| `all` (`-a`) | Show everything (`--hidden --no-ignore`) |
+| `hidden` (`-h` / `-H`, `ctrl-s`) | Show / hide dotfiles |
+| `ignore` (`-i` / `-I`) | Show / hide git-ignored files |
+| `all` (`-u` / `-U`) | Show everything (`--hidden --no-ignore`) / clear it |
 
-`--reset-visibility` ignores any configured default visibility. Dot queries and directories containing only hidden files are also covered on the [Visibility](visibility.md) page.
+Dot queries and directories containing only hidden files are also covered on the [Visibility](visibility.md) page.
 
 ## fd configuration (`[fd]` in config.toml)
 
 | Setting | Default | Meaning |
 | --- | --- | --- |
-| `dot_query_show_hidden` | `Auto` | Show hidden for `.`-queries |
 | `default_search_in_home` | `false` | Search `$HOME` when only a pattern is given |
 | `default_search_ignore` | `false` | Hide ignored files when only a pattern is given |
 | `reduce_paths` | `false` | Chdir to the common prefix of the given paths |
 | `default_args` | `[]` | Appended to every fd invocation |
 | `base_args` | `[]` | Prepended to every fd invocation |
 | `exclusions` | `{}` | Per-directory exclusion globs |
+
+Dotfile-query handling and single-hidden-file directories live under `[smart_visibility]` (`dot_query_show_hidden`, `dot_query_show_ignored`, `empty_folders`), not `[fd]` — see [Visibility](visibility.md#what-adjusts-it).
 
 `exclusions` pin per-directory ignore lists; an entry under the empty key `""` replaces the platform defaults everywhere:
 
@@ -101,14 +102,14 @@ The Find pane supports the same visibility as every filesystem pane — mode def
 For example, to list every git repository under given directories sorted by last modification, mapping each `.git` folder to its parent:
 
 ```shell
-fs -a --transform '
+fs -u --transform '
 local path, tail = ...
 local parent = path:gsub("/%.git$", "")
 if parent ~= path then
     return parent, parent:match("[^/]+$")
 end
 return path, path
-' --sort mtime $HOME/gh $SSdir '\\.git$'
+' --sort mtime $HOME/gh $SSdir '\.git$'
 ```
 
 Omitting `path` omits the row; missing `display` / `tail` keep the current values. Prefix the argument with `@` to load the script from a file.
@@ -117,7 +118,7 @@ Note: transforms run in a shared vm — but this behavior should not be relied u
 
 ## Sorting
 
-Sort with `--sort` or the options overlay (`ctrl-p`). The find pane supports `name`, `mtime`, `atime`, `size`, and `none` (insertion order). Size sorting requires metadata, which loads lazily in the background. See [Sorting](sorting.md) for the full story.
+Sort with `--sort` or the options overlay (`ctrl-p` / `alt-p`). The find pane supports `name`, `mtime`, `atime`, `size`, and `none` (insertion order). Size sorting requires metadata, which loads lazily in the background. See [Sorting](sorting.md) for the full story.
 
 ## Non-interactive use: `--list`
 

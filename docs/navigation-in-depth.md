@@ -4,17 +4,18 @@ Navigation in f:ist is a few composable concepts: the **pane stack** (undo/redo)
 
 ## Overview
 
-- **Advance** enters the current item; **parent** goes up.
+- **Advance** (`→`) enters the current item; **parent** (`←`) goes up. **Accept** (`Enter`) leaves f:ist with the item and opens it with the system opener.
 - Every move is recorded on a **pane stack**, so `ctrl-z` undoes navigation itself, not just the cursor.
 - The **query bar** filters the listing — or, when the prompt is locked, acts as an input.
 - **Visibility** and **sort** are per-pane state you control with four keys.
 
-## Advance and parent
+## Advance, parent, and accept
 
 | Action | Keys | Effect |
 | --- | --- | --- |
-| **Advance** | `→` or `Enter` | Enter a directory; open a file; enter an archive |
+| **Advance** | `→` | Enter a directory; run the `edit` preset on a file; enter an archive |
 | **Parent** | `←` | Go up one level |
+| **Accept** | `Enter` | Leave f:ist and open the current item with the system opener (`--alt-accept` prints the path instead) |
 
 Advance decides what to do from the item:
 
@@ -80,7 +81,7 @@ Visibility and sort are per-pane state — see the dedicated [Visibility](visibi
 | --- | --- |
 | `ctrl-s` | Toggle hidden files |
 | `ctrl-d` | Toggle "only directories" (in History/Apps panes: cycle sort instead) |
-| `ctrl-p` | Options overlay: visibility, sort, search context |
+| `ctrl-p` / `alt-p` | Options overlay: visibility, sort, search context |
 
 New panes inherit sensible defaults per pane type; each pane's default sort is a config value (`[panes.*] default_sort`, see [Sorting](sorting.md)), and `apply_default_sort` re-applies it when you switch to the pane.
 
@@ -109,10 +110,10 @@ For power users: `ctrl-1` … `ctrl-9` jump to and accept row 1–9 directly, an
 
 `ctrl-z` walks the pane stack backward — every pane you've visited is one undo away. `ctrl-shift-z` / `alt-z` walk forward again.
 
-**Why did `Enter` open a file instead of entering a directory?**
+**Why did `Enter` open a file in an external program instead of entering the directory?**
 
-Advance is context-aware: a directory becomes a new Nav pane, an archive becomes its contents, and any other file runs the configured `interface.advance_command` (default: `fs :tool lessfilter edit {}`). Change that command to rewire "open" behavior.
+`Enter` is **Accept**, not Advance: it exits f:ist and hands the item to the system opener (`xdg-open`), which is what makes f:ist usable as a picker for `z` and friends. To browse *inside* the pane, use **Advance** (`→`): a directory becomes a new Nav pane, an archive becomes its contents, and any other file runs the configured `interface.advance_command` (default: `fs :tool lessfilter edit {}`). Change that command to rewire in-pane "open" behavior.
 
 **What does prompt locking actually change?**
 
-Locked, your keystrokes go into the query instead of filtering the listing — so on Find and Search, pressing `ctrl-r` / `ctrl-f` drops you straight into typing the pattern, and arrow keys still move you through results. Unlocked, the query bar becomes a fuzzy filter over the current listing. `alt-space` toggles the mode at any time; `interface.prompt_locking` is the master switch.
+Locked, your keystrokes go into the query instead of filtering the listing — so on Find and Search, pressing `ctrl-r` / `ctrl-f` drops you straight into typing the pattern, and arrow keys still move you through results. Unlocked, the query bar becomes a fuzzy filter over the current listing. `alt-space` toggles the mode at any time; each pane's `[panes.*] lock_prompt` setting (`never` / `auto` / `always`) decides its starting state, and `--lock-prompt` overrides it per run.

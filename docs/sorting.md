@@ -16,7 +16,7 @@ Every pane orders its rows by a **sort order** — one of five: `name`, `mtime`,
 
 | Way | How |
 | --- | --- |
-| Options overlay | `ctrl-p` — visibility, sort order, and (in Search) context |
+| Options overlay | `ctrl-p` / `alt-p` — visibility, sort order, and (in Search) context |
 | Per command | `--sort <order>` on `fs`, `fs ::`, `fs :`, `fs :custom` |
 | Per pane default | `[panes.*] default_sort` — see below |
 

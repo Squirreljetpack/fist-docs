@@ -22,7 +22,7 @@ Panes are interchangeable once open: preview, filtering, sorting, selection, fil
 
 The directory browser — the pane you start in and the one you return to.
 
-- `Enter` accepts: directories `cd` in, files open via the [lessfilter](lessfilter.md) **edit** preset.
+- `Enter` **accepts** the row: the path goes to the system opener (or is printed with `--alt-accept`). To enter a directory or run the [lessfilter](lessfilter.md) **edit** preset, **advance** with `→`.
 - `←` / `→` go to parent / advance into the selection.
 - Sorted by **mtime** by default, configurable through `panes.nav.default_sort` (see [Sorting](sorting.md)).
 - Visibility adapts to the directory: dotfiles are shown inside git repositories, and a directory containing only hidden files shows them automatically (see [Visibility](visibility.md)).

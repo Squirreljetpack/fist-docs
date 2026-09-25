@@ -8,7 +8,7 @@ The **queue** is f:ist's task overview: a list of pending operations — file tr
 
 - `Copy` / `Cut` **enqueue** rather than act: nothing moves until you say so.
 - Menu actions with a `Queue` or `QueueBatch` strategy enqueue the same way — a queued row executes the action's Lua with `(paths, dst, nav_cwd)`.
-- The overlay (`ctrl-u`) shows every row: **kind · source · destination · progress**.
+- The overlay (`alt-u`) shows every row: **kind · source · destination · progress**.
 - `Paste` executes the built-in transfer rows; `ExecuteQueue` executes any subset by kind.
 
 ## The two-step flow
@@ -33,20 +33,20 @@ Custom kinds are how you define repeatable tasks — see [Queue strategies in me
 
 ## The overlay
 
-`ctrl-u` opens the queue. Rows that are already executing are skipped by selection actions; done/error rows can be retried.
+`alt-u` opens the queue. Rows that are already executing are skipped by selection actions; done/error rows can be retried.
 
 | Keys | Row action |
 | --- | --- |
 | `↑` / `↓` | Move |
 | `space` | Select rows |
 | `shift-↑` / `shift-↓` | Reorder (swap adjacent rows) |
-| `ctrl-e` | Edit the source (single-path rows) |
+| `ctrl-e` / `alt-e` | Edit the source (single-path rows) |
 | `ctrl-shift-r` | Edit the destination |
 | `Enter` | Execute the selected rows, or the current row |
 | `delete` | Remove the row |
 | `ctrl-z` / `ctrl-shift-z` | Cycle the transient `[kind: x]` filter |
 
-The `[kind: x]` border filter narrows the overlay to one kind (`copy`, `cut`, a custom action key, …); it resets to `All` each time the overlay opens. In the Apps pane, `ctrl-u` shows the open-with pending list instead (rows there are files to open, not operations).
+The `[kind: x]` border filter narrows the overlay to one kind (`copy`, `cut`, a custom action key, …); it resets to `All` each time the overlay opens. In the Apps pane, `alt-u` shows the open-with pending list instead (rows there are files to open, not operations).
 
 ## Progress and status
 

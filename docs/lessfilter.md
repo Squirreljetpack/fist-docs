@@ -18,7 +18,7 @@
 | `preview` | `p` | `?`, the preview pane | Same, in the preview split |
 | `extended` | `x` | `la` alias, `alt-l` | Paged, interactive (header + content) |
 | `info` | `i` | `ll` alias, `alt-i` / `alt-/` | Metadata (mediainfo for media, `liza :l` + metadata otherwise) |
-| `edit` | `e` | `Enter` (advance), `alt-n` | Open in your editor (`$EDITOR`, line/column aware) |
+| `edit` | `e` | `→` (advance), `alt-n`, `zz` | Open in your editor (`$EDITOR`, line/column aware) |
 | `open` | `o` | `ctrl-enter`, `alt-o`, `zz` | Open with the system handler (`fs :open`) |
 | `alternate` | — | `alt-8` | Free preset — your own rules |
 | `alternate2` | — | (unbound) | Free preset |

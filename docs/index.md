@@ -244,19 +244,20 @@ Everything in f:ist happens inside a **pane** — a filterable, sortable, previe
 - **Find**, **Search**, **History**, **Apps**, **Stash** and **Custom** panes produce lists from different sources (`fd`, `ripgrep`, the history database, your app registry, a stash, or any command's output).
 - `Undo` / `Redo` (<kbd>ctrl-z</kbd> / <kbd>ctrl-shift-z</kbd>) walk back and forth through your pane history. There is no way to get lost.
 - The **queue** holds pending file operations (copy/cut/paste).
-- The **menu** (<kbd>ctrl-e</kbd>) exposes context-aware actions for the current selection.
+- The **menu** (<kbd>ctrl-e</kbd>/<kbd>alt-e</kbd>) exposes context-aware actions for the current selection.
 
-You rarely switch "modes". Instead you *filter what you see* (type to fuzzy-match, <kbd>ctrl-s</kbd> to show hidden files, <kbd>ctrl-d</kbd> to show only directories) and *act* on the result with one or two keys.
+You rarely switch "modes". Instead you *filter what you see* (type to fuzzy-match, <kbd>ctrl-s</kbd> to show hidden files, <kbd>ctrl-d</kbd> to cycle the directories-only / files-only filter) and *act* on the result with one or two keys.
 
 ## Quick keybinding cheat sheet
 
 | Shortcut | Action | Scope |
 | --- | --- | --- |
-| <kbd>Enter</kbd> | Accept item (cd directory / open file) | Everywhere |
+| <kbd>Enter</kbd> | **Accept** — open the item with the system opener | Everywhere |
+| <kbd>→</kbd> / <kbd>←</kbd> | **Advance** into the item / go to the **parent** | Everywhere |
 | <kbd>ctrl-f</kbd> | Open Find pane (`fd` recursive filename search) | Everywhere |
 | <kbd>ctrl-r</kbd> | Open Search pane (`rg` full-text search) | Everywhere |
 | <kbd>ctrl-g</kbd> | Open History pane (recents database) | Everywhere |
-| <kbd>ctrl-e</kbd> | Open Context Menu (actions & tools) | Everywhere |
+| <kbd>ctrl-e</kbd>/<kbd>alt-e</kbd> | Open Context Menu (actions & tools) | Everywhere |
 | <kbd>ctrl-z</kbd> / <kbd>ctrl-shift-z</kbd> | Undo / Redo pane navigation | Everywhere |
 | <kbd>?</kbd> | Toggle file preview | Everywhere |
 | <kbd>alt-h</kbd> | In-app keybinding help | Everywhere |
@@ -266,6 +267,6 @@ You rarely switch "modes". Instead you *filter what you see* (type to fuzzy-matc
     <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>
   </div>
   <div class="linear-callout-content">
-    <strong>Need full reference?</strong> Run <code>fs :tool show-binds</code> from your shell or check the <a href="./menu-actions">menu actions</a> chapter for Lua action schemas.
+    <strong>Need full reference?</strong> Run <code>fs :tool showbinds</code> from your shell or check the <a href="./menu-actions">menu actions</a> chapter for Lua action schemas.
   </div>
 </div>
