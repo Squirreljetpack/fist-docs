@@ -387,6 +387,11 @@ kbd,
   box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2);
 }
 
+.vp-doc video {
+  width: 100%;
+  aspect-ratio: 5 / 3;
+}
+
 /* --- Custom Admonitions / Callouts --------------------------------------- */
 
 .vp-doc .custom-block {
@@ -562,7 +567,7 @@ kbd,
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
   gap: 16px;
-  margin: 28px 0 40px 0;
+  margin: 20px 0 40px 0;
 }
 
 .linear-section-card {
@@ -605,6 +610,7 @@ kbd,
   height: 15px;
 }
 
+.vp-doc h3.linear-section-title,
 .linear-section-title {
   font-size: 16px;
   font-weight: 600;

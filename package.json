@@ -9,7 +9,8 @@
     "build": "vitepress build docs",
     "preview": "vitepress preview docs",
     "icons": "node scripts/generate-icons.js",
-    "generate-icons": "node scripts/generate-icons.js"
+    "generate-icons": "node scripts/generate-icons.js",
+    "sync-clips": "python3 scripts/sync-clips.py"
   },
   "devDependencies": {
     "vitepress": "^1.6.4"

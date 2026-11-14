@@ -3,18 +3,6 @@
 f:st (`fs`) is a file manager that runs in your terminal, built around composable panes, asynchronous previews and transfers, and declarative TOML and Lua configuration.
 
 ![Size-sorted file list filtered to images, with a photo preview](./images/splash.png)
-
-```shell
-curl -fsSL https://raw.githubusercontent.com/Squirreljetpack/fist/main/install.sh | sh
-```
-
-Start with [Getting started](./getting-started) for dependencies, package managers, shell integration, and a first-run tour.
-
-- **The pane as the primitive** — directory listings, recursive file searches, full-text matches, visit history, stashes, applications, and custom command streams all share one pane stack and one set of keys.
-- **Everything async and toasted** — directory walks, size calculation, previews, and queued file transfers run off the UI thread and report status through footer toasts.
-- **Config-first** — panes, previews, lessfilter presets, menu actions, and transfer behavior live in plain TOML and Lua under `~/.config/fist`.
-- **The matchmaker bind engine** — keys, mouse events, and lifecycle triggers map to composable bind action sequences scoped by pane or prompt state.
-
 ## Browse by topic
 
 <div class="linear-sections-grid">
