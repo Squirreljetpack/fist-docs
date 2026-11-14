@@ -50,5 +50,3 @@ Configure App pane defaults under `[panes.app]` in [config.toml](./configuration
 | `app_scan_directories` | `[]` | Extra directories scanned for desktop applications |
 
 Common pane keys (`prompt`, `prompt_style`, `show_preview`, `lock_prompt`, `preview_layout_index`) also apply. Styling for the `To open:` overlay lives under `[app]` in [mm.toml](./mm.toml#queue-and-app-views).
-
-Next: [History database](./history-database) · [Panes](./panes) · [config.toml](./configuration)

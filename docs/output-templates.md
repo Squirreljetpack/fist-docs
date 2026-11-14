@@ -131,5 +131,3 @@ Each element is passed directly in `argv` without a shell, so `{}` expands to th
 - Standard C escapes (`\n`, `\t`, `\r`, `\0`, `\"`, `\\`) are decoded outside and inside templates.
 - Unmatched braces, nested braces, and unrecognized bodies (`{foo}`, `{a:b}`) are emitted verbatim so typos remain visible.
 - Status lines, footers, and help headers use matchmaker display templates (`\m`, `\t`, `{red:text}`), not output templates; see [mm.toml](./mm.toml).
-
-Next: [Command line](./command-line) · [lessfilter](./lessfilter) · [mm.toml](./mm.toml)

@@ -77,5 +77,3 @@ Stashes are f:st's primary tool for operations that span multiple directories:
 
 - **Multi-directory archiving, diffing, or conversion** — navigate across several directories, mark files with `tab` and press `alt-s` in each directory, then press `alt-s` with nothing selected to open the stash, press `ctrl-a` to select all stashed rows, and run `compress: zip` or `diff` from `alt-e`.
 - **Staging transfers** — collect paths into a stash while browsing, open the stash to review or prune the list, cut or copy the subset you want (`ctrl-x` / `ctrl-c`), back out to your destination directory, and press `ctrl-v` to dispatch the transfer.
-
-Next: [History database](./history-database) · [Menu actions](./menu-actions) · [Queue](./queue)

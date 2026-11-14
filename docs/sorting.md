@@ -67,5 +67,3 @@ Each pane configures its initial soft sort via `default_sort` under `[panes.<nam
 | `custom`, `stashes` | `"none"` |
 
 When you open History (`ctrl-g`) or the App pane from another pane and then back out, the previous pane keeps its own sort order rather than inheriting the database pane's sort.
-
-Next: [Visibility](./visibility) · [Panes](./panes) · [config.toml](./configuration)

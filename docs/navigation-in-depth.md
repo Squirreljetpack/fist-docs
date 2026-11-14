@@ -20,7 +20,7 @@ Pressing `Advance` (`right`) on a supported archive (`.zip`, `.tar`, `.tar.gz`, 
 
 While browsing inside an archive, all read and copy operations work as normal. Pressing `Parent` (`left`) at the top of the archive returns directly to the directory containing the archive file (unless `[interface] allow_enter_unzip_directory = true` is set in `config.toml`). Temporary extraction directories live under the process temp directory and are cleaned up automatically when `fs` exits.
 
-In contrast, pressing `Advance` on an active mount point—or running the `Extract` action explicitly—opens the mount overlay rather than entering transparently; see [Mount pane](./mount-pane).
+In contrast, pressing `Advance` on an active mount point—or running the `Extract` action explicitly—opens the mount overlay rather than entering transparently.
 
 ## Changing directory
 
@@ -61,9 +61,9 @@ Two bind actions provide direct positional or bookmark jumps:
 
 f:st records visits to the [history database](./history-database) selectively so transient browsing does not pollute frecency rankings:
 
-- **Recorded as visits**: entering a directory with `Advance`, accepting or editing a file, launching an application from the App pane, and (when enabled in `[interface]`) running menu actions or completing queue transfers.
-- **Not recorded**: walking up with `Parent` (`left`), stepping through `Undo`/`Redo`, or previewing rows.
-- **Locked-prompt actions**: accepting or running an action while the cursor is disabled in the prompt records the visit against the prompt's working directory.
+- **Recorded as visits**: entering a directory with `Advance`, accepting or printing a file or directory, launching an application from the App pane, running a tracked [lessfilter](./lessfilter) preset or execute command, and—when enabled—running custom menu actions (`[interface] bump_menu_action_paths = true`) or completing queue transfers (`[interface] bump_transfer_destinations = true`).
+- **Not recorded**: walking up with `Parent` (`left`), stepping through `Undo`/`Redo`, previewing rows, or enqueuing `Copy`/`Move` transfers (unless `bump_transfer_destinations` is enabled for completed destinations).
+- **Prompt-focused actions**: when the prompt is focused on the pane's directory, the active item points to that directory rather than a result row. Accepting or printing (`enter` / `alt-enter`), running execute commands, or running menu actions (when `bump_menu_action_paths = true`) therefore targets—and records any resulting visit against—the pane's working directory.
 - **Exclusions**: any path matching `[history] exclude` or outside `[history] base_dir` is silently dropped.
 
 ## Selection cycling and the prompt
@@ -84,17 +84,19 @@ While the prompt is locked:
 - `left` and `right` swap roles with `shift-left` and `shift-right`, so bare `left`/`right` move the text caret and `shift-left`/`shift-right` run `Parent`/`Advance`.
 - On macOS, `cmd-backspace` deletes a word in the query instead of trashing the highlighted row.
 
-Entering the prompt with `up` at row `0` (`in_prompt`) automatically enables `locked_prompt`. You can also toggle the lock manually at any time with `ctrl-space` or `alt-hyphen`, or press `alt-space` (`JumpOrAccept(prompt)`) to jump to and accept the locked working directory.
+Focusing the prompt (e.g. with `up` at row `0`) automatically enables prompt locking (`locked_prompt`). You can also toggle prompt locking manually at any time with `ctrl-space` or `alt-hyphen` (which also unfocuses the prompt if it is currently focused). For quick-accepting the pane's working directory, press `alt-space` (`JumpOrAccept(0)`): the first press focuses the prompt, and pressing it again while focused accepts the directory.
 
 Prompt locking is defined entirely by the `locked_prompt^^...` bindings block in `~/.config/fist/mm.toml`; deleting that block disables the role swap. You can control automatic locking on pane entry with `--lock-prompt` (`never`, `auto`, `always`) on the CLI or `lock_prompt` under `[panes.<name>]` in [config.toml](./configuration).
 
-## Cwd prompt and the cursor-disabled state
+## Prompt focus (cwd prompt)
 
-When you press `up` at the first row to enter the prompt, the results cursor is disabled and the query bar prefix switches to `[interface] cwd_prompt` (default `"{=} "`, showing the current working directory with `~` collapsed). In this state:
+Unlike toggling prompt locking alone (`ctrl-space` / `alt-hyphen`), moving past the top of the results list (`up` at row `0`, or `down` at the last row in reverse mode) or pressing `alt-space` (`JumpOrAccept(0)`) **focuses the prompt** (in any pane with a working directory—i.e., not the App pane). This locks the prompt and switches the query bar prefix to `[interface] cwd_prompt` (default `"{=} "`, showing the current working directory with `~` collapsed).
 
-- Builtin actions (`Copy`, `Move`, `Open`, `Print`, `PushStash`) and menu actions with `selected = "cwd"` or `"active"` target the pane's current working directory itself.
-- If `[interface] hide_preview_when_cursor_disabled = true`, the preview pane hides until you leave the prompt.
-- Pressing `down` (or `ctrl-space` / `alt-hyphen`) returns focus to the first row in the results list.
+While the prompt is focused, the **active item points to the pane's directory** rather than a row in the results list:
+
+- Accepting (`enter`), printing (`alt-enter`), builtin actions (`Copy`, `Move`, `Print`, `PushStash`, `Stash` when nothing is selected), execute bindings, and menu actions with `selected = "cwd"` or `"active"` all target the pane's working directory itself.
+- If `[interface] hide_preview_when_cursor_disabled = true`, the preview pane hides while the prompt is focused.
+- Pressing `down` (or `ctrl-space` / `alt-hyphen`) unfocuses the prompt and returns focus to the results list.
 
 ## Per-pane defaults
 
@@ -120,5 +122,3 @@ When the filesystem watcher or a manual reload (`f5` / `ctrl-r`) repopulates the
 ## Mouse and scrolling
 
 Scrolling the mouse wheel over the results table moves the cursor via `MouseScrollUp` and `MouseScrollDown`; scrolling over the preview pane scrolls the preview content via `PreviewScrollUp` and `PreviewScrollDown`. Both triggers respect `[tui] scroll_debounce_ms` in `mm.toml` so high-resolution trackpads do not flood the event loop.
-
-Next: [Panes](./panes) · [Visibility](./visibility) · [Sorting](./sorting)

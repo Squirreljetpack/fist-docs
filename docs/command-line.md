@@ -30,7 +30,7 @@ Where the query sits depends on the subcommand:
 
 | Subcommand | Aliases | Opens or runs |
 | --- | --- | --- |
-| *(none)*, `:fd` | `::` | [Nav pane](./panes#built-in-panes) when given no search arguments; [Find pane](./find-pane) otherwise |
+| *(none)*, `:fd` | `::` | [Nav pane](./panes#pane-kinds-and-overlays) when given no search arguments; [Find pane](./find-pane) otherwise |
 | `:rg` | `:` | [Search pane](./search-pane) (full-text search) |
 | `:custom` | `:c` | [Custom pane](./custom-pane) (command stdout or piped stdin) |
 | `:dir` | — | [Folders history pane](./history-database#history-panes) |
@@ -43,8 +43,18 @@ Run `fs --help` or `fs <subcommand> --help` for the complete flag reference of e
 
 ## Finding and searching
 
-- **`fs :: [PATHS]... [PATTERN] [-- FD_ARGS]`** — searches paths recursively. Narrow results by file type, extension, or category with `-t` (`-t f`, `-t .rs`, `-t image`), transform rows with `--transform <LUA>`, or start a query with `.` to reveal dotfiles automatically. See [Find pane](./find-pane).
-- **`fs : [PATTERNS]... [-- RG_ARGS]`** — searches file contents. Restrict target paths with `-p` / `--path`, set case sensitivity (`-S` smart, `-s` sensitive, `-c` ignore) and context (`-A`, `-B`, `-C`), toggle one-line vs stacked matches with `--one-line` (`-1`), switch to literal matching with `--fixed-strings`, keep spaces in a single pattern with `--preserve-whitespace`, rebase the working directory to the common parent with `--rebase`, or start in filter mode with `--filtering`. See [Search pane](./search-pane).
+### `fs :: [PATHS]... [PATTERN] [-- FD_ARGS]` ([Find pane](./find-pane))
+
+- **Type and category filters (`-t`)** — narrow results by file type (`-t f`, `-t d`), extension (`-t .rs`), or category (`-t image`).
+- **Dot-queries** — starting a query with `.` reveals dotfiles automatically.
+- **Row transforms (`--transform <LUA>`)** — filter or rewrite rows as they stream in.
+
+### `fs : [PATTERNS]... [-- RG_ARGS]` ([Search pane](./search-pane))
+
+- **Target paths (`-p` / `--path`, `--rebase`)** — restrict search roots, or pass `--rebase` to anchor the working directory at their deepest common parent.
+- **Matching (`-S` / `-s` / `-c`, `--fixed-strings`, `--preserve-whitespace`)** — set smart, sensitive, or ignored case; match literal strings; or keep spaces in a single pattern without quoting.
+- **Layout and context (`--one-line` / `-1`, `-A`, `-B`, `-C`)** — switch between one row per match line and stacked per-file blocks, or include surrounding context lines.
+- **Initial mode (`--filtering`)** — start directly in fuzzy filter mode instead of live query mode.
 
 ## Streams and stdin
 
@@ -113,8 +123,6 @@ Files on disk follow platform conventions (with `~/.config/fist` preferred on al
 | Location | Default path (Linux) | Contents |
 | --- | --- | --- |
 | Config directory | `~/.config/fist` | `config.toml`, `mm.toml`, `lessfilter.toml`, `pager.toml`, `actions.toml`, `actions/` |
-| State directory | `~/.local/state/fist` | `record.db` (`dev.db` in debug builds), `fist.log`, `tools.log` |
+| State directory | `~/.local/state/fist` | `record.db`, `fist.log`, `tools.log` |
 | Cache directory | `~/.cache/fist` | Cached data and optional shell init script |
 | Temp directory | `$TMPDIR/fist/<pid>-<nanos>` | Per-process archive extractions and converted application icons (cleaned on exit) |
-
-Next: [Tools](./tools) · [Output templates](./output-templates) · [Shell integration](./shell-integration)

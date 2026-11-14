@@ -1,16 +1,6 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128" width="128" height="128" fill="none">
-  <style>
-    .bg { fill: #f4f5f6; }
-    .fg-stroke { stroke: #111318; }
-    .fg-fill { fill: #111318; }
-    @media (prefers-color-scheme: dark) {
-      .bg { fill: #161616; }
-      .fg-stroke { stroke: #e0e0e0; }
-      .fg-fill { fill: #e0e0e0; }
-    }
-  </style>
-  <circle class="bg" cx="64" cy="64" r="62"/>
-  <circle class="fg-stroke" cx="64" cy="64" r="46" stroke-width="8"/>
-  <circle class="fg-fill" cx="64" cy="48" r="8"/>
-  <circle class="fg-fill" cx="64" cy="80" r="8"/>
+  <circle cx="64" cy="64" r="62" fill="#f4f5f6"/>
+  <circle cx="64" cy="64" r="46" stroke="#111318" stroke-width="8"/>
+  <circle cx="64" cy="48" r="8" fill="#111318"/>
+  <circle cx="64" cy="80" r="8" fill="#111318"/>
 </svg>

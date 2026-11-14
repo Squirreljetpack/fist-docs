@@ -1,198 +1,164 @@
 # Queue
 
-The queue stages file transfers (`copy`, `move`, `symlink`), archive extractions (`extract`), and queued [menu actions](./menu-actions) as inspectable rows and executes them asynchronously in the background.
-
-## The queue and why it exists
-
-Pressing `ctrl-c` or `ctrl-x` on a file does not touch the disk immediately. Instead, f:st adds a **pending** row to the queue so you can gather files from several panes or directories, inspect or edit their destinations in the Queue overlay (`alt-u`), and dispatch them together when you reach the target directory.
-
-Dispatched rows execute asynchronously in the background.
+The queue separates *choosing* files from *acting* on them. You can mark files in one directory, navigate across panes to pick a destination—or collect paths from Find, Search, and Stash panes—review or edit every target before anything touches disk, and dispatch transfers and long-running [menu actions](./menu-actions) into parallel background workers without blocking navigation.
 
 ## The queue overlay
 
-Press `alt-u` (`ShowQueue`) from any pane to open the Queue overlay, and press `q` or `esc` to close it:
+Press `alt-u` (`ShowQueue`) from any pane to open the queue overlay. Press `q`, `esc`, or `alt-u` to close it, and `alt-h` to open the overlay's contextual help in the [pager](./pager) with your active keybindings filled in.
 
 <video controls preload="none" poster="./images/queue.png" src="./images/queue.mp4"></video>
 
-- Opening the overlay validates every pending row and marks any row whose source path no longer exists on disk in light red.
-- Pressing `alt-h` inside the overlay opens the queue help document in the pager with your active keybindings substituted in.
-- When you press `alt-u` inside the **App** pane, f:st opens the pending-files variant instead, listing the file paths staged to be passed to the chosen application under a single `To open:` column.
+Inside the [App pane](./app), `alt-u` opens the pending-files view instead: a single-column list of files staged to open with a desktop application.
 
 ## The overlay layout
 
-In the shared queue view, each row renders four columns:
+The overlay displays a four-column table with a `[kind: All]` filter indicator in the top border:
 
 | Column | Content |
 | --- | --- |
-| `Kind` | Executor kind (`copy`, `move`, `symlink`, `extract`, or menu-action key) |
-| `Source` | Source path with `~` collapsed, or `[n items]` for multi-path rows |
-| `To` | Target destination path (empty until edited or dispatched) |
-| `Progress` | File size while pending (`-` for multi-path rows), or live progress gauge while running |
+| `Kind` | Builtin kind (`copy`, `move`, `symlink`, `none`, `extract`) or menu action key |
+| `Source` | Shortened source path, or `[n items]` when a row holds multiple paths |
+| `To` | Explicit destination path or directory, or blank when resolved at dispatch |
+| `Progress` | File size while pending or finished, or a live `0%`–`100%` gauge while running |
 
-Row state is reflected by the color of the `Progress` column:
-
-| State | Appearance |
-| --- | --- |
-| Pending | Default text style showing human-readable byte size |
-| Running | Live progress gauge (`0%`–`100%`) |
-| Completed (`CompleteOk`) | Green |
-| Invalid pending (`PendingErr`) | Light red (missing source or skipped self-move) |
-| Failed (`CompleteErr`) | Red |
-
-The overlay frame title displays the active kind filter (`[kind: All]` by default), which resets to `All` whenever the overlay is reopened. Border, spacing, and row styles are configured under `[queue]` and `[app]` in [mm.toml](./mm.toml#queue-and-app-views).
+Color in the `Progress` column reflects row state: default while pending, light red when blocked before launch (such as a missing source path or an identity move), a live gauge while running, green after success, and red on failure.
 
 ## Row kinds
 
-Every row has a `kind` string that selects its executor:
+Each queued row carries a `kind` that decides both what runs and how multiple paths are grouped:
 
-| Kind | Executor |
-| --- | --- |
-| `copy` | Parallel file and directory tree copy (`[queue.copy]`) |
-| `move` | Atomic rename on the same filesystem, or parallel copy + source cleanup across filesystems (`[queue.move]`) |
-| `symlink` | Symbolic link creation pointing to the source path |
-| `extract` | Background archive extraction into a target directory |
-| `none` | Built-in no-op kind that completes immediately on dispatch |
-| `<action-key>` | Custom [menu action](./menu-actions) executed in Lua with `(paths, to, nav_cwd)` |
+- **Builtin transfer kinds (`copy`, `move`, `symlink`)** enqueue one row per path. Re-queuing the same path under the same pending builtin kind replaces the earlier pending row and moves it to the end of the queue.
+- **`none`** enqueues one row per path as a no-op marker that completes immediately when dispatched.
+- **`extract`** tracks an in-flight preview extraction of an archive; these rows start immediately and have no pending phase.
+- **Custom menu-action kinds** use the action's key from `actions.toml` or `actions/`. Depending on the action's `strategy`, targets stay grouped into a single multi-path row (`Queue`, `Enqueue`) or split into fixed-size chunks (`QueueBatch`).
 
 ## Enqueuing rows
 
-Rows enter the queue from keybindings or from the action menu (`alt-e`):
+Use `ctrl-c` (`Copy`) and `ctrl-x` (`Move`) to queue marked selections—or the cursor row when nothing is marked—under `copy` and `move`. When the prompt is focused on a directory, `Copy` and `Move` queue the pane's working directory instead.
 
-- **`Copy` (`ctrl-c`), `Move` (`ctrl-x`), and menu `Copy` / `Move` / `Symlink`** — enqueue the selected rows (or the working directory when the cursor is disabled in the prompt) under `copy`, `move`, or `symlink`.
-- **`Enqueue(kind)`** — bind action in [mm.toml](./mm.toml) that enqueues the active targets under any built-in kind or custom menu-action key (after verifying the action's conditions).
-- **Menu strategies (`Queue`, `QueueBatch(n)`, `Enqueue`)** — `Queue` enqueues all targets as a single multi-path row; `QueueBatch(n)` splits targets into rows of at most `n` paths each; `Enqueue` enqueues a single row and dispatches it immediately.
-
-Built-in kinds (`copy`, `move`, `symlink`, `none`) create **one row per path**. Re-enqueuing a path that already has a pending row of the same built-in kind replaces the existing row and moves it to the end of the queue with a cleared destination. Custom action kinds create **one multi-path row** per invocation without deduplicating against earlier rows.
+You can also queue `copy`, `move`, `symlink`, and any `Queue` or `QueueBatch` custom action from the [context menu](./menu-actions) (`alt-e`), or bind `Enqueue(<kind>)` in [mm.toml](./mm.toml#binds) to queue directly with a single keystroke.
 
 ## Executing and pasting
 
-Rows can be dispatched from inside the Queue overlay or directly from a pane:
+Two workflows drain the queue: pasting into where you are now, or dispatching rows individually from the overlay.
 
 <video controls preload="none" poster="./images/move.png" src="./images/move.mp4"></video>
 
-- **`Enter` in the Queue overlay** — dispatches all marked (`tab`) rows in the overlay, or the cursor row when nothing is marked.
-- **Destination resolution** — for `copy`, `move`, and `symlink`, the destination resolves at dispatch time against the active Nav pane's working directory:
-  - An empty `To` cell or a path ending in `/` places the item **inside** that directory using the source's file name.
-  - A path without a trailing `/` is used as the exact target path (renaming the top-level entry).
-- **Missing destinations** — if a row requires a destination (`copy`, `move`, `symlink`, or a custom action with `requires_dest = true`) and neither `To` nor a Nav working directory is available, the row remains pending.
-- **Re-running completed rows** — pressing `Enter` on a completed or failed row in the overlay dispatches it again using its stored `To` path.
-- **`Paste` (`ctrl-v`)** — equivalent to `ExecuteQueue(builtins)`, dispatching all pending `copy`, `move`, and `symlink` rows into the current Nav directory without opening the overlay.
+- **Paste (`ctrl-v`)** dispatches all pending `copy`, `move`, and `symlink` rows into the active [Nav pane's](./navigation-in-depth) directory (or into an explicit path when bound as `Paste(/abs/path)`).
+- **`ExecuteQueue([selector])`** dispatches pending rows matching a selector into the active Nav directory.
+- **Overlay dispatch (`enter`)** runs the marked rows—or the highlighted row—inside the queue overlay. Unlike bulk selectors, pressing `enter` in the overlay can also re-run a finished, failed, or previously blocked row as long as it is not currently running.
+
+When a `copy`, `move`, or `symlink` row is dispatched, its `To` cell controls the concrete destination:
+
+- **Blank `To`**: pastes into the Nav pane's working directory under the source's file name. Without a Nav pane (for example in Find or History), rows with a blank `To` stay pending.
+- **Trailing separator (`dir/` or `../out/`)**: treated as a directory to paste into, appending the source's file name (relative paths resolve against the Nav directory).
+- **Name without trailing separator (`report-v2.pdf`)**: treated as the literal destination path (relative paths resolve against the Nav directory), letting you rename on paste.
+
+Moves and symlinks whose resolved destination equals the source path are marked blocked and skipped. Copies onto themselves still reach the transfer engine so your root strategy (by default `Rename`) duplicates the file instead.
+
+Custom [menu actions](./menu-actions) do not fill an empty `To` from the Nav directory; `To` is passed to the script verbatim as `to`. Actions marked `requires_dest = true` stay pending unless `To` is populated.
 
 ## Selectors
 
-`ExecuteQueue(selector)` and `ClearQueue(selector)` accept a selector argument (defaulting to `all` when omitted):
+`ExecuteQueue([selector])` and `ClearQueue([selector])` accept a selector argument (`all` by default):
 
-| Selector | Target rows | Missing-destination behavior |
-| --- | --- | --- |
-| `all` | Every pending row | Silently skips rows missing a destination |
-| `builtins` | Pending `copy`, `move`, and `symlink` rows | Silently skips rows missing a destination |
-| `first` | First pending row in the queue | Emits an error toast if its destination is missing |
-| `last` | Last pending row in the queue | Emits an error toast if its destination is missing |
-| `<kind>` | Pending rows of exact kind `<kind>` | Emits an error toast if any matching row is missing a destination |
+| Selector | Matches |
+| --- | --- |
+| `all` | All pending rows whose destinations are satisfied |
+| `builtins` | Pending `copy`, `move`, and `symlink` rows whose destinations are satisfied |
+| `first` | The first pending row |
+| `last` | The last pending row |
+| `<kind>` | Pending rows matching an exact kind (`copy`, `move`, `symlink`, `none`, or an action key) |
 
-`ClearQueue(selector)` (`alt-shift-u` by default for `all`) prompts for confirmation (`Clear the queue?`) before dropping matching pending rows.
+`all` and `builtins` silently skip rows that still need a destination (such as builtin transfers dispatched outside a Nav pane with a blank `To`, or `requires_dest` menu actions with a blank `To`). `first`, `last`, and exact `<kind>` selectors refuse to dispatch if any matched row is missing a destination. Reserved selector spellings (`all`, `builtins`, `first`, `last`) are case-insensitive; custom action keys match exact case.
 
 ## Editing rows
 
-Inside the Queue overlay, you can edit a row's source or destination in place before (or after) running it:
+Inside the queue overlay, you can adjust paths before dispatching a row:
 
 <video controls preload="none" poster="./images/queue-edit.png" src="./images/queue-edit.mp4"></video>
 
-- **Edit source (`alt-e` / `ctrl-e`, `ShowMenu`)** — opens an in-cell editor on the `Source` column for an existing path on disk. Editing the source is refused on running rows and on multi-path (`[n items]`) rows.
-- **Edit destination (`f2`, `Rename`)** — opens an in-cell editor on the `To` column for any non-running row (including multi-path and completed rows). Relative paths entered here resolve against the Nav working directory when the row is dispatched.
+- **`alt-e` or `ctrl-e` (`ShowMenu`)** edits the `Source` cell of a single-path row (verified to exist on disk when confirmed; multi-path rows do not support `Source` editing).
+- **`f2` or `ctrl-shift-r` (`Rename`)** edits the `To` cell.
 
-## Removing, reordering, filtering
+Rows that are currently running—including active `extract` rows—cannot be edited.
 
-- **Cancel or remove (`delete`, `shift-delete`, `backspace`)** — on a running `copy`, `move`, or `extract` row, signals the transfer engine to cancel the task; on any pending, completed, or failed row, removes the row from the queue immediately.
-- **Reorder (`shift-up` / `shift-down`)** — moves the cursor row up or down in the queue.
-- **Filter by kind (`ctrl-z` / `alt-z`, `Undo` / `Redo`)** — cycles the overlay's `[kind: ...]` filter through `All` and each distinct kind currently present in the queue.
+## Removing, reordering, and filtering
 
-## Clearing completed rows
+- **Reorder (`shift-up` / `shift-down`)** swaps the highlighted row up or down in the queue.
+- **Cancel or remove (`delete`, `shift-delete`, `backspace`)** cancels an active transfer or extraction, or removes a pending or finished row. Running Lua menu-action rows cannot be canceled mid-script.
+- **Bulk clear (`alt-shift-u` / `ClearQueue`)** opens a confirmation prompt and removes pending and blocked rows matching the selector.
+- **Filter by kind (`ctrl-z` / `alt-z`)** cycles `[kind: ...]` across `All` and each distinct kind present in the queue. The filter resets to `All` when the overlay closes.
 
 <video controls preload="none" poster="./images/queue-complete.png" src="./images/queue-complete.mp4"></video>
 
-- **`[queue] clear_completed_on_close`** in [config.toml](./configuration#queue) — when `false` (default), closing the Queue overlay automatically removes all completed and failed rows; set `true` to keep completed rows across overlay closes so you can inspect or re-run them.
-- **Bulk clear (`alt-shift-u`, `ClearQueue`)** — removes matching `Pending` and `PendingErr` rows (including rows flagged with missing sources or skipped self-moves) while leaving running and completed rows untouched.
+- **Completed rows (`clear_completed_on_close`)**: by default, `clear_completed_on_close` in [config.toml](./configuration#queue) is `false`, so completed rows clear automatically when you close the queue overlay. Set `clear_completed_on_close = true` to keep finished rows across overlay closes so you can inspect results or re-run a row with `enter`.
 
 ## Progress and the status line
 
-Active transfers compute a byte-weighted completion percentage across each task's tree (falling back to file counts for zero-byte trees).
+Active transfers and extractions update the `Progress` column with a live percentage gauge (`0%`–`100%`) computed from transferred bytes. Custom Lua actions on the queue can drive the same gauge by calling `set_progress(0..255)`. Multi-path rows display `-` instead of a byte size while pending or finished, completion and failure statuses report through footer toasts, and background archive extractions show a persistent `Extracting: <name>` status toast until finished.
 
 <video controls preload="none" poster="./images/long-copy.png" src="./images/long-copy.mp4"></video>
 
-While transfers run:
-
-- Each active row in `alt-u` renders a live progress gauge (custom Lua actions can drive the same gauge with `set_progress(0..255)`).
-- Completion and failure statuses report through footer toasts.
-- Background archive extractions display a persistent `Extracting: <name>` status toast until finished.
-
 ## Configuration
 
-`[queue]`, `[queue.copy]`, and `[queue.move]` in [config.toml](./configuration#queue) configure the transfer engine:
+Transfer behavior lives under `[queue]` in [config.toml](./configuration#queue): `clear_completed_on_close` controls whether finished rows survive closing the overlay, while `[queue.copy]` and `[queue.move]` each configure `workers`, `preserve_metadata`, `reflink`, `conflict`, `root`, and `buffer_size`.
 
-```toml
-[queue]
-clear_completed_on_close = false
-
-[queue.copy]
-workers = 8
-preserve_metadata = true
-reflink = "Auto"
-conflict = "Overwrite"
-root = "Rename"
-buffer_size = 524288
-```
-
-`[queue.move]` accepts the exact same `TransferParams` keys (`workers`, `preserve_metadata`, `reflink`, `conflict`, `root`, `buffer_size`).
+Visual styling for the overlay (`frame`, `column_spacing`, and row/editing styles) lives under `[queue]` in [mm.toml](./mm.toml#queue-and-app-views).
 
 ## Conflict and root strategies
 
-f:st separates top-level destination collisions from collisions inside a merged directory tree:
+Transfers handle collisions in two stages: first when claiming the top-level destination (`root`), and then when writing entries inside a copied or merged directory (`conflict`).
 
-| `root` (`RootStrategy`) | Effect when the top-level destination path already exists |
+### Top-level destination (`root`)
+
+Checked once when a `copy` or `move` starts against an existing target:
+
+| `root` | File target exists | Directory target exists |
+| --- | --- | --- |
+| `"Rename"` *(default)* | Duplicates as `name_1.ext`, `name_2.ext`, … | Duplicates as `dir_1/`, `dir_2/`, … |
+| `"Merge"` | Skipped | Keeps directory and merges entries using `conflict` |
+| `"Overwrite"` | Replaces file contents | Empties existing directory before copying into it |
+| `"Fail"` | Fails immediately | Fails immediately |
+
+> [!WARNING]
+> Setting `root = "Overwrite"` clears an existing destination directory's contents before the transfer begins. If the transfer is canceled or fails midway, the original directory contents cannot be recovered.
+
+Same-filesystem moves attempt an atomic rename when possible before falling back to a full copy-and-remove across devices. Copying or moving a directory into itself is always rejected.
+
+### Nested entries (`conflict`)
+
+Governs file collisions inside a directory transfer (including merged directories):
+
+| `conflict` | Behavior on existing file |
 | --- | --- |
-| `"Rename"` (default) | Claim the first free suffixed sibling (`name_1.ext`, `dir_1/`) |
-| `"Overwrite"` | Replace an existing file, or empty and replace an existing directory |
-| `"Merge"` | Keep an existing destination directory and resolve inner entries using `conflict` (existing top-level files are skipped) |
-| `"Fail"` | Fail the transfer immediately before writing anything |
-
-When `root = "Merge"` descends into an existing directory, `conflict` (`ConflictStrategy`) governs collisions on inner entries:
-
-| `conflict` (`ConflictStrategy`) | Effect on colliding inner entries |
-| --- | --- |
-| `"Overwrite"` (default) | Replace existing files (fails if a file collides with an existing directory) |
-| `"Skip"` | Leave existing entries untouched and continue |
-| `"RenameSuffix"` | Write the incoming entry to `stem_1.ext` |
-| `"Fail"` | Record a per-file failure and continue copying remaining files |
-| `"Abort"` | Cancel the entire transfer on the first collision |
-
-For `move` rows (except when merging into an existing directory), same-filesystem moves complete atomically without copying bytes; cross-filesystem moves copy in parallel and remove the source tree.
+| `"Overwrite"` *(default)* | Replaces the file (fails if the target is a directory) |
+| `"Fail"` | Records a per-file failure and continues transferring remaining files |
+| `"Skip"` | Leaves the existing file untouched and continues |
+| `"RenameSuffix"` | Writes `name_1.ext`, `name_2.ext`, … alongside it |
+| `"Abort"` | Cancels the entire transfer on the first collision |
 
 ## Cancellation and shutdown
 
-- **Cancelling running tasks** — `copy`, `move`, and `extract` rows can be cancelled with `delete` in `alt-u`. `symlink` and custom Lua action rows run to completion and cannot be cancelled.
-- **Finalization** — cancelling or removing a running row cleans up partial work before finalizing.
-- **Process shutdown** — when you quit `fs`, f:st waits briefly for active transfers to drain or cancel cleanly before removing temporary archive directories and detaching session disk images.
+Pressing `delete` on an active transfer or extraction cancels it immediately; the row stays marked as failed so you can see it did not finish. When you quit `fs`, any active background transfers are given a brief grace window to drain before remaining work is stopped and temporary preview workspaces are cleaned up.
 
 ## Extraction rows
 
-Advancing (`right`) into an archive—or choosing `extract` from the menu (`alt-e`)—starts an `extract` row immediately without waiting for manual dispatch:
+Advancing (`right`) into an archive extracts it in the background into a temporary per-process workspace and appends a running `extract` row directly to the queue. Completed preview extractions register with f:st's mount registry so you can re-enter them, and all temporary preview extractions are removed when `fs` exits.
 
 <video controls preload="none" poster="./images/extract.png" src="./images/extract.mp4"></video>
 
-- Because `extract` rows start immediately into a fresh work directory, their source and destination cells cannot be edited in the overlay.
-- If an extraction fails, the row is recorded as `Failed` in the mount registry.
-- See [Browsing archives transparently](./navigation-in-depth#browsing-archives-transparently) and [Mount pane](./mount-pane) for how completed extractions are browsed and cleaned up.
+Choosing `extract` from the [context menu](./menu-actions) writes into the directory you specify instead; those user-chosen extractions are yours to keep and are not removed on exit.
 
 ## The queue and the clipboard
 
-When `[interface] copy_files_to_clipboard = true` (default) or `move_files_to_clipboard = true` is set in [config.toml](./configuration#interface), pressing `ctrl-c` or `ctrl-x` also places the selected file paths onto your system clipboard so you can paste them into external GUI applications. Inside f:st itself, `ctrl-v` (`Paste`) always drains f:st's internal queue rather than reading the system clipboard.
+By default (`interface.copy_files_to_clipboard = true` and `interface.move_files_to_clipboard = false` in [config.toml](./configuration#interface)), `Copy` mirrors copied files onto the system clipboard so you can paste them into external file managers, while `Move` queues without modifying the system clipboard unless enabled.
+
+When you paste into `fs` inside a Nav pane outside a prompt or overlay, bracketed paste triggers `Paste` (`builtins`) unless `interface.always_paste = true`, in which case pasted text goes into the query bar instead.
 
 ## History side effects
 
-Two `[interface]` booleans in [config.toml](./configuration#interface) connect queue activity to the [history database](./history-database):
+Two opt-in flags under `[interface]` connect the queue to the [history database](./history-database):
 
-- **`bump_transfer_destinations`** (default `false`) — bumps the destination directory in `record.db` whenever a `copy`, `move`, or `symlink` row finishes with `CompleteOk`.
-- **`bump_menu_action_paths`** (default `false`) — bumps target paths in `record.db` whenever a custom menu action is invoked or enqueued.
-
-Next: [Menu actions](./menu-actions) · [Lua](./lua) · [config.toml](./configuration)
+- `bump_transfer_destinations` (`false` by default) records the destinations of completed `copy`, `move`, and `symlink` rows.
+- `bump_menu_action_paths` (`false` by default) records the target paths of menu actions when triggered, including actions that only enqueue their targets.

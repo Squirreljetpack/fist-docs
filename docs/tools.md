@@ -106,7 +106,7 @@ When given a single input path, `ds` prints a size-sorted tree rooted at that pa
 
 ## action
 
-`fs :tool action <NAME> [--dest <DIR>] [--] [PATHS]...` runs a configured [menu action](./menu-actions#running-from-the-shell) directly from the command line without launching the TUI.
+`fs :tool action <NAME> [--to <DIR>] [--] [PATHS]...` runs a configured [menu action](./menu-actions#running-from-the-shell) directly from the command line without launching the TUI.
 
 ## The liza token language
 
@@ -132,6 +132,7 @@ When given a single input path, `ds` prints a size-sorted tree rooted at that pa
 | Styles | `-1` | One entry per line |
 | Styles | `:h` | Column headers |
 | Styles | `:V` | Print resolved `eza` command before running |
+| Styles | `:U` | Unstyled |
 
 ## History and stats: `fs :info`
 
@@ -144,5 +145,3 @@ fs :info files --minimal --format='{=}'
 ```
 
 Pass `--minimal` to omit table borders and print raw or `--format`-formatted paths; see `fs :info --help` for sorting and limit flags.
-
-Next: [Command line](./command-line) · [lessfilter](./lessfilter) · [Output templates](./output-templates)

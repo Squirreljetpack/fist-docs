@@ -16,7 +16,7 @@ Any path matching a glob in `[history] exclude` (or outside `[history] base_dir`
 
 ## Where the database lives
 
-The database is stored at `<state_dir>/record.db` (`~/.local/state/fist/record.db` on Linux, `~/Library/Application Support/fist/record.db` on macOS, `%LOCALAPPDATA%\fist\record.db` on Windows; debug builds use `dev.db`).
+The database is stored at `<state_dir>/record.db` (`~/.local/state/fist/record.db` on Linux, `~/Library/Application Support/fist/record.db` on macOS, `%LOCALAPPDATA%\fist\record.db` on Windows).
 
 `record.db` holds four tables:
 
@@ -54,7 +54,7 @@ Pruning happens lazily: whenever a table is queried in frecency order and exceed
 | `exclude` | `[]` | Globs excluded from recording (`~` expands to home) |
 | `prune_max` | `10000` | Row count that triggers lazy tail pruning |
 | `prune_min` | `8000` | Row count kept after lazy pruning |
-| `refind` | `"Next"` (`"Search"` in shipped config) | Action when `--cd` matches the current directory or finds nothing: `"Search"`, `"Next"`, or `"None"` |
+| `refind` | `"Next"` (`"Search"` in `--dump-config`) | Action when `--cd` matches the current directory or finds nothing: `"Search"`, `"Next"`, or `"None"` |
 | `show_missing` | `false` | Include database rows whose paths no longer exist on disk |
 | `base_dir` | none | Only record and query paths inside this directory |
 
@@ -95,5 +95,3 @@ History panes do not use filesystem visibility filters (`hidden` / `ignored`). I
 ## Ambient integration
 
 The shell integration (`fs :tool shell`) wires `z` (`fs :dir --cd`), `x` (`z ... ./`), and `Z` (`fs :file --cd`) directly to `record.db` and installs a `PWD` change hook so shell navigation and interactive TUI sessions share a single unified history. See [Shell integration](./shell-integration).
-
-Next: [Stash panes](./stash-panes) · [Shell integration](./shell-integration) · [Tools](./tools)

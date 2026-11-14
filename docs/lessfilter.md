@@ -39,7 +39,8 @@ When `lessfilter` is called for a preset and path:
 
 <video controls preload="none" poster="./images/previews.png" src="./images/previews.mp4"></video>
 
-Because `default` is appended to every preset at dispatch, a rule in `default` competes directly with the preset's own rules: a preset rule wins on a tie, while a higher-scoring `default` rule outranks a lower-scoring preset rule. In the `open`, `alternate`, and `alternate2` presets, the built-in content actions (`Directory`, `Text`, `Image`, `Metadata`, `Application`) all defer to the system opener.
+- **`default` fallback rules** — `default` is appended to every preset at dispatch and competes by score: the active preset's rule wins on a tie, while a higher-scoring `default` rule outranks a lower-scoring preset rule.
+- **Opener presets** — in `open`, `alternate`, and `alternate2`, the built-in content actions (`Directory`, `Text`, `Image`, `Metadata`, `Application`) all defer to the system opener.
 
 <video controls preload="none" poster="./images/info.png" src="./images/info.mp4"></video>
 
@@ -121,7 +122,14 @@ Because `ext:` defaults to `Max(30)` while `cat:` defaults to `Max(20)`, an `ext
 
 ## Categories
 
-f:st ships 33 built-in categories usable with `cat:<name>` (and with `-t <name>` in the [Find pane](./find-pane#filetype-arguments)): `image`, `video`, `audio`, `lossless`, `crypto`, `document`, `compressed`, `temp`, `compiled`, `build`, `source`, `configuration`, `text`, `database`, `diagram`, `disk`, `ebook`, `executable`, `font`, `formula`, `geospatial`, `metadata`, `model`, `package`, `playlist`, `presentation`, `rom`, `spreadsheet`, `subtitle`, `email`, `academic`, `markdown`, and `other`.
+f:st ships 33 built-in categories usable with `cat:<name>` (and with `-t <name>` in the [Find pane](./find-pane#filetype-arguments)):
+
+| Group | Built-in categories |
+| --- | --- |
+| Media & Graphics | `image`, `video`, `audio`, `lossless`, `subtitle`, `playlist`, `font`, `model`, `diagram` |
+| Code & Text | `source`, `configuration`, `markdown`, `text`, `build`, `compiled`, `temp` |
+| Documents & Data | `document`, `spreadsheet`, `presentation`, `ebook`, `academic`, `formula`, `database`, `metadata`, `geospatial`, `email` |
+| Archives & System | `compressed`, `package`, `disk`, `rom`, `executable`, `crypto`, `other` |
 
 You can define additional categories under `[categories]` in `lessfilter.toml` as lists of MIME strings or wildcards:
 
@@ -230,5 +238,3 @@ Three bind actions in [mm.toml](./mm.toml#binds) connect `lessfilter` presets to
 - **`LFPreview(preset)`** — switches the in-app preview pane to render `<preset>` (`alt-i` / `alt-/` toggles `info`; `alt-shift-i` / `alt-shift-/` toggles `display`). Pressing the same key again returns the preview pane to `preview`.
 - **`LFPaged(preset)`** — runs `<preset>` on the cursor row and streams its output into the interactive [pager](./pager) (`alt-l` runs `extended`; `alt-8` runs `alternate`).
 - **`Lessfilter(preset)`** — runs `<preset>` in the foreground (`alt-o` runs `open`; `alt-n` runs `edit` on the row's parent directory).
-
-Next: [Pager](./pager) · [config.toml](./configuration) · [Output templates](./output-templates)

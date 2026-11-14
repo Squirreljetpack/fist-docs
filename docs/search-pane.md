@@ -70,10 +70,10 @@ Globs under `""` apply to every search; globs keyed by a directory path (`~` is 
 
 | Key | Default | Effect |
 | --- | --- | --- |
-| `one_line` | `false` (`true` in shipped config) | One row per match line vs stacked per-file blocks |
+| `one_line` | `false` (`true` in `--dump-config`) | One row per match line vs stacked per-file blocks |
 | `fixed_strings` | `false` | Literal patterns instead of regular expressions |
 | `preserve_whitespace` | `false` | Keep whitespace in a single pattern without quoting |
-| `empty_pattern` | none (`"-v ^ *$"` in shipped config) | Pattern run when the query is empty |
+| `empty_pattern` | none (`"-v ^ *$"` in `--dump-config`) | Pattern run when the query is empty |
 | `iglobs` | `{}` | Folder-keyed glob rules |
 | `rg_status_template` | `""` | Status line template in query mode |
 | `fs_status_template` | `""` | Status line template in filter mode |
@@ -97,5 +97,3 @@ Every search row records the 1-based line and column of the match (`HIGHLIGHT_LI
 
 - **Preview** — the preview pane automatically centers its viewport on `HIGHLIGHT_LINE` and highlights the matched line via `bat --highlight-line`.
 - **Advancing or accepting** — pressing `right` (`Advance`) or `enter` exports `HIGHLIGHT_LINE` and `HIGHLIGHT_COLUMN` to `[interface] advance_command` and the [lessfilter](./lessfilter) `edit` preset, which translates them into native line-and-column jump arguments (`+line:col`, `+line,col`, `file:line:col`) for `nvim`, `vim`, `hx`, `kak`, `nano`, `emacs`, `zed`, `code`, and `subl`.
-
-Next: [Find pane](./find-pane) · [lessfilter](./lessfilter) · [Visibility](./visibility)

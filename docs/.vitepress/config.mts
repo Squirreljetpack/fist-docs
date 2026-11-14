@@ -58,7 +58,6 @@ export default defineConfig({
 					{ text: "Stash panes", link: "/stash-panes" },
 					{ text: "Custom pane", link: "/custom-pane" },
 					{ text: "App pane", link: "/app" },
-					{ text: "Mount pane", link: "/mount-pane" },
 					{ text: "Visibility", link: "/visibility" },
 					{ text: "Sorting", link: "/sorting" },
 				],
@@ -67,9 +66,9 @@ export default defineConfig({
 				text: "Menu",
 				collapsed: false,
 				items: [
-					{ text: "Lua", link: "/lua" },
 					{ text: "Menu actions", link: "/menu-actions" },
 					{ text: "Queue", link: "/queue" },
+					{ text: "Lua", link: "/lua" },
 				],
 			},
 			{

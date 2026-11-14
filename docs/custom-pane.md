@@ -94,5 +94,3 @@ By default, `fs :custom` caches streamed rows in memory once the producer finish
 - **Textual separators** — `--input-sep` and `--tail-sep` split on literal characters; choose a `--tail-sep` (such as `\t`) that never appears inside your file paths, because each record splits on the first occurrence of `--tail-sep`.
 - **Per-row transform work** — the Lua transform runs synchronously as each record is ingested; keep transform functions lightweight (string matching and `lunacolors` rather than spawning subprocesses per row).
 - **Relative vs absolute paths** — relative paths emitted by a command resolve against the pane's working directory, so actions and previews remain valid even after you navigate to other directories on the stack.
-
-Next: [Lua](./lua) · [Find pane](./find-pane) · [Menu actions](./menu-actions)

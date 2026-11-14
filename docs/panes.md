@@ -19,7 +19,6 @@ When you leave a pane and later return to it via `Undo`/`Redo` or a toggle actio
 | [History](./history-database) (`Folders`, `Files`) | Frecency-ranked directories and files | `fs :dir`, `fs :file`, `ctrl-g` |
 | [Stash](./stash-panes) | Named transient or persistent path collections | `alt-s`, `alt-b` |
 | [App](./app) | Installed desktop applications and launchers | `fs :open`, Menu `open with` |
-| [Mount](./mount-pane) | Process-wide mount and archive registry | See [Mount pane](./mount-pane) |
 
 Three overlays can open over any pane:
 
@@ -57,4 +56,8 @@ The preview pane runs the `preview` preset from [lessfilter](./lessfilter) again
 
 At runtime, `?` cycles layouts (including hidden), `alt-/` switches the preview to the `display` preset, `alt-i` switches to the `info` preset, `shift-up` / `shift-down` scrolls the preview, and `ctrl-l` / `alt-l` opens the full output in the interactive [pager](./pager).
 
-Next: [Navigation in depth](./navigation-in-depth) · [Visibility](./visibility) · [Sorting](./sorting)
+## Help
+
+Press `alt-h` in any pane to open the keybind reference in the interactive [pager](./pager); scroll to the bottom for pane-specific help. All keybindings shown in the help menu can be customized in [mm.toml](./mm.toml#binds).
+
+<video controls preload="none" poster="./images/help.png" src="./images/help.mp4"></video>

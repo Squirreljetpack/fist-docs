@@ -75,5 +75,3 @@ ignore_patterns = ["node_modules", "__pycache__"]
 - **`[panes.nav] ignore_patterns`** applies gitignore-style globs relative to the listed directory whenever `all` visibility is off.
 - **Inheritance across pane switches** — switching between Nav, Find, and Search carries over manual visibility changes made during the session unless overridden by the target pane's configuration.
 - **Database and stream panes** — `Files`, `Folders`, `Apps`, `Stash`, and `Custom` panes do not walk the filesystem: they have no `default_visibility` setting and omit the Filter column from the Options overlay.
-
-Next: [Sorting](./sorting) · [Panes](./panes) · [config.toml](./configuration)

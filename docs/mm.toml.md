@@ -136,5 +136,3 @@ At startup, f:st applies several defaults on top of raw matchmaker settings:
 - Overlay frames (`[queue]`, `[app]`, `[options]`, `[menu]`, `[confirm]`, `[mount]`) inherit `[overlay].frame` when omitted.
 - When no `[[preview.layout]]` is configured, f:st installs a right-side preview layout (70% initial size) backed by the `preview` lessfilter preset.
 - Unless `--fullscreen` is passed, `[tui].layout` defaults to `60%` height when unset.
-
-Next: [config.toml](./configuration) · [lessfilter](./lessfilter) · [Menu actions](./menu-actions)

@@ -30,7 +30,6 @@ f:st (`fs`) is a file manager that runs in your terminal, built around composabl
       <li class="zen-link-item"><a href="./stash-panes"><span>Stash panes</span><span class="arrow">→</span></a></li>
       <li class="zen-link-item"><a href="./custom-pane"><span>Custom pane</span><span class="arrow">→</span></a></li>
       <li class="zen-link-item"><a href="./app"><span>App pane</span><span class="arrow">→</span></a></li>
-      <li class="zen-link-item"><a href="./mount-pane"><span>Mount pane</span><span class="arrow">→</span></a></li>
       <li class="zen-link-item"><a href="./visibility"><span>Visibility</span><span class="arrow">→</span></a></li>
       <li class="zen-link-item"><a href="./sorting"><span>Sorting</span><span class="arrow">→</span></a></li>
     </ul>
@@ -42,9 +41,9 @@ f:st (`fs`) is a file manager that runs in your terminal, built around composabl
     </div>
     <p class="zen-section-desc">How to script contextual menu actions in Lua and run background transfers on the queue.</p>
     <ul class="zen-link-list">
-      <li class="zen-link-item"><a href="./lua"><span>Lua</span><span class="arrow">→</span></a></li>
       <li class="zen-link-item"><a href="./menu-actions"><span>Menu actions</span><span class="arrow">→</span></a></li>
       <li class="zen-link-item"><a href="./queue"><span>Queue</span><span class="arrow">→</span></a></li>
+      <li class="zen-link-item"><a href="./lua"><span>Lua</span><span class="arrow">→</span></a></li>
     </ul>
   </div>
 
@@ -74,5 +73,3 @@ f:st (`fs`) is a file manager that runs in your terminal, built around composabl
     </ul>
   </div>
 </div>
-
-Next: [Getting started](./getting-started) · [Panes](./panes)

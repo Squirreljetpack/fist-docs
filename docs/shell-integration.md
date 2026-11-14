@@ -28,7 +28,9 @@ fs :tool shell --shell=nu | save -f ~/.config/nushell/fist.nu
 source ~/.config/nushell/fist.nu
 ```
 
-Always pass your actual shell via `--shell` (`zsh`, `bash`, `fish`, `nu`, or `sh`) rather than relying on `$SHELL` detection so subshells and non-login shells receive the right syntax. For faster shell startup, cache the output of `fs :tool shell --shell=<shell>` to a file and `source` it directly, regenerating the file whenever you upgrade `fs`. To remove the integration, delete the startup line and open a new shell.
+- **Explicit `--shell` flag** — Always pass your shell (`zsh`, `bash`, `fish`, `nu`, or `sh`) rather than relying on `$SHELL` detection so subshells and non-login shells receive the right syntax.
+- **Caching for faster startup** — Save the output of `fs :tool shell --shell=<shell>` to a file and `source` it directly, regenerating the file whenever you upgrade `fs`.
+- **Uninstalling** — Delete the startup line from your shell config and open a new shell.
 
 ## The jump function
 
@@ -61,8 +63,6 @@ x src
 
 <video controls preload="none" poster="./images/nav.png" src="./images/nav.mp4"></video>
 
-If a previous interactive `z` or `x` run was cancelled, re-running `x` with no arguments seeds the prompt from `FS_INITIAL_INPUT`.
-
 ## The open function
 
 `Z` searches the Files history table and opens the selected row through the [lessfilter](./lessfilter) `edit` preset (`fs :tool lessfilter edit`). Adding a trailing `.` switches the search to the Folders history table instead:
@@ -86,7 +86,8 @@ In Zsh, Bash, Fish, and Nushell, `fs :tool shell` binds three interactive widget
 
 <video controls preload="none" poster="./images/shell.png" src="./images/shell.mp4"></video>
 
-Multi-selecting rows with `tab` before accepting in the file search widget pushes every selected path onto the command line, shell-quoted and separated by spaces. In the full-text search widget, `enter` / `right` opens the matched file at `HIGHLIGHT_LINE` and `HIGHLIGHT_COLUMN` via the `edit` preset and returns to your shell prompt when the editor exits, while `alt-enter` prints the matched path into the command line buffer.
+- **Multi-selection in the file widget** — Marking rows with `tab` before accepting pushes every selected path onto the command line, shell-quoted and separated by spaces.
+- **Editor jumps in the full-text widget** — Pressing `enter` or `right` opens the matched file at `HIGHLIGHT_LINE` and `HIGHLIGHT_COLUMN` via the `edit` preset and returns to your prompt when the editor exits; pressing `alt-enter` inserts the matched path into the command line instead.
 
 Override any widget's keybinding, flags, or disable it completely by passing an empty bind string to `fs :tool shell`:
 
@@ -130,5 +131,3 @@ Environment variables read by the shell integration and `fs`:
 - **fzf keybinding overlap** — when `fzf` is configured with `shift-left`, `shift-right`, or `shift-down`, load `fs :tool shell` after `fzf` or pass custom `--dir-widget-bind`, `--file-widget-bind`, and `--rg-widget-bind` flags.
 - **Existing `z`, `Z`, or `x` commands** — rename any of the generated functions with `--z-name`, `--open-name`, and `--nav-name` (for example, `fs :tool shell --z-name=j --nav-name=jj`).
 - **POSIX shells** — `sh`, `dash`, `ash`, and `ksh` lack a programmable line-editor widget API, so `--shell=sh` installs `z`, `x`, `Z`, and the `cd` hook without keybindings.
-
-Next: [History database](./history-database) · [Command line](./command-line) · [Tools](./tools)

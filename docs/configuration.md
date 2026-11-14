@@ -72,14 +72,14 @@ When `default_visibility` is omitted, hidden rows are shown and git-ignored rows
 | --- | --- | --- | --- |
 | `default_visibility` | visibility | none | Initial visibility (same git-aware fallback as Nav) |
 | `default_sort` | sort order | none | Initial soft sort |
-| `one_line` | bool | `false` | Render each match on a single line instead of a stacked context block |
+| `one_line` | bool | `false` (`true` in `--dump-config`) | Render each match on a single line instead of a stacked context block |
 | `fixed_strings` | bool | `false` | Treat queries as literal strings instead of regular expressions |
 | `preserve_whitespace` | bool | `false` | Keep the query as a single pattern instead of splitting on whitespace |
 | `rg_status_template` | display template | none | Status-line template while in query mode |
 | `fs_status_template` | display template | none | Status-line template while in filter mode |
 | `iglobs` | table | `{}` | Folder-keyed case-insensitive globs (`""` applies everywhere) |
 | `base_args` | array of strings | see below | Arguments passed to every search |
-| `empty_pattern` | string | none | Fallback pattern when the query is empty (a leading `-v` inverts matching) |
+| `empty_pattern` | string | none (`"-v ^ *$"` in `--dump-config`) | Fallback pattern when the query is empty (a leading `-v` inverts matching) |
 | `default_args` | array of strings | `[]` | Arguments applied when no extra search arguments are given on the CLI |
 
 The default `base_args` are `--trim --color=ansi --no-context-separator --field-context-separator=-`.
@@ -128,8 +128,8 @@ A stash without an explicit `prompt` displays `<name>>`. A stash with no table i
 | `alt_accept` | bool | `false` | Swap the open and print behaviors of the accept bindings |
 | `no_multi_print` | bool | `false` | Print only the cursor row when accepting with a selection |
 | `always_paste` | bool | `false` | Treat clipboard paste as query text entry even outside the prompt |
-| `remove_db_record_action` | `"None"`, `"Trash"`, or `"Delete"` | `"None"` | Action that drops database rows in history and stash panes instead of touching disk |
-| `hide_preview_when_cursor_disabled` | bool | `false` | Hide the preview pane while the cursor is in the prompt |
+| `remove_db_record_action` | `"None"`, `"Trash"`, or `"Delete"` | `"None"` (`"Trash"` in `--dump-config`) | Action that drops database rows in history and stash panes instead of touching disk |
+| `hide_preview_when_cursor_disabled` | bool | `false` | Hide the preview pane while the prompt is focused on the pane's working directory |
 | `allow_enter_unzip_directory` | bool | `false` | Walk up into the temporary extraction root on `Parent` instead of returning to the archive's parent directory |
 | `stability_threshold` | integer | `30` | Score-change tolerance across reloads before re-sorting (`0` always re-sorts) |
 | `preserve_size_cache` | bool | `false` | Retain cached directory sizes when switching between cached directories |
@@ -187,7 +187,7 @@ A stash without an explicit `prompt` displays `<name>>`. A stash with no table i
 | `exclude` | array of globs | `[]` | Globs excluded from recording and bumping (`~` expands to home) |
 | `prune_max` | integer | `10000` | Row threshold that triggers lazy pruning |
 | `prune_min` | integer | `8000` | Row count retained after pruning |
-| `refind` | string | `"Next"` | Behavior when the top match is the current directory: `"Search"`, `"Next"`, or `"None"` |
+| `refind` | string | `"Next"` (`"Search"` in `--dump-config`) | Behavior when the top match is the current directory: `"Search"`, `"Next"`, or `"None"` |
 | `show_missing` | bool | `false` | Keep rows whose paths no longer exist on disk |
 | `base_dir` | path | none | Restrict recording to paths under this directory |
 
@@ -249,5 +249,3 @@ Passing `--style` overrides `file_icons`, `file_colors`, `dir_icons`, `dir_color
 - **output template** — `{…}` placeholders expanded against the target row; see [Output templates](./output-templates).
 - **display template** — matchmaker status-line template syntax (`\m`, `\t`, `{red:text}`).
 - **milliseconds** — integer milliseconds, such as `400`.
-
-Next: [mm.toml](./mm.toml) · [lessfilter](./lessfilter) · [Pager](./pager)

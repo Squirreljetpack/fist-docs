@@ -32,7 +32,7 @@ display_directory = ["fs", ":tool", "liza", ":u2", "--", "{}"]
 | `prompt` | string | none | Custom footer prompt text |
 | `horizontal_scroll` | bool | `false` | Enable horizontal scrolling on start (`ctrl-h` toggles at runtime) |
 | `smart_case` | bool | `true` | Case-insensitive search unless the query contains uppercase letters |
-| `smart_changes` | bool | `false` (`true` in shipped config) | Append `--style=+changes` or `--style=-changes` based on unstaged git changes |
+| `smart_changes` | bool | `false` (`true` in `--dump-config`) | Append `--style=+changes` or `--style=-changes` based on unstaged git changes |
 | `copy_on_select` | bool | `false` | Copy mouse selections immediately on button release |
 | `display_directory` | array of strings | `["fs", ":tool", "liza", ":u2", "--", "{}"]` | Command argv run when given a directory (`{}` expands to the raw path) |
 
@@ -88,10 +88,3 @@ Environment variables override `pager.toml` per invocation and are also read by 
 | `ctrl-h` | Toggle line wrapping / horizontal scroll |
 | `/`, `?` | Search forward or backward |
 | `n`, `p` | Jump to next or previous search match |
-
-## Files
-
-- `~/.config/fist/pager.toml` — user pager configuration.
-- `assets/config/pager.toml` — shipped defaults written by `fs --dump-config`.
-
-Next: [lessfilter](./lessfilter) · [config.toml](./configuration) · [Tools](./tools)

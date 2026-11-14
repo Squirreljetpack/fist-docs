@@ -69,7 +69,7 @@ The Find pane shares f:st's [visibility model](./visibility):
 
 ## Depth and symlinks
 
-The Find pane always walks the full directory tree recursively from its search roots; f:st does not define a separate depth option of its own (use the [Nav pane](./panes#built-in-panes) for single-level directory listings).
+The Find pane always walks the full directory tree recursively from its search roots; f:st does not define a separate depth option of its own (use the [Nav pane](./panes#pane-kinds-and-overlays) for single-level directory listings).
 
 Symbolic links are followed by default during recursive traversal. You can disable symlink traversal for a run with `--no-follow`, toggle `Follow` in the Options overlay (`alt-p`), or set `default_visibility = { follow = false }` under `[panes.find]`.
 
@@ -93,5 +93,3 @@ Once results stream into the table, every standard pane operation is available:
 - **Previews, selections, and actions** — mark rows with `tab`, enqueue copies or moves with `ctrl-c` / `ctrl-x`, run contextual [menu actions](./menu-actions) with `alt-e`, or press `right` (`Advance`) to enter a directory or open a file in your editor.
 - **Row transforms (`--transform`)** — passing `--transform <LUA>` on `fs ::` runs a Lua chunk on every found path to filter rows, rewrite display names, or populate the tail column; see [Transforming rows with Lua](./custom-pane#transforming-rows-with-lua).
 - **Missing `fd`** — if the `fd` binary is not installed on `PATH`, the pane stays empty and surfaces a startup error toast.
-
-Next: [Search pane](./search-pane) · [Visibility](./visibility) · [Sorting](./sorting)

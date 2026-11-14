@@ -1,6 +1,6 @@
 # Getting started
 
-This guide takes you from a clean environment to a working `fs` installation with configuration files, shell functions, menu actions, and core keybindings.
+This guide takes you from a clean environment to a working `fs` installation with core keybindings, shell functions, configuration files, and menu actions.
 
 ## Requirements
 
@@ -22,11 +22,20 @@ cargo install bat eza kreuzberg-cli mediainfo
 
 All six tools are also available in standard system package managers (`apt`, `pacman`, `dnf`, `brew`).
 
-Your terminal should support 24-bit truecolor and a Nerd Font for file and directory icons. Inline pixel image previews work automatically in terminals supporting the Kitty graphics protocol, iTerm2 inline images, or Sixel, and fall back to Unicode halfblocks elsewhere. Prebuilt binaries target Linux (`x86_64` and `aarch64`, both `gnu` and static `musl`), macOS (`x86_64` and `aarch64`), and Windows (`x86_64`).
+### Terminal support
+
+- **Colors and icons** — Use a terminal with 24-bit truecolor support and a [Nerd Font](https://www.nerdfonts.com/) for file and directory icons.
+- **Image previews** — Inline pixel previews work automatically in terminals supporting the Kitty graphics protocol, iTerm2 inline images, or Sixel, and fall back to Unicode halfblocks elsewhere.
 
 ## Install
 
-Run the install script to detect your OS, architecture, and libc, download the matching release archive, and install `fs` into `~/.cargo/bin`, `~/.local/bin`, or `/usr/local/bin` (invoking `sudo` only if the target directory is not writable):
+Prebuilt binaries are available for:
+
+- **Linux** — `x86_64` and `aarch64` (`gnu` and static `musl`)
+- **macOS** — `x86_64` and `aarch64`
+- **Windows** — `x86_64`
+
+Run the install script to detect your platform, download the matching release archive, and install `fs` into `~/.cargo/bin`, `~/.local/bin`, or `/usr/local/bin` (invoking `sudo` only if the target directory is not writable):
 
 ```shell
 curl -fsSL https://raw.githubusercontent.com/Squirreljetpack/fist/main/install.sh | sh
@@ -56,6 +65,38 @@ Verify the installation:
 ```shell
 fs --version
 ```
+
+## First run
+
+Launch `fs` with no arguments to open the Nav pane in your current working directory, `fs :: <PATTERN>` to find files recursively, or `fs : <PATTERN>` to search file contents:
+
+```shell
+fs
+fs :: auth
+fs : TODO
+```
+
+<video controls preload="none" poster="./images/nav-pane.png" src="./images/nav-pane.mp4"></video>
+
+- **Filter** — Type immediately to fuzzy-filter the current rows.
+- **Navigate** — Use `up` and `down` to move the cursor, `left` to climb to the parent directory, and `right` to enter a directory or open a file in `$EDITOR`.
+- **Target the working directory** — Pressing `up` at the first row moves focus into the [prompt](./navigation-in-depth#prompt-locking), where actions target the current working directory and `left` / `right` move the text caret instead of changing directories.
+- **Help** — Press `alt-h` inside any pane or overlay to open its contextual help document, or run `fs --help` and `fs <subcommand> --help` on the command line.
+
+## Core keybindings
+
+| Category | Keys | Effect |
+| --- | --- | --- |
+| Movement | `up` / `down`, `left` / `right` | Move cursor, climb to parent (`Parent`), enter directory or edit file (`Advance`) |
+| Accepting | `enter`, `alt-enter`, `ctrl-enter` | System open, print path to stdout, detached open |
+| Panes | `ctrl-f`, `ctrl-r`, `ctrl-g`, `alt-s` | Switch to Find, Search, History (Folders/Files), or Stash pane |
+| Stack | `ctrl-z` / `alt-z` | Undo or redo pane and directory transitions |
+| Overlays | `alt-e`, `alt-u`, `alt-p`, `alt-h` | Open Menu, Queue, Options, or Help overlay |
+| File ops | `ctrl-c`, `ctrl-x`, `ctrl-v`, `f2`, `delete`, `shift-delete` | Enqueue copy, enqueue move, paste builtins, rename, trash, permanent delete |
+| Selection | `tab`, `ctrl-a`, `ctrl-shift-a` | Toggle row and move down, cycle selection group, clear selection |
+| Preview | `?`, `alt-/`, `alt-i`, `ctrl-l` | Cycle preview layout, preview preset, info preset, or open in pager |
+
+Run `fs :tool showbinds` to view the complete resolved keymap, or customize bindings in [mm.toml](./mm.toml#binds).
 
 ## Set up your shell
 
@@ -90,7 +131,7 @@ Sourcing the integration defines:
 - `Z` — frecency-ranked file opener using the lessfilter `edit` preset.
 - Three line-editor widgets: recursive directory search (`shift-left`), recursive file search (`shift-right`), and full-text search (`shift-down`).
 
-Append `--aliases` to `fs :tool shell` to also define `lz` (`fs :tool liza`), `l` (`display` preset), `la` (`extended` preset), `ll` (`info` preset), `n` (`edit` preset), and `o` (`fs :open`). See [Shell integration](./shell-integration) for customization and keybinding overrides.
+Append `--aliases` to `fs :tool shell` to also define short aliases (`lz`, `l`, `la`, `ll`, `n`, `o`) for listing, previewing, editing, and opening files. See [Shell integration](./shell-integration) for the full alias table and keybinding overrides.
 
 ## Initialize configuration
 
@@ -100,7 +141,7 @@ Run `fs --dump-config` in an interactive terminal to write the default configura
 fs --dump-config
 ```
 
-This creates `config.toml`, `mm.toml`, `lessfilter.toml`, `pager.toml`, and `actions.toml`, skipping any file that already exists. When standard output is piped (`fs --dump-config > resolved.toml`), `fs` prints the merged `config.toml` instead of writing files to disk. On debug builds, `fs` reads `dev.toml`, `mm.dev.toml`, `lessfilter.dev.toml`, `pager.dev.toml`, and `actions.dev.toml` when present.
+This creates `config.toml`, `mm.toml`, `lessfilter.toml`, `pager.toml`, and `actions.toml`, skipping any file that already exists. If standard output is piped (`fs --dump-config > resolved.toml`), `fs` prints the merged `config.toml` instead of writing files to disk.
 
 ## Get menu actions
 
@@ -109,37 +150,6 @@ Optional [menu action](./menu-actions) bundles for archiving (`compress.toml`), 
 ```shell
 fs :tool check
 ```
-
-## First run
-
-Launch `fs` with no arguments to open the Nav pane in your current working directory, `fs :: <PATTERN>` to find files recursively, or `fs : <PATTERN>` to search file contents:
-
-```shell
-fs
-fs :: auth
-fs : TODO
-```
-
-<video controls preload="none" poster="./images/nav-pane.png" src="./images/nav-pane.mp4"></video>
-
-Type immediately to fuzzy-filter the current rows. Pressing `up` at the first row moves focus into the [prompt](./navigation-in-depth#prompt-locking), where the query bar displays the current working directory and actions target that directory instead of a row. In query-heavy panes or while in the prompt, the prompt locks (indicated by a red underline) so `left` and `right` move the text caret instead of navigating directories.
-
-Press `alt-h` inside any pane or overlay to open its contextual help document, or run `fs --help` and `fs <subcommand> --help` on the command line.
-
-## Core keybindings
-
-| Category | Keys | Effect |
-| --- | --- | --- |
-| Movement | `up` / `down`, `left` / `right` | Move cursor, climb to parent (`Parent`), enter directory or edit file (`Advance`) |
-| Accepting | `enter`, `alt-enter`, `ctrl-enter` | System open, print path to stdout, detached open |
-| Panes | `ctrl-f`, `ctrl-r`, `ctrl-g`, `alt-s` | Switch to Find, Search, History (Folders/Files), or Stash pane |
-| Stack | `ctrl-z` / `alt-z` | Undo or redo pane and directory transitions |
-| Overlays | `alt-e`, `alt-u`, `alt-p`, `alt-h` | Open Menu, Queue, Options, or Help overlay |
-| File ops | `ctrl-c`, `ctrl-x`, `ctrl-v`, `f2`, `delete`, `shift-delete` | Enqueue copy, enqueue move, paste builtins, rename, trash, permanent delete |
-| Selection | `tab`, `ctrl-a`, `ctrl-shift-a` | Toggle row and move down, cycle selection group, clear selection |
-| Preview | `?`, `alt-/`, `alt-i`, `ctrl-l` | Cycle preview layout, preview preset, info preset, or open in pager |
-
-Run `fs :tool showbinds` to view the complete resolved keymap, or customize bindings in [mm.toml](./mm.toml#binds).
 
 ## Tour
 
@@ -159,5 +169,3 @@ Remove the binary, delete the `fs :tool shell` line from your shell startup file
 rm -f ~/.cargo/bin/fs ~/.local/bin/fs /usr/local/bin/fs
 rm -rf ~/.config/fist ~/.local/state/fist ~/.cache/fist
 ```
-
-Next: [Panes](./panes) · [Shell integration](./shell-integration) · [config.toml](./configuration)

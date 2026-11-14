@@ -138,5 +138,3 @@ When running a [menu action](./menu-actions), f:st populates context globals alo
 ## Custom stream transforms
 
 Passing `--transform <LUA>` (or `@file.lua`) to `fs :custom` or `fs` runs a Lua chunk once per row with `local path, tail = ...` and expects `return path, display, tail`. Returning `nil` as the first value drops the row; see [Transforming rows with Lua](./custom-pane#transforming-rows-with-lua) for the full contract and examples.
-
-Next: [Menu actions](./menu-actions) · [Custom pane](./custom-pane) · [Queue](./queue)
