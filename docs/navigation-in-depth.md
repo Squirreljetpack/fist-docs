@@ -6,6 +6,8 @@ Navigation in f:st combines directory traversal (`Parent` and `Advance`), a reve
 
 `Parent` (`left`) and `Advance` (`right`) are the primary traversal bind actions:
 
+<video controls preload="none" poster="./images/nav-pane.png" src="./images/nav-pane.mp4"></video>
+
 - **In the Nav pane**, `Parent` walks up to the parent directory of the current working directory. **In multi-directory panes** (Find, Search, History, Stash, Custom), `Parent` switches into the Nav pane at the parent directory of the highlighted row, with the cursor placed on that row.
 - **`Advance` on a directory** enters that directory in the Nav pane.
 - **`Advance` on a file** opens the file through `[interface] advance_command` in [config.toml](./configuration), which defaults to the [lessfilter](./lessfilter) `edit` preset (`$FS_EDITOR` / `$EDITOR`).

@@ -16,7 +16,7 @@ export default defineConfig({
 	head: [
 		["link", { rel: "icon", type: "image/svg+xml", href: "/fist-docs/favicon.svg" }],
 		["link", { rel: "alternate icon", type: "image/png", href: "/fist-docs/favicon.png" }],
-		["meta", { name: "theme-color", content: "#08090a" }],
+		["meta", { name: "theme-color", content: "#161616" }],
 		["link", { rel: "preconnect", href: "https://fonts.googleapis.com" }],
 		[
 			"link",
@@ -31,7 +31,7 @@ export default defineConfig({
 		],
 	],
 	themeConfig: {
-		logo: "/logo.svg",
+		logo: { light: "/logo.svg", dark: "/logo-dark.svg" },
 		siteTitle: "f:st",
 		nav: [{ text: "Docs", link: "/" }],
 		socialLinks: [

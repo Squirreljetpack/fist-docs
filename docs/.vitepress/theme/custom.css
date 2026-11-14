@@ -1,5 +1,5 @@
 /* ---------------------------------------------------------------------------
- * f:ist docs — Authentic Linear.app docs theme
+ * f:st docs — Grayish Zen (Stone & Charcoal) VitePress theme
  * ------------------------------------------------------------------------- */
 
 :root {
@@ -8,72 +8,122 @@
   --vp-font-family-mono:
     'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
 
-  /* Light mode (Linear light) */
-  --vp-c-bg: #ffffff;
-  --vp-c-bg-alt: #f8f9fa;
-  --vp-c-bg-elv: #ffffff;
-  --vp-c-bg-soft: #f1f2f4;
-  --vp-c-border: rgba(0, 0, 0, 0.08);
-  --vp-c-divider: rgba(0, 0, 0, 0.07);
-  --vp-c-gutter: rgba(0, 0, 0, 0.04);
-  --vp-c-text-1: #0f1011;
-  --vp-c-text-2: #585d69;
-  --vp-c-text-3: #8a8f98;
-  --vp-c-brand-1: #5e6ad2;
-  --vp-c-brand-2: #4f5ac0;
-  --vp-c-brand-3: #3e47a5;
-  --vp-c-brand-soft: rgba(94, 106, 210, 0.08);
+  --zen-ease: cubic-bezier(0.22, 1, 0.36, 1);
 
-  --vp-c-mute: #f1f2f4;
-  --vp-c-mute-hover: #e6e8eb;
-  --vp-c-default-soft: rgba(0, 0, 0, 0.04);
+  /* Light mode — Pale gravel & river stone */
+  --vp-c-bg: #f4f5f6;
+  --vp-c-bg-alt: #eceef0;
+  --vp-c-bg-elv: #f9fafb;
+  --vp-c-bg-soft: #e6e8eb;
+  --vp-c-border: rgba(24, 26, 30, 0.09);
+  --vp-c-divider: rgba(24, 26, 30, 0.07);
+  --vp-c-gutter: rgba(24, 26, 30, 0.04);
 
-  --vp-code-block-bg: #f8f9fb;
-  --vp-code-line-highlight-color: rgba(94, 106, 210, 0.08);
+  --vp-c-text-1: #1d1f23;
+  --vp-c-text-2: #545861;
+  --vp-c-text-3: #838892;
 
-  /* Linear custom tokens */
-  --linear-card-bg: #fbfbfb;
-  --linear-card-border: rgba(0, 0, 0, 0.08);
-  --linear-card-hover-border: rgba(0, 0, 0, 0.16);
-  --linear-card-hover-bg: #f7f8f9;
-  --linear-chip-bg: rgba(0, 0, 0, 0.04);
-  --linear-chip-border: rgba(0, 0, 0, 0.08);
+  --vp-c-brand-1: #55626e;
+  --vp-c-brand-2: #46525d;
+  --vp-c-brand-3: #38424b;
+  --vp-c-brand-soft: rgba(85, 98, 110, 0.08);
+
+  --vp-c-indigo-1: var(--vp-c-brand-1);
+  --vp-c-indigo-2: var(--vp-c-brand-2);
+  --vp-c-indigo-3: var(--vp-c-brand-3);
+  --vp-c-indigo-soft: var(--vp-c-brand-soft);
+
+  --vp-c-tip-1: var(--vp-c-brand-1);
+  --vp-c-tip-2: var(--vp-c-brand-2);
+  --vp-c-tip-3: var(--vp-c-brand-3);
+  --vp-c-tip-soft: var(--vp-c-brand-soft);
+
+  --vp-c-mute: #e8eaed;
+  --vp-c-mute-hover: #dfe2e6;
+  --vp-c-default-soft: rgba(24, 26, 30, 0.04);
+
+  --vp-code-block-bg: #eceef0;
+  --vp-code-line-highlight-color: rgba(85, 98, 110, 0.09);
+  --vp-code-copy-code-bg: #e3e6e9;
+  --vp-code-copy-code-hover-bg: #d9dde1;
+  --vp-code-copy-code-hover-border-color: rgba(24, 26, 30, 0.16);
+
+  --vp-nav-bg-color: rgba(244, 245, 246, 0.88);
+  --vp-sidebar-bg-color: #f0f1f3;
+  --vp-local-search-bg: #f9fafb;
+  --vp-local-search-result-bg: #f4f5f6;
+  --vp-local-search-result-border: rgba(24, 26, 30, 0.09);
+  --vp-local-search-result-selected-bg: #eceef0;
+  --vp-local-search-result-selected-border: #55626e;
+  --vp-local-search-highlight-bg: rgba(85, 98, 110, 0.16);
+  --vp-local-search-highlight-text: #1d1f23;
+
+  /* Surface tokens */
+  --zen-card-bg: #f7f8f9;
+  --zen-card-border: rgba(24, 26, 30, 0.09);
+  --zen-card-hover-border: rgba(85, 98, 110, 0.28);
+  --zen-card-hover-bg: #fafbfc;
+  --zen-media-shadow: 0 8px 24px rgba(24, 26, 30, 0.07);
 }
 
 html.dark {
-  /* Dark mode (Linear signature dark theme: #08090a) */
-  --vp-c-bg: #08090a;
-  --vp-c-bg-alt: #0e0f11;
-  --vp-c-bg-elv: #111215;
-  --vp-c-bg-soft: #16181d;
+  /* Dark mode — True neutral matte charcoal & ash */
+  --vp-c-bg: #161616;
+  --vp-c-bg-alt: #131313;
+  --vp-c-bg-elv: #1c1c1c;
+  --vp-c-bg-soft: #1f1f1f;
   --vp-c-border: rgba(255, 255, 255, 0.08);
-  --vp-c-divider: rgba(255, 255, 255, 0.07);
-  --vp-c-gutter: rgba(255, 255, 255, 0.04);
-  --vp-c-text-1: #f7f8f8;
-  --vp-c-text-2: #8a8f98;
-  --vp-c-text-3: #565960;
-  --vp-c-brand-1: #5e6ad2;
-  --vp-c-brand-2: #6f7ae0;
-  --vp-c-brand-3: #4f5ac0;
-  --vp-c-brand-soft: rgba(94, 106, 210, 0.12);
+  --vp-c-divider: rgba(255, 255, 255, 0.065);
+  --vp-c-gutter: rgba(255, 255, 255, 0.035);
 
-  --vp-c-mute: #121316;
-  --vp-c-mute-hover: #181a1f;
+  --vp-c-text-1: #e0e0e0;
+  --vp-c-text-2: #989898;
+  --vp-c-text-3: #646464;
+
+  --vp-c-brand-1: #c2c2c2;
+  --vp-c-brand-2: #a8a8a8;
+  --vp-c-brand-3: #8c8c8c;
+  --vp-c-brand-soft: rgba(255, 255, 255, 0.07);
+
+  --vp-c-indigo-1: var(--vp-c-brand-1);
+  --vp-c-indigo-2: var(--vp-c-brand-2);
+  --vp-c-indigo-3: var(--vp-c-brand-3);
+  --vp-c-indigo-soft: var(--vp-c-brand-soft);
+
+  --vp-c-tip-1: var(--vp-c-brand-1);
+  --vp-c-tip-2: var(--vp-c-brand-2);
+  --vp-c-tip-3: var(--vp-c-brand-3);
+  --vp-c-tip-soft: var(--vp-c-brand-soft);
+
+  --vp-c-mute: #1c1c1c;
+  --vp-c-mute-hover: #242424;
   --vp-c-default-soft: rgba(255, 255, 255, 0.04);
 
-  --vp-code-block-bg: #0d0e11;
-  --vp-code-line-highlight-color: rgba(94, 106, 210, 0.14);
+  --vp-code-block-bg: #131313;
+  --vp-code-line-highlight-color: rgba(255, 255, 255, 0.06);
+  --vp-code-copy-code-bg: #1e1e1e;
+  --vp-code-copy-code-hover-bg: #262626;
+  --vp-code-copy-code-hover-border-color: rgba(255, 255, 255, 0.14);
 
-  /* Linear custom tokens */
-  --linear-card-bg: #0f1012;
-  --linear-card-border: rgba(255, 255, 255, 0.07);
-  --linear-card-hover-border: rgba(255, 255, 255, 0.16);
-  --linear-card-hover-bg: #141519;
-  --linear-chip-bg: rgba(255, 255, 255, 0.05);
-  --linear-chip-border: rgba(255, 255, 255, 0.08);
+  --vp-nav-bg-color: rgba(22, 22, 22, 0.88);
+  --vp-sidebar-bg-color: #161616;
+  --vp-local-search-bg: #1c1c1c;
+  --vp-local-search-result-bg: #161616;
+  --vp-local-search-result-border: rgba(255, 255, 255, 0.08);
+  --vp-local-search-result-selected-bg: #222222;
+  --vp-local-search-result-selected-border: #8c8c8c;
+  --vp-local-search-highlight-bg: rgba(255, 255, 255, 0.14);
+  --vp-local-search-highlight-text: #e0e0e0;
+
+  /* Surface tokens */
+  --zen-card-bg: #1a1a1a;
+  --zen-card-border: rgba(255, 255, 255, 0.075);
+  --zen-card-hover-border: rgba(255, 255, 255, 0.16);
+  --zen-card-hover-bg: #1e1e1e;
+  --zen-media-shadow: 0 8px 24px rgba(0, 0, 0, 0.25);
 }
 
-/* --- Base Body & Typography ---------------------------------------------- */
+/* --- Base Body & Scrollbar ----------------------------------------------- */
 
 html, body {
   background-color: var(--vp-c-bg);
@@ -82,9 +132,32 @@ html, body {
 
 body {
   font-feature-settings: 'cv02', 'cv03', 'cv04', 'cv11';
-  letter-spacing: -0.012em;
+  letter-spacing: -0.01em;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+}
+
+::selection {
+  background: var(--vp-c-brand-soft);
+  color: var(--vp-c-text-1);
+}
+
+::-webkit-scrollbar {
+  width: 7px;
+  height: 7px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--vp-c-border);
+  border-radius: 3px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--vp-c-text-3);
 }
 
 /* --- Nav Bar ------------------------------------------------------------- */
@@ -94,14 +167,16 @@ body {
   border-bottom: 1px solid var(--vp-c-divider) !important;
 }
 
+.VPNavBar.has-sidebar .content-body {
+  background-color: transparent !important;
+}
+
 @supports (backdrop-filter: blur(16px)) or (-webkit-backdrop-filter: blur(16px)) {
-  .VPNavBar {
-    background-color: rgba(8, 9, 10, 0.8) !important;
+  .VPNavBar,
+  .VPNavBar.has-sidebar .content-body {
+    background-color: var(--vp-nav-bg-color) !important;
     backdrop-filter: blur(16px);
     -webkit-backdrop-filter: blur(16px);
-  }
-  html:not(.dark) .VPNavBar {
-    background-color: rgba(255, 255, 255, 0.85) !important;
   }
 }
 
@@ -112,11 +187,15 @@ body {
   color: var(--vp-c-text-1);
 }
 
+.VPNavBarTitle .logo {
+  border-radius: 50%;
+}
+
 .VPNavBarMenuLink {
   font-size: 13.5px;
   font-weight: 500;
   color: var(--vp-c-text-2) !important;
-  transition: color 0.15s ease;
+  transition: color 0.25s var(--zen-ease);
 }
 
 .VPNavBarMenuLink:hover,
@@ -124,75 +203,96 @@ body {
   color: var(--vp-c-text-1) !important;
 }
 
-/* --- Search Bar (Linear ⌘K trigger) -------------------------------------- */
+.VPLocalNav {
+  background-color: var(--vp-nav-bg-color) !important;
+  border-bottom: 1px solid var(--vp-c-divider) !important;
+  backdrop-filter: blur(12px);
+}
+
+/* --- Search Bar ---------------------------------------------------------- */
 
 .VPNavBarSearch .DocSearch-Button,
 .VPLocalSearchBox,
 .vp-local-search {
-  border-radius: 6px !important;
+  border-radius: 4px !important;
   border: 1px solid var(--vp-c-border) !important;
   background: var(--vp-c-bg-soft) !important;
   font-size: 13px !important;
   color: var(--vp-c-text-3) !important;
-  transition: border-color 0.15s ease, background 0.15s ease;
+  transition: border-color 0.25s var(--zen-ease), background 0.25s var(--zen-ease);
 }
 
 .VPNavBarSearch .DocSearch-Button:hover {
-  border-color: var(--linear-card-hover-border) !important;
+  border-color: var(--zen-card-hover-border) !important;
   color: var(--vp-c-text-2) !important;
 }
 
 .VPLocalSearchBox .shell {
   background: var(--vp-c-bg-elv) !important;
   border: 1px solid var(--vp-c-border) !important;
-  border-radius: 10px !important;
-  box-shadow: 0 20px 48px rgba(0, 0, 0, 0.5) !important;
+  border-radius: 6px !important;
+  box-shadow: 0 20px 48px rgba(0, 0, 0, 0.42) !important;
 }
 
-/* --- Sidebar ------------------------------------------------------------- */
+/* --- Sidebar (Hairline cues, no pill fills) ------------------------------ */
 
 .VPSidebar {
-  background-color: var(--vp-c-bg) !important;
+  background-color: var(--vp-sidebar-bg-color) !important;
   border-right: 1px solid var(--vp-c-divider) !important;
 }
 
 .VPSidebarItem.level-0 > .item .text {
   font-size: 11px;
   font-weight: 600;
-  letter-spacing: 0.06em;
+  letter-spacing: 0.08em;
   text-transform: uppercase;
   color: var(--vp-c-text-3);
-  padding: 14px 0 6px 0;
+  padding: 16px 0 6px 0;
 }
 
 .VPSidebarItem.level-1 .item {
-  border-radius: 6px;
-  padding: 5px 10px;
-  margin: 1px 0;
-  transition: color 0.12s ease, background-color 0.12s ease;
+  border-radius: 2px;
+  padding: 4px 10px;
+  margin: 2px 0;
+  position: relative;
+  background: transparent;
+  transition: color 0.22s var(--zen-ease);
 }
 
 .VPSidebarItem.level-1 > .item:hover {
-  background: var(--vp-c-default-soft);
+  background: transparent;
 }
 
-.VPSidebarItem.level-1 > .item:hover .text {
-  color: var(--vp-c-text-1);
+.VPSidebarItem.level-1 > .item:hover .text,
+.VPSidebarItem.level-1.is-link > .item > .link:hover .text {
+  color: var(--vp-c-text-1) !important;
 }
 
 .VPSidebarItem.level-1.is-active > .item {
-  background: var(--vp-c-default-soft);
+  background: transparent;
 }
 
-.VPSidebarItem.level-1.is-active > .item .text {
-  color: var(--vp-c-text-1);
-  font-weight: 600;
+.VPSidebarItem.level-1.is-active > .item::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 6px;
+  bottom: 6px;
+  width: 2px;
+  border-radius: 1px;
+  background: var(--vp-c-brand-1);
+}
+
+.VPSidebarItem.level-1.is-active > .item .text,
+.VPSidebarItem.level-1.is-active > .item .link > .text {
+  color: var(--vp-c-text-1) !important;
+  font-weight: 500;
 }
 
 .VPSidebarItem.level-1 > .item .text {
   color: var(--vp-c-text-2);
   font-size: 13.5px;
-  line-height: 1.45;
+  line-height: 1.5;
 }
 
 /* --- Prose & Content Typography ------------------------------------------ */
@@ -200,25 +300,27 @@ body {
 .vp-doc {
   color: var(--vp-c-text-2);
   font-size: 14.5px;
-  line-height: 1.68;
+  line-height: 1.75;
 }
 
 .vp-doc h1 {
   font-size: 32px;
   font-weight: 600;
-  letter-spacing: -0.035em;
+  letter-spacing: -0.03em;
   color: var(--vp-c-text-1);
   margin-top: 8px;
-  margin-bottom: 20px;
-  line-height: 1.25;
+  margin-bottom: 24px;
+  padding-bottom: 18px;
+  line-height: 1.24;
+  border-bottom: 1px solid var(--vp-c-divider);
 }
 
 .vp-doc h2 {
   font-size: 20px;
   font-weight: 600;
-  letter-spacing: -0.024em;
+  letter-spacing: -0.02em;
   color: var(--vp-c-text-1);
-  margin-top: 40px;
+  margin-top: 44px;
   margin-bottom: 14px;
   padding-top: 0;
   border-top: none !important;
@@ -228,15 +330,15 @@ body {
 .vp-doc h3 {
   font-size: 16px;
   font-weight: 600;
-  letter-spacing: -0.018em;
+  letter-spacing: -0.015em;
   color: var(--vp-c-text-1);
-  margin-top: 28px;
+  margin-top: 30px;
   margin-bottom: 10px;
   line-height: 1.4;
 }
 
 .vp-doc p {
-  margin-bottom: 16px;
+  margin-bottom: 18px;
 }
 
 .vp-doc strong {
@@ -245,25 +347,45 @@ body {
 }
 
 .vp-doc a {
-  color: var(--vp-c-brand-2);
+  color: var(--vp-c-brand-1);
   text-decoration: none;
   font-weight: 500;
-  transition: color 0.15s ease;
+  transition: color 0.2s var(--zen-ease);
 }
 
 .vp-doc a:hover {
-  color: var(--vp-c-brand-1);
+  color: var(--vp-c-text-1);
   text-decoration: underline;
-  text-underline-offset: 3px;
+  text-decoration-color: var(--vp-c-brand-2);
+  text-underline-offset: 4px;
+}
+
+.vp-doc blockquote {
+  border-left: 2px solid var(--vp-c-brand-2);
+  background: var(--vp-c-default-soft);
+  border-radius: 0 4px 4px 0;
+  padding: 12px 18px;
+  margin: 22px 0;
+  color: var(--vp-c-text-2);
+}
+
+.vp-doc blockquote p:last-child {
+  margin-bottom: 0;
+}
+
+.vp-doc hr {
+  border: none;
+  border-top: 1px solid var(--vp-c-divider);
+  margin: 40px 0;
 }
 
 .vp-doc ul, .vp-doc ol {
   padding-left: 20px;
-  margin-bottom: 18px;
+  margin-bottom: 20px;
 }
 
 .vp-doc li {
-  margin: 6px 0;
+  margin: 7px 0;
 }
 
 .vp-doc li > p {
@@ -274,9 +396,9 @@ body {
 
 .vp-doc :not(pre) > code {
   font-family: var(--vp-font-family-mono);
-  font-size: 0.88em;
+  font-size: 0.87em;
   padding: 2px 6px;
-  border-radius: 5px;
+  border-radius: 3px;
   background: var(--vp-c-bg-soft);
   border: 1px solid var(--vp-c-border);
   color: var(--vp-c-text-1);
@@ -285,19 +407,25 @@ body {
 
 .vp-doc div[class*='language-'] {
   border: 1px solid var(--vp-c-border);
-  border-radius: 8px;
+  border-radius: 4px;
   background-color: var(--vp-code-block-bg) !important;
-  margin: 18px 0;
+  margin: 22px 0;
 }
 
 .vp-doc div[class*='language-'] pre {
-  padding: 14px 18px;
+  padding: 16px 20px;
 }
 
 .vp-doc div[class*='language-'] code {
   font-family: var(--vp-font-family-mono);
   font-size: 13px;
-  line-height: 1.6;
+  line-height: 1.65;
+}
+
+.vp-doc div[class*='language-'] > span.lang {
+  color: var(--vp-c-text-3);
+  font-family: var(--vp-font-family-mono);
+  font-size: 11px;
 }
 
 /* --- Keyboard Badges (<kbd>) --------------------------------------------- */
@@ -310,10 +438,10 @@ kbd,
   font-weight: 500;
   letter-spacing: -0.01em;
   padding: 2px 6px;
-  border-radius: 4px;
+  border-radius: 3px;
   background: var(--vp-c-bg-soft);
   border: 1px solid var(--vp-c-border);
-  box-shadow: 0 1px 0 rgba(0, 0, 0, 0.25);
+  box-shadow: 0 1px 0 var(--vp-c-border);
   color: var(--vp-c-text-1);
   white-space: nowrap;
   display: inline-flex;
@@ -325,16 +453,16 @@ kbd,
   margin: 0 2px;
 }
 
-/* --- Tables (Linear Style) ----------------------------------------------- */
+/* --- Tables (Honed Stone Grid) ------------------------------------------- */
 
 .vp-doc table {
   width: 100%;
   border-collapse: separate;
   border-spacing: 0;
   border: 1px solid var(--vp-c-border);
-  border-radius: 8px;
+  border-radius: 4px;
   overflow: hidden;
-  margin: 20px 0;
+  margin: 24px 0;
   font-size: 13.5px;
   display: table;
 }
@@ -344,16 +472,16 @@ kbd,
   color: var(--vp-c-text-3);
   font-size: 11px;
   font-weight: 600;
-  letter-spacing: 0.05em;
+  letter-spacing: 0.06em;
   text-transform: uppercase;
-  padding: 10px 14px;
+  padding: 11px 16px;
   border-bottom: 1px solid var(--vp-c-border);
   border-right: none;
   text-align: left;
 }
 
 .vp-doc td {
-  padding: 10px 14px;
+  padding: 11px 16px;
   border-bottom: 1px solid var(--vp-c-divider);
   border-right: none;
   color: var(--vp-c-text-2);
@@ -380,11 +508,11 @@ kbd,
   max-width: 100%;
   height: auto;
   display: block;
-  border-radius: 8px;
+  border-radius: 4px;
   border: 1px solid var(--vp-c-border);
   background: var(--vp-c-bg-elv);
-  margin: 20px 0;
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2);
+  margin: 26px 0;
+  box-shadow: var(--zen-media-shadow);
 }
 
 .vp-doc video {
@@ -395,30 +523,30 @@ kbd,
 /* --- Custom Admonitions / Callouts --------------------------------------- */
 
 .vp-doc .custom-block {
-  border-radius: 8px;
+  border-radius: 4px;
   border: 1px solid var(--vp-c-border);
-  padding: 14px 18px;
-  margin: 20px 0;
+  padding: 16px 20px;
+  margin: 24px 0;
   background: var(--vp-c-bg-soft);
 }
 
 .vp-doc .custom-block.tip {
-  border-color: rgba(94, 106, 210, 0.3);
+  border-color: var(--vp-c-border);
   background: var(--vp-c-brand-soft);
 }
 
 .vp-doc .custom-block.tip .custom-block-title {
-  color: var(--vp-c-brand-2);
+  color: var(--vp-c-brand-1);
 }
 
 .vp-doc .custom-block.warning {
-  border-color: rgba(234, 179, 8, 0.3);
-  background: rgba(234, 179, 8, 0.08);
+  border-color: rgba(164, 152, 138, 0.30);
+  background: rgba(164, 152, 138, 0.08);
 }
 
 .vp-doc .custom-block.danger {
-  border-color: rgba(239, 68, 68, 0.3);
-  background: rgba(239, 68, 68, 0.08);
+  border-color: rgba(196, 120, 120, 0.30);
+  background: rgba(196, 120, 120, 0.08);
 }
 
 .vp-doc .custom-block-title {
@@ -430,11 +558,15 @@ kbd,
 
 /* --- Right-hand Outline (TOC "On this page") ------------------------------ */
 
+.VPDocAsideOutline .outline-marker {
+  background-color: var(--vp-c-brand-1) !important;
+}
+
 .VPDocOutlineItem .outline-link {
   font-size: 12.5px;
   color: var(--vp-c-text-3);
-  transition: color 0.12s ease;
-  line-height: 1.5;
+  transition: color 0.2s var(--zen-ease);
+  line-height: 1.55;
 }
 
 .VPDocOutlineItem .outline-link:hover {
@@ -442,14 +574,15 @@ kbd,
 }
 
 .VPDocOutlineItem .outline-link.active {
-  color: var(--vp-c-brand-2);
+  color: var(--vp-c-brand-1);
   font-weight: 500;
 }
 
-.VPDocOutlineDropdown .header {
+.VPDocOutlineDropdown .header,
+.VPDocAsideOutline .outline-title {
   font-size: 11px;
   font-weight: 600;
-  letter-spacing: 0.06em;
+  letter-spacing: 0.08em;
   text-transform: uppercase;
   color: var(--vp-c-text-3);
 }
@@ -457,22 +590,24 @@ kbd,
 /* --- Prev / Next Footer Navigation --------------------------------------- */
 
 .VPDocFooter .pager-link {
-  border: 1px solid var(--vp-c-border);
-  border-radius: 8px;
-  background: var(--linear-card-bg);
-  padding: 14px 18px;
-  transition: border-color 0.15s ease, background 0.15s ease, transform 0.15s ease;
+  border: 1px solid var(--zen-card-border);
+  border-radius: 4px;
+  background: var(--zen-card-bg);
+  padding: 16px 20px;
+  transition:
+    border-color 0.25s var(--zen-ease),
+    background 0.25s var(--zen-ease);
 }
 
 .VPDocFooter .pager-link:hover {
-  border-color: var(--linear-card-hover-border);
-  background: var(--linear-card-hover-bg);
+  border-color: var(--zen-card-hover-border);
+  background: var(--zen-card-hover-bg);
 }
 
 .VPDocFooter .pager-link .desc {
   font-size: 11px;
   font-weight: 600;
-  letter-spacing: 0.05em;
+  letter-spacing: 0.07em;
   text-transform: uppercase;
   color: var(--vp-c-text-3);
 }
@@ -485,216 +620,101 @@ kbd,
 }
 
 /* =========================================================================
- * Linear Docs Custom Grid & Card Components
+ * Zen Section Directory Grid (Flat 4px-radius honed-stone cards)
  * ========================================================================= */
 
-.linear-hero {
-  padding: 12px 0 28px 0;
-  border-bottom: 1px solid var(--vp-c-divider);
-  margin-bottom: 32px;
-}
-
-.linear-badge {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  font-size: 11px;
-  font-weight: 600;
-  letter-spacing: 0.06em;
-  text-transform: uppercase;
-  color: var(--vp-c-brand-2);
-  background: var(--vp-c-brand-soft);
-  border: 1px solid rgba(94, 106, 210, 0.25);
-  border-radius: 20px;
-  padding: 3px 10px;
-  margin-bottom: 14px;
-}
-
-.linear-hero-title {
-  font-size: 34px !important;
-  font-weight: 700 !important;
-  letter-spacing: -0.04em !important;
-  color: var(--vp-c-text-1) !important;
-  margin: 0 0 12px 0 !important;
-  line-height: 1.2 !important;
-}
-
-.linear-hero-subtitle {
-  font-size: 16px;
-  line-height: 1.6;
-  color: var(--vp-c-text-2);
-  max-width: 680px;
-  margin: 0 0 20px 0;
-}
-
-.linear-quick-chips {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 8px;
-  margin-top: 16px;
-}
-
-.linear-chip {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  font-size: 12.5px;
-  font-weight: 500;
-  color: var(--vp-c-text-2);
-  background: var(--linear-chip-bg);
-  border: 1px solid var(--linear-chip-border);
-  border-radius: 6px;
-  padding: 5px 11px;
-  text-decoration: none !important;
-  transition: all 0.15s ease;
-}
-
-.linear-chip:hover {
-  background: var(--vp-c-default-soft);
-  border-color: var(--linear-card-hover-border);
-  color: var(--vp-c-text-1);
-}
-
-.linear-chip svg {
-  width: 14px;
-  height: 14px;
-  opacity: 0.7;
-}
-
-/* --- Section Directory Grid ---------------------------------------------- */
-
-.linear-sections-grid {
+.zen-sections-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+  grid-template-columns: repeat(auto-fill, minmax(310px, 1fr));
   gap: 16px;
-  margin: 20px 0 40px 0;
+  margin: 24px 0 44px 0;
 }
 
-.linear-section-card {
-  background: var(--linear-card-bg);
-  border: 1px solid var(--linear-card-border);
-  border-radius: 10px;
-  padding: 20px;
+.zen-section-card {
+  background: var(--zen-card-bg);
+  border: 1px solid var(--zen-card-border);
+  border-radius: 4px;
+  padding: 22px 24px;
   display: flex;
   flex-direction: column;
-  transition: border-color 0.15s ease, background-color 0.15s ease, transform 0.15s ease;
+  transition:
+    border-color 0.3s var(--zen-ease),
+    background-color 0.3s var(--zen-ease);
 }
 
-.linear-section-card:hover {
-  border-color: var(--linear-card-hover-border);
-  background: var(--linear-card-hover-bg);
+.zen-section-card:hover {
+  border-color: var(--zen-card-hover-border);
+  background: var(--zen-card-hover-bg);
 }
 
-.linear-section-header {
+.zen-section-header {
   display: flex;
-  align-items: center;
-  gap: 10px;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 12px;
   margin-bottom: 8px;
 }
 
-.linear-section-icon {
-  width: 28px;
-  height: 28px;
-  border-radius: 6px;
-  background: var(--vp-c-brand-soft);
-  border: 1px solid rgba(94, 106, 210, 0.2);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  color: var(--vp-c-brand-2);
-  flex-shrink: 0;
-}
-
-.linear-section-icon svg {
-  width: 15px;
-  height: 15px;
-}
-
-.vp-doc h3.linear-section-title,
-.linear-section-title {
+.vp-doc h3.zen-section-title,
+.zen-section-title {
   font-size: 16px;
   font-weight: 600;
-  letter-spacing: -0.02em;
+  letter-spacing: -0.015em;
   color: var(--vp-c-text-1);
   margin: 0;
 }
 
-.linear-section-desc {
+.zen-section-desc {
   font-size: 13px;
-  line-height: 1.5;
+  line-height: 1.6;
   color: var(--vp-c-text-3);
-  margin: 0 0 16px 0;
+  margin: 0 0 18px 0;
 }
 
-.linear-link-list {
+.zen-link-list {
   list-style: none !important;
   padding: 0 !important;
   margin: 0 !important;
   display: flex;
   flex-direction: column;
-  gap: 4px;
+  gap: 2px;
 }
 
-.linear-link-item {
+.zen-link-item {
   margin: 0 !important;
   padding: 0 !important;
 }
 
-.linear-link-item a {
+.zen-link-item a {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 6px 8px;
-  border-radius: 6px;
+  padding: 5px 0;
+  border-radius: 2px;
   font-size: 13.5px;
+  font-weight: 450;
   color: var(--vp-c-text-2) !important;
   text-decoration: none !important;
-  transition: all 0.12s ease;
+  transition: color 0.2s var(--zen-ease);
 }
 
-.linear-link-item a:hover {
-  background: var(--vp-c-default-soft);
+.zen-link-item a:hover {
+  background: transparent;
   color: var(--vp-c-text-1) !important;
 }
 
-.linear-link-item .arrow {
+.zen-link-item .arrow {
   opacity: 0;
-  transform: translateX(-4px);
-  transition: all 0.12s ease;
+  transform: translateX(-5px);
+  transition:
+    opacity 0.22s var(--zen-ease),
+    transform 0.22s var(--zen-ease),
+    color 0.22s var(--zen-ease);
   color: var(--vp-c-text-3);
 }
 
-.linear-link-item a:hover .arrow {
+.zen-link-item a:hover .arrow {
   opacity: 1;
   transform: translateX(0);
-  color: var(--vp-c-brand-2);
-}
-
-/* --- Linear Callout Box -------------------------------------------------- */
-
-.linear-callout {
-  background: var(--linear-card-bg);
-  border: 1px solid var(--linear-card-border);
-  border-radius: 8px;
-  padding: 16px 20px;
-  margin: 24px 0;
-  display: flex;
-  gap: 14px;
-  align-items: flex-start;
-}
-
-.linear-callout-icon {
-  color: var(--vp-c-brand-2);
-  margin-top: 2px;
-  flex-shrink: 0;
-}
-
-.linear-callout-content {
-  font-size: 13.5px;
-  line-height: 1.55;
-  color: var(--vp-c-text-2);
-}
-
-.linear-callout-content strong {
-  color: var(--vp-c-text-1);
+  color: var(--vp-c-brand-1);
 }
