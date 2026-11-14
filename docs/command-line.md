@@ -28,16 +28,14 @@ Where the query sits depends on the subcommand:
 
 ## The subcommand map
 
-![Size-sorted file list filtered to images, with a photo preview](./images/splash.png)
-
 | Subcommand | Aliases | Opens or runs |
 | --- | --- | --- |
-| *(none)*, `:fd` | `::` | [Nav pane](./panes#nav) when given no search arguments; [Find pane](./find-pane) otherwise |
+| *(none)*, `:fd` | `::` | [Nav pane](./panes#built-in-panes) when given no search arguments; [Find pane](./find-pane) otherwise |
 | `:rg` | `:` | [Search pane](./search-pane) (full-text search) |
 | `:custom` | `:c` | [Custom pane](./custom-pane) (command stdout or piped stdin) |
 | `:dir` | — | [Folders history pane](./history-database#history-panes) |
 | `:file` | — | [Files history pane](./history-database#history-panes) |
-| `:open` | `:o` | [App pane](./panes#app-pane-and-pending-files) when given no files, or opens given files directly |
+| `:open` | `:o` | [App pane](./app) when given no files, or opens given files directly |
 | `:info` | — | Prints config/log paths or dumps history database tables |
 | `:tool` | `:t` | Runs a built-in utility subtool; bare `fs :tool` opens an interactive tool picker |
 

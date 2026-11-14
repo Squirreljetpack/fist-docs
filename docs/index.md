@@ -29,6 +29,7 @@ f:st (`fs`) is a file manager that runs in your terminal, built around composabl
       <li class="linear-link-item"><a href="./history-database"><span>History database</span><span class="arrow">→</span></a></li>
       <li class="linear-link-item"><a href="./stash-panes"><span>Stash panes</span><span class="arrow">→</span></a></li>
       <li class="linear-link-item"><a href="./custom-pane"><span>Custom pane</span><span class="arrow">→</span></a></li>
+      <li class="linear-link-item"><a href="./app"><span>App pane</span><span class="arrow">→</span></a></li>
       <li class="linear-link-item"><a href="./mount-pane"><span>Mount pane</span><span class="arrow">→</span></a></li>
       <li class="linear-link-item"><a href="./visibility"><span>Visibility</span><span class="arrow">→</span></a></li>
       <li class="linear-link-item"><a href="./sorting"><span>Sorting</span><span class="arrow">→</span></a></li>

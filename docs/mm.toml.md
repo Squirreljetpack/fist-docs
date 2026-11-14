@@ -21,8 +21,6 @@ Because `mm.toml` uses matchmaker's configuration schema, this page covers the s
 
 Mode prefixes before `^^` scope a binding to a pane or state (`nav`, `find`, `search`, `files`, `dirs`, `app`, `custom`, `stash`, `in_prompt`, `locked_prompt`). For the full list of bind actions and trigger syntax, see [actions.md](https://github.com/Squirreljetpack/fist/blob/main/user_docs/actions.md).
 
-<video controls preload="none" poster="./images/fileops.png" src="./images/fileops.mp4"></video>
-
 ## Preview layouts
 
 `[[preview.layout]]` declares the preview geometries cycled by `SwitchPreviewLayout` (`?`) and indexed by `preview_layout_index` in [config.toml](./configuration):
@@ -82,6 +80,8 @@ max = 50
 ### Menu
 
 `[menu]` styles the action menu overlay (`alt-e` / `ctrl-e`):
+
+<video controls preload="none" poster="./images/action.png" src="./images/action.mp4"></video>
 
 | Key | Type | Default | Meaning |
 | --- | --- | --- | --- |

@@ -15,7 +15,7 @@ Press `alt-u` (`ShowQueue`) from any pane to open the Queue overlay, and press `
 <video controls preload="none" poster="./images/queue.png" src="./images/queue.mp4"></video>
 
 - Opening the overlay validates every pending row and marks any row whose source path no longer exists on disk in light red.
-- Pressing `alt-h` inside the overlay opens [`assets/help/queue.txt`](https://github.com/Squirreljetpack/fist/blob/main/assets/help/queue.txt) in the pager with your active keybindings substituted in.
+- Pressing `alt-h` inside the overlay opens the queue help document in the pager with your active keybindings substituted in.
 - When you press `alt-u` inside the **App** pane, f:st opens the pending-files variant instead, listing the file paths staged to be passed to the chosen application under a single `To open:` column.
 
 ## The overlay layout
@@ -109,6 +109,8 @@ Inside the Queue overlay, you can edit a row's source or destination in place be
 
 ## Clearing completed rows
 
+<video controls preload="none" poster="./images/queue-complete.png" src="./images/queue-complete.mp4"></video>
+
 - **`[queue] clear_completed_on_close`** in [config.toml](./configuration#queue) — when `false` (default), closing the Queue overlay automatically removes all completed and failed rows; set `true` to keep completed rows across overlay closes so you can inspect or re-run them.
 - **Bulk clear (`alt-shift-u`, `ClearQueue`)** — removes matching `Pending` and `PendingErr` rows (including rows flagged with missing sources or skipped self-moves) while leaving running and completed rows untouched.
 
@@ -176,7 +178,7 @@ For `move` rows (except when merging into an existing directory), same-filesyste
 
 Advancing (`right`) into an archive—or choosing `extract` from the menu (`alt-e`)—starts an `extract` row immediately without waiting for manual dispatch:
 
-<video controls preload="none" poster="./images/archive.png" src="./images/archive.mp4"></video>
+<video controls preload="none" poster="./images/extract.png" src="./images/extract.mp4"></video>
 
 - Because `extract` rows start immediately into a fresh work directory, their source and destination cells cannot be edited in the overlay.
 - If an extraction fails, the row is recorded as `Failed` in the mount registry.

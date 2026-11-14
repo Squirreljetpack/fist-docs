@@ -12,6 +12,7 @@ export default defineConfig({
 	appearance: "dark",
 	lastUpdated: true,
 	cleanUrls: true,
+	srcExclude: ["**/%%*"],
 	head: [
 		["link", { rel: "icon", type: "image/svg+xml", href: "/fist-docs/favicon.svg" }],
 		["link", { rel: "alternate icon", type: "image/png", href: "/fist-docs/favicon.png" }],
@@ -56,6 +57,7 @@ export default defineConfig({
 					{ text: "History database", link: "/history-database" },
 					{ text: "Stash panes", link: "/stash-panes" },
 					{ text: "Custom pane", link: "/custom-pane" },
+					{ text: "App pane", link: "/app" },
 					{ text: "Mount pane", link: "/mount-pane" },
 					{ text: "Visibility", link: "/visibility" },
 					{ text: "Sorting", link: "/sorting" },

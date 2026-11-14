@@ -42,8 +42,6 @@ Any argument starting with `-` is forwarded directly to `eza` (prefer `-L=4` wit
 
 `fs :tool shell` emits the initialization script for your shell (`--shell=zsh`, `bash`, `fish`, `nu`, or `sh`).
 
-<video controls preload="none" poster="./images/shell.png" src="./images/shell.mp4"></video>
-
 See [Shell integration](./shell-integration) for the generated functions and widgets, and `fs :tool shell --help` for function-naming and keybinding flags.
 
 ## lessfilter
@@ -57,8 +55,6 @@ See [Shell integration](./shell-integration) for the generated functions and wid
 ## bump
 
 `fs :tool bump` modifies the [history database](./history-database) from scripts or the command line:
-
-<video controls preload="none" poster="./images/history.png" src="./images/history.mp4"></video>
 
 ```shell
 # Increment visit count for paths by 5
@@ -140,8 +136,6 @@ When given a single input path, `ds` prints a size-sorted tree rooted at that pa
 ## History and stats: `fs :info`
 
 Called with no table name, `fs :info` prints the active paths to `config.toml`, `mm.toml`, and the log file. Called with a table name (`dirs`, `files`, or `apps`), it prints the recorded rows and their frecency scores:
-
-<video controls preload="none" poster="./images/info.png" src="./images/info.mp4"></video>
 
 ```shell
 fs :info

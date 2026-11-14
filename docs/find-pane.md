@@ -1,6 +1,6 @@
 # Find pane
 
-Powered by `fd`, the Find pane recursively lists files and directories under one or more search roots and lets you fuzzy-filter, sort, preview, and act on the results as they stream in.
+The Find pane recursively lists files and directories under one or more search roots and lets you fuzzy-filter, sort, preview, and act on the results as they stream in.
 
 ## Invocation
 
@@ -69,7 +69,7 @@ The Find pane shares f:st's [visibility model](./visibility):
 
 ## Depth and symlinks
 
-The Find pane always walks the full directory tree recursively from its search roots; f:st does not define a separate depth option of its own (use the [Nav pane](./panes#nav) for single-level directory listings).
+The Find pane always walks the full directory tree recursively from its search roots; f:st does not define a separate depth option of its own (use the [Nav pane](./panes#built-in-panes) for single-level directory listings).
 
 Symbolic links are followed by default during recursive traversal. You can disable symlink traversal for a run with `--no-follow`, toggle `Follow` in the Options overlay (`alt-p`), or set `default_visibility = { follow = false }` under `[panes.find]`.
 

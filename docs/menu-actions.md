@@ -40,8 +40,6 @@ Each menu row renders as `{prefix}: {key}`. The default prefix `":"` is replaced
 | `QueueBatch(n)` | no | no | Enqueue target paths in rows of at most `n` paths each |
 | `Enqueue` | no | yes | Enqueue all target paths as one row and dispatch it immediately |
 
-<video controls preload="none" poster="./images/compress.png" src="./images/compress.mp4"></video>
-
 `Queue`, `QueueBatch`, and `Enqueue` create rows in the [queue](./queue) whose kind is the action's key. `requires_dest = true` is valid only with `Queue` and `QueueBatch`, because `Enqueue` dispatches immediately with an empty destination.
 
 ## Lua environment
@@ -100,7 +98,7 @@ Prefix any rule with `!` to invert it (`!type:d`).
 
 Ready-to-use action bundles for archiving, diffing, media conversion, file organization, and sharing ship in [`assets/actions/`](https://github.com/Squirreljetpack/fist/tree/main/assets/actions).
 
-<video controls preload="none" poster="./images/action.png" src="./images/action.mp4"></video>
+<video controls preload="none" poster="./images/compress.png" src="./images/compress.mp4"></video>
 
 ### Toggle executable bit (`ExecSilent`)
 

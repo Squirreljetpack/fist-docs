@@ -113,7 +113,7 @@ Non-interactive listings (`fs --list --format` and `fs :info --format`) stream p
 
 When the cursor is moved into the prompt, the query bar displays `[interface] cwd_prompt` from [config.toml](./configuration) (default `"{=} "`). In this context `{}` is the pane's current working directory with your home directory collapsed to `~`, emitted raw; use `{:}` when you want shell quotes around the directory path.
 
-<video controls preload="none" poster="./images/prompt.png" src="./images/prompt.mp4"></video>
+![Cwd prompt showing collapsed home directory path](./images/cwd-prompt.png)
 
 ## The pager directory template
 

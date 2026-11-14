@@ -1,6 +1,6 @@
 # Search pane
 
-Powered by `ripgrep`, the Search pane searches file contents across a directory tree, pairs each matched file path with its surrounding line context, and switches on the fly between live full-text querying and in-memory fuzzy filtering.
+The Search pane searches file contents across a directory tree, pairs each matched file path with its surrounding line context, and switches on the fly between live full-text querying and in-memory fuzzy filtering.
 
 ## Invocation
 
