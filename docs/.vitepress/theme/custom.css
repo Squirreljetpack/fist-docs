@@ -373,9 +373,13 @@ kbd,
   color: var(--vp-c-text-1);
 }
 
-/* --- Images -------------------------------------------------------------- */
+/* --- Images & Videos ----------------------------------------------------- */
 
-.vp-doc img {
+.vp-doc img,
+.vp-doc video {
+  max-width: 100%;
+  height: auto;
+  display: block;
   border-radius: 8px;
   border: 1px solid var(--vp-c-border);
   background: var(--vp-c-bg-elv);

@@ -1,196 +1,178 @@
 # Menu actions
 
-Menu actions are user-defined commands shown in the menu overlay (`ctrl-e` / `alt-e`).
-They are declared as TOML tables keyed by name; the insertion order is the
-menu display order.
+Menu actions are contextual Lua commands listed in the menu overlay (`alt-e` / `ctrl-e`). They are declared as TOML tables keyed by action name in `~/.config/fist/actions.toml` and any `*.toml` files under `~/.config/fist/actions/`, merged in filename order.
 
-Effectively, these act as f:st's _plugins_. Actions execute with the full capacity of standard [lua](https://www.lua.org/about.html) virtual machine. Some hooks into the main app are available from within:
-- `set_progress` is available for actions with `ExecuteStrategy::Queue/Batch` to display their progress in the [queue](queue.md).
-- `toast`, `toast_push` are available to create notification toasts.
+An action's table key serves two roles:
 
-In time and if there is demand, more hooks may be added, such as sending arbitrary actions or creating overlays.
+- The **queue kind** used by `Enqueue(key)`, `ExecuteQueue(key)`, and `ClearQueue(key)` in [mm.toml](./mm.toml).
+- The label suffix shown in the menu: `{prefix}: {key}`.
 
-![The menu](images/13-menu.png)
-
-Menu actions live in `actions.toml` next to `config.toml`, plus every `*.toml` file
-in the `actions/` folder next to it, merged in sorted filename order (numeric
-prefixes order them). `--dump-config` writes the shipped `actions.toml`.
-
-The key (name of the action) serves two roles:
-
-- the **name** shown in the menu,
-- For actions which execute by enqueuing, the same name serves as the [queue kind](queue.md).
+The built-in queue kinds (`copy`, `move`, `symlink`, `extract`, `none`), the queue selectors (`all`, `builtins`, `first`, `last`), and the empty string are reserved and rejected by `fs :tool check`.
 
 ## Fields
 
-| Field           | Type           | Default           | Meaning                                            |
-| --------------- | -------------- | ----------------- | -------------------------------------------------- |
-| `command`       | string         | required          | The lua script (`@file` syntax supported).         |
-| `alias`         | string         | none              | The alias shown in the menu's second column.       |
-| `strategy`      | string         | `"ExecuteSilent"` | How the command runs; see below.                   |
-| `condition`     | list or object | always visible    | Visibility rules; see below.                       |
-| `requires_dest` | bool           | `false`           | Queued executions require a non-empty destination. |
-| `close`         | bool           | strategy default  | Override the strategy's menu-closing behavior.     |
+| Field | Type | Default | Meaning |
+| --- | --- | --- | --- |
+| `command` | string | required | Inline Lua chunk or `@file` script path |
+| `prefix` | string | `":"` (file stem) | Menu group prefix (`""` omits the prefix) |
+| `alias` | string | none | Shortcut hint shown in the menu's second column |
+| `help` | string | `""` | Description shown under Action Guidance in the menu help |
+| `strategy` | string | `"ExecSilent"` | Execution mode |
+| `condition` | list or table | unconditional | Target and tool requirements for the row to appear |
+| `requires_dest` | bool | `false` | Require a non-empty destination before a queued row can run |
+| `close` | bool | strategy default | Override whether running the action closes the menu overlay |
+
+### Prefixes
+
+Each menu row renders as `{prefix}: {key}`. The default prefix `":"` is replaced at load time with the stem of the defining file (`actions/compress.toml` → `compress`), grouping each file's actions together. Setting `prefix = ""` renders the bare key. Duplicate `{prefix}: {key}` labels are rejected by `fs :tool check`.
+
+`@file` commands load a `.lua` file from disk; relative paths resolve against `~/.config/fist/actions/`.
 
 ## Strategies
 
-| Strategy        | Waits | Closes menu | Effect                                                  |
-| --------------- | ----- | ----------- | ------------------------------------------------------- |
-| `Execute`       | yes   | yes         | Run the lua command and wait for it.                    |
-| `ExecuteSilent` | no    | yes         | Run without waiting (`silent` is accepted as an alias). |
-| `ExecPaged`     | yes   | yes         | Run and page its stdout.                                |
-| `Queue`         | —     | no          | Enqueue all targets as one multi-path queue item.       |
-| `QueueBatch`    | —     | no          | Enqueue the targets in chunks of at most *n* paths.     |
+| Strategy | Waits | Closes menu | Effect |
+| --- | --- | --- | --- |
+| `Exec` | yes | yes | Run in foreground with `/dev/tty` attached |
+| `ExecWait` | yes | yes | Run in foreground, then wait for `Enter` before resuming the TUI |
+| `ExecSilent` | no | yes | Run asynchronously in a background worker |
+| `ExecPaged` | yes | yes | Stream standard output into the interactive [pager](./pager) |
+| `Queue` | no | no | Enqueue all target paths as a single multi-path queue row |
+| `QueueBatch(n)` | no | no | Enqueue target paths in rows of at most `n` paths each |
+| `Enqueue` | no | yes | Enqueue all target paths as one row and dispatch it immediately |
 
-`Queue`/`QueueBatch` create queue rows of the action's key; the row's
-destination is editable in the [queue](queue.md) overlay (`alt-u`).
+<video controls preload="none" poster="./images/compress.png" src="./images/compress.mp4"></video>
 
-## The Lua environment & global contract
+`Queue`, `QueueBatch`, and `Enqueue` create rows in the [queue](./queue) whose kind is the action's key. `requires_dest = true` is valid only with `Queue` and `QueueBatch`, because `Enqueue` dispatches immediately with an empty destination.
 
-Each action's `command` runs in an isolated Lua VM with `paths`, `dst`, and `nav_cwd` passed in, plus globals for toasts and progress. The full reference — arguments, built-in functions, `@file` loading, and binding the same Lua to keys — is on [Lua scripting](lua.md).
+## Lua environment
 
-`@file` commands load the script from disk (`~/` and absolute paths work; relative paths resolve against the actions folder).
+Each invocation runs in a fresh Lua 5.4 state with all standard f:st modules (`path`, `fs`, `proc`, `util`, `input`, `lunacolors`) and the action globals (`paths`, `to`, `nav_cwd`, `toast`, `toast_push`, `set_progress`). See [Lua](./lua) for module signatures and return values.
 
 ## Conditions
 
-An action is visible iff at least one condition passes; an empty list means
-always visible. A single condition is accepted without the outer array wrapper.
-Conditions are evaluated once when the menu opens.
+An action appears in the menu when at least one of its conditions matches the current target state. Conditions are evaluated once when the menu opens; any condition requiring an external binary (`have:prog`) that is not on `PATH` is stripped when configuration loads.
 
-There are two forms:
+Conditions take either a positional array or a scoped table:
 
-### 1. Positional sequence (`["type:f", "type:d"]`)
+### Positional sequence
 
-Direct array of file rules evaluated positionally against selections in order:
+An array of rule strings matches when the selection count equals the array length and the *i*-th selected row satisfies the *i*-th rule:
 
 ```toml
-condition = ["type:f", "type:d"]
+condition = ["type:f", "type:f"]
 ```
 
-Exactly as many items must be selected as there are rules, and rule *i*
-must match the *i*-th selected item in selection order. Multiple sequence alternatives
-can be supplied in an array (`condition = [["type:text", "type:text"], ["type:text", "type:d"]]`).
-
-### 2. Scoped rule table (`{ selected = "...", condition = "...", strict = bool }`)
-
-Flat table evaluated against the target set chosen by `selected`:
+Wrap multiple sequences in an outer array to allow alternatives:
 
 ```toml
-condition = { selected = "active", condition = "type:f", strict = true }
+condition = [["type:text", "type:text"], ["type:text", "type:d"]]
 ```
 
-The rule must match **every** path in the target set:
+### Scoped rule table
 
-| `selected`           | strict = false                                                                                                                         | strict = true                                     |
-| -------------------- | -------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------- |
-| `"cursor"` (default) | an enabled cursor with an item (selections are ignored)                                                                                | additionally: nothing selected                    |
-| `"cwd"`              | a current directory **while the cursor is disabled** (the prompt state)                                                                | the Nav pane directory, regardless of the cursor  |
-| *n*                  | at least *n* selected items                                                                                                            | exactly *n* selected items                        |
-| `"active"`           | the selection when any items are selected, else the cursor item, else (cursor disabled) the current directory; fails when none resolve | the resolved target set contains exactly one path |
+A table `{ selected = "...", condition = "...", strict = bool }` selects which paths are tested and requires every path in that target set to match `condition`:
 
-For `"cursor"` the rule is evaluated against the cursor item; for `"cwd"`
-against the current directory (strict: the Nav directory); for *n* and
-`"active"` against every resolved path. `strict` defaults to `false`;
-`selected` defaults to `"cursor"` when omitted.
+| `selected` | `strict = false` (default) | `strict = true` |
+| --- | --- | --- |
+| `"cursor"` (default) | Cursor row (ignores selections) | Cursor row only when nothing is selected |
+| `"cwd"` | Pane working directory while the cursor is disabled in the prompt | Active Nav pane working directory regardless of cursor state |
+| `n` (integer) | At least `n` selected rows | Exactly `n` selected rows |
+| `"active"` | Selected rows if any, else cursor row, else working directory | Resolved target set has exactly 1 path |
 
 ### Rule syntax
 
-| Rule                                                    | Matches                                                             |
-| ------------------------------------------------------- | ------------------------------------------------------------------- |
-| `ext:rs`                                                | File extension (`rs`). Bare `.ext` is shorthand (`.rs`).            |
-| `glob:*.rs`                                             | The full path against the glob.                                     |
-| `child:src`                                             | A child of the directory (or of a file's parent) matching the glob. |
-| `mime:image/*`                                          | MIME type (type may be a wildcard; e.g. `mime:image/png`).          |
-| `type:f` / `type:d` / `type:l` / `type:x` / `type:text` | File / directory / symlink / executable / text file.                |
-| `have:program`                                          | The program exists on PATH.                                         |
-| `cat:name`                                              | A file category (builtin or user-defined).                          |
-| `application`                                           | Platform app bundle / launcher / executable.                        |
-| `git`                                                   | The path is inside a git work tree.                                 |
-| `*`                                                     | Anything.                                                           |
+| Rule | Matches |
+| --- | --- |
+| `ext:rs` or `.rs` | File extension (`rs`) |
+| `glob:*.rs` | Full path matching glob |
+| `child:Cargo.toml` | Directory (or file's parent) containing a matching child |
+| `mime:image/*` | MIME type or wildcard |
+| `type:f`, `type:d`, `type:l`, `type:x`, `type:text` | Regular file, directory, symlink, executable, or text file |
+| `have:prog` | Executable `prog` exists on `PATH` |
+| `cat:name` | Built-in or custom [lessfilter category](./lessfilter#categories) |
+| `application` | Platform application bundle, `.desktop` launcher, or executable |
+| `git` | Path inside a git work tree |
+| `*` | Any target |
 
-Prefix with `!` to invert (`!ext:rs`). (Same vocabulary as [lessfilter rules](lessfilter.md).)
+Prefix any rule with `!` to invert it (`!type:d`).
 
 ## Examples
 
-To download ready-to-use action plugins (such as compression, diffing, and more), see [assets/actions](https://github.com/Squirreljetpack/fist/assets/actions).
+Ready-to-use action bundles for archiving, diffing, media conversion, file organization, and sharing ship in [`assets/actions/`](https://github.com/Squirreljetpack/fist/tree/main/assets/actions).
 
-### 1. Direct Execution on Active Targets (`ExecuteSilent`)
+<video controls preload="none" poster="./images/action.png" src="./images/action.mp4"></video>
 
-Runs silently without waiting or paging output. Operates on the active selection or cursor item:
+### Toggle executable bit (`ExecSilent`)
 
 ```toml
 ["chmod +x"]
-strategy = "ExecuteSilent"
-condition = { selected = "active", condition = "*" }
+strategy = "ExecSilent"
+condition = { selected = "active", condition = "type:f" }
 command = """
+local all_exec = true
 for _, p in ipairs(paths) do
-  os.execute("chmod +x '" .. p .. "'")
+  local st = fs.stat(p)
+  if not (st and st.executable) then
+    all_exec = false
+    break
+  end
 end
-toast_push("success", "set +x: ", #paths .. " items")
+local mode = all_exec and "-x" or "+x"
+for _, p in ipairs(paths) do
+  fs.chmod(p, mode)
+end
+toast_push("success", "set " .. mode .. ": ", #paths == 1 and path.base(paths[1]) or (#paths .. " files"))
 """
 ```
 
-### 2. Paged Output on Positional Pair (`ExecPaged` + Positional Array)
+### Diff two selected files in the pager (`ExecPaged`)
 
-Requires exactly two files selected in order; runs and pages stdout:
+<video controls preload="none" poster="./images/diff.png" src="./images/diff.mp4"></video>
 
 ```toml
 ["diff"]
 strategy = "ExecPaged"
 condition = ["type:f", "type:f"]
-command = "os.execute('diff -u --color=always ' .. paths[1] .. ' ' .. paths[2])"
+command = """
+local p1, p2 = paths[1], paths[2]
+print(lunacolors.bold(lunacolors.underline(path.base(p1) .. " <-> " .. path.base(p2))))
+os.execute("diff -u --color=always " .. util.shq(p1) .. " " .. util.shq(p2))
+"""
 ```
 
-### 3. Prompt-Scoped Command (`selected = "cwd"`)
-
-Visible only when in the prompt state (cursor disabled) inside a git repo:
+### Queued action with a destination (`Queue`)
 
 ```toml
-["git: log"]
-strategy = "ExecPaged"
-condition = { selected = "cwd", condition = "git" }
-command = "os.execute('cd ' .. paths[1] .. ' && git log')"
-```
-
-### 4. Gated on External Tool (`{ condition = "have:..." }`)
-
-Visible only when `tar` is installed on `PATH`:
-
-```toml
-["tar.gz"]
-strategy = "Execute"
-condition = { condition = "have:tar" }
-command = "print('compressing ' .. #paths .. ' items to ' .. dst)"
-```
-
-### 5. Queued Action Requiring Destination (`Queue` + `requires_dest`)
-
-Enqueues matching targets as a custom queue item; requires destination to execute:
-
-```toml
-["stash-logs"]
+["convert-webp"]
 strategy = "Queue"
-condition = { selected = "active", condition = "ext:log" }
 requires_dest = true
-command = "print('processing log ' .. paths[1] .. ' -> ' .. dst)"
+condition = { selected = "active", condition = ["have:cwebp", "cat:image"] }
+command = """
+for i, p in ipairs(paths) do
+  local out = path.join(to, path.stem(p) .. ".webp")
+  local res = proc.run("cwebp", {"-q", "85", p, "-o", out})
+  if not res.ok then error(res.stderr) end
+  set_progress(math.floor(i / #paths * 255))
+end
+toast("success", "Converted " .. #paths .. " image(s)")
+"""
 ```
 
-## Interaction with the queue
+## Running from the shell
 
-- `Queue`/`QueueBatch` rows execute the action's lua command once per row
-  with the row's stored `dst` as the second argument.
-- `requires_dest = true` rows need a non-empty destination: `All`
-  (`ExecuteQueue` with no argument) silently skips such rows with an empty
-  destination, exact selectors report an error.
-- The queue overlay's `[kind: x]` filter cycles the shared queue by kind;
-  `Paste` executes all pending `copy`, `cut`, and `symlink` rows.
+`fs :tool action` runs any configured menu action directly from the command line without opening the TUI:
 
-## FAQ
+```shell
+fs :tool action "compress: zip" src/ docs/
+fs :tool action convert-webp --dest ./out photo.png
+```
 
-**Can an action run without the menu?**
+Pass either the full `{prefix}: {key}` label or the bare key. Actions with `requires_dest = true` require `--dest <DIR>`. Use `--` before paths that begin with `-`. Toasts print to standard error, and the process exits with the code passed to `os.exit`.
 
-Yes — the same action key can be bound directly in `mm.toml` (`"ctrl-x" = "MenuAction(my-action)"`) or enqueued via `ExecuteQueue(my-action)`.
+## Queue interaction
 
-**How do I validate everything?**
+- `Queue` and `QueueBatch` rows remain pending in the queue until you dispatch them with `Enter` inside `alt-u` or via `ExecuteQueue`.
+- When `ExecuteQueue(all)` runs, custom rows with `requires_dest = true` and an empty destination are skipped silently; targeting a specific kind (`ExecuteQueue(convert-webp)`) raises an error toast if the destination is still empty.
+- `Paste` (`ctrl-v`) runs `ExecuteQueue(builtins)`, which dispatches `copy`, `move`, and `symlink` rows while leaving custom action rows in place.
 
-`fs :tool check` parses the configs and validates every action's Lua script, failing non-zero on errors. See [Tools](tools.md).
+Next: [Lua](./lua) · [Queue](./queue) · [Tools](./tools)

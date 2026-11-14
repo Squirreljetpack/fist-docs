@@ -5,10 +5,10 @@ const repo = "https://github.com/Squirreljetpack/fist-docs";
 export default defineConfig({
 	base: "/fist-docs/",
 	lang: "en-US",
-	title: "f:ist",
-	titleTemplate: ":title — f:ist",
+	title: "f:st",
+	titleTemplate: ":title — f:st",
 	description:
-		"F:ist (Fist: Interactive Search Tool) — a fast, keyboard-first browser for your filesystem. Documentation.",
+		"f:st — a file manager that runs in your terminal. Documentation.",
 	appearance: "dark",
 	lastUpdated: true,
 	cleanUrls: true,
@@ -30,7 +30,7 @@ export default defineConfig({
 	],
 	themeConfig: {
 		logo: "/logo.png",
-		siteTitle: "f:ist",
+		siteTitle: "f:st",
 		nav: [{ text: "Docs", link: "/" }],
 		socialLinks: [
 			{ icon: "github", link: "https://github.com/Squirreljetpack/fist" },
@@ -40,21 +40,22 @@ export default defineConfig({
 				text: "Getting started",
 				collapsed: false,
 				items: [
+					{ text: "Overview", link: "/" },
 					{ text: "Getting started", link: "/getting-started" },
-					{ text: "Core workflows", link: "/core-workflows" },
 				],
 			},
 			{
 				text: "Panes",
 				collapsed: false,
 				items: [
-					{ text: "Panes overview", link: "/panes" },
-					{ text: "Navigation, in depth", link: "/navigation-in-depth" },
-					{ text: "The find pane (fd)", link: "/find-pane" },
-					{ text: "The search pane (rg)", link: "/search-pane" },
-					{ text: "History & the database", link: "/history-database" },
+					{ text: "Panes", link: "/panes" },
+					{ text: "Navigation in depth", link: "/navigation-in-depth" },
+					{ text: "Find pane", link: "/find-pane" },
+					{ text: "Search pane", link: "/search-pane" },
+					{ text: "History database", link: "/history-database" },
 					{ text: "Stash panes", link: "/stash-panes" },
-					{ text: "The custom pane", link: "/custom-pane" },
+					{ text: "Custom pane", link: "/custom-pane" },
+					{ text: "Mount pane", link: "/mount-pane" },
 					{ text: "Visibility", link: "/visibility" },
 					{ text: "Sorting", link: "/sorting" },
 				],
@@ -63,19 +64,19 @@ export default defineConfig({
 				text: "Menu",
 				collapsed: false,
 				items: [
-					{ text: "Lua scripting", link: "/lua" },
+					{ text: "Lua", link: "/lua" },
 					{ text: "Menu actions", link: "/menu-actions" },
-					{ text: "The queue", link: "/queue" },
+					{ text: "Queue", link: "/queue" },
 				],
 			},
 			{
 				text: "Configuration",
 				collapsed: false,
 				items: [
-					{ text: "Configuration", link: "/configuration" },
+					{ text: "config.toml", link: "/configuration" },
 					{ text: "mm.toml", link: "/mm.toml" },
 					{ text: "lessfilter", link: "/lessfilter" },
-					{ text: "The pager", link: "/pager" },
+					{ text: "Pager", link: "/pager" },
 				],
 			},
 			{
@@ -84,8 +85,8 @@ export default defineConfig({
 				items: [
 					{ text: "Shell integration", link: "/shell-integration" },
 					{ text: "Command line", link: "/command-line" },
-					{ text: "Tools (fs :tool)", link: "/tools" },
-					{ text: "Output & templates", link: "/output-templates" },
+					{ text: "Tools", link: "/tools" },
+					{ text: "Output templates", link: "/output-templates" },
 				],
 			},
 		],

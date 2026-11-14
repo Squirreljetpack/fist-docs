@@ -1,127 +1,163 @@
 # Getting started
 
-F:ist (**F**ist: **I**nteractive **S**earch **T**ool) is a fast, keyboard-first file browser and launcher for the terminal. The binary is `fs`.
+This guide takes you from a clean environment to a working `fs` installation with configuration files, shell functions, menu actions, and core keybindings.
 
-![Main interface](images/01-hero.png)
+## Requirements
 
-## Overview
+`fd` (`fd-find`) and `rg` (`ripgrep`) are required at runtime to populate the Find and Search panes. Optional tools unlock rich previews in [lessfilter](./lessfilter) and the [pager](./pager):
 
-`fs` navigates directories, searches them recursively (`fd`), full-text (`ripgrep`), and through your own visit history — all in one interface, with the same fuzzy filtering and the same undo/redo stack. This page gets you from nothing to your first useful session.
+| Tool | Role |
+| --- | --- |
+| `fd` (`fd-find`) | Required for recursive file finding |
+| `rg` (`ripgrep`) | Required for full-text search |
+| `bat` | Syntax highlighting in previews and the pager |
+| `eza` | Directory tree and metadata previews via `fs :tool liza` |
+| `kreuzberg` | Text extraction for PDF and office documents |
+| `mediainfo` | Audio, video, and image metadata in the `info` preset |
+
+```shell
+cargo install fd-find ripgrep
+cargo install bat eza kreuzberg-cli mediainfo
+```
+
+All six tools are also available in standard system package managers (`apt`, `pacman`, `dnf`, `brew`).
+
+Your terminal should support 24-bit truecolor and a Nerd Font for file and directory icons. Inline pixel image previews work automatically in terminals supporting the Kitty graphics protocol, iTerm2 inline images, or Sixel, and fall back to Unicode halfblocks elsewhere. Prebuilt binaries target Linux (`x86_64` and `aarch64`, both `gnu` and static `musl`), macOS (`x86_64` and `aarch64`), and Windows (`x86_64`).
 
 ## Install
 
-### Via script (recommended)
+Run the install script to detect your OS, architecture, and libc, download the matching release archive, and install `fs` into `~/.cargo/bin`, `~/.local/bin`, or `/usr/local/bin` (invoking `sudo` only if the target directory is not writable):
 
 ```shell
 curl -fsSL https://raw.githubusercontent.com/Squirreljetpack/fist/main/install.sh | sh
 ```
 
-### Via cargo
+On Windows, use the PowerShell installer:
 
-`cargo install fist` works, but the release binary is the recommended install because it ships with the latest features.
-
-### Dependencies
-
-`fd` and `ripgrep` power the search panes, `bat` renders previews, and `eza` lists directories. Optional preview backends: `chafa` (images), `mediainfo` (metadata), `kreuzberg` (document extraction).
-
-```shell
-cargo install fd-find ripgrep bat eza
+```powershell
+powershell -ExecutionPolicy Bypass -c "irm https://github.com/Squirreljetpack/fist/releases/latest/download/fist-installer.ps1 | iex"
 ```
 
-### Shell integration
+Or install through a package manager:
 
 ```shell
-# Zsh / Bash
-eval "$(fs :tool shell)"
+# Homebrew
+brew install Squirreljetpack/tap/fist
 
-# Fish
+# npm
+npm install -g @squirreljetpack/fist
+
+# Cargo (builds from source; Rust 1.88+)
+cargo install fist
+```
+
+Verify the installation:
+
+```shell
+fs --version
+```
+
+## Set up your shell
+
+Add `fs :tool shell` to your shell startup file to enable frecency jumping, interactive opening, and line-editor widgets:
+
+```shell
+# Zsh (~/.zshrc)
+eval "$(fs :tool shell --shell=zsh)"
+
+# Bash (~/.bashrc)
+eval "$(fs :tool shell --shell=bash)"
+
+# POSIX sh / dash / ash / ksh
+eval "$(fs :tool shell --shell=sh)"
+```
+
+```fish
+# Fish (~/.config/fish/config.fish)
 fs :tool shell --shell=fish | source
-
-# Nushell
-fs :tool shell --shell=nu --aliases | save -f ~/.config/nushell/fist.nu
-# (then add `source ~/.config/nushell/fist.nu` to config.nu)
 ```
 
-This adds the `z` jump function (type a folder name to `cd` to your best match), `x` (jump and navigate), `zz` (jump and open), and keybinding widgets. See [Shell integration](shell-integration.md) for the full story, including aliases and widgets.
+```nushell
+# Nushell: generate once, then source from $nu.config-path
+fs :tool shell --shell=nu | save -f ~/.config/nushell/fist.nu
+source ~/.config/nushell/fist.nu
+```
 
-## Your first session
+Sourcing the integration defines:
+
+- `z` — frecency-ranked directory jump over f:st's history database.
+- `x` — interactive directory jump (starts in the Nav pane inside the best match).
+- `Z` — frecency-ranked file opener using the lessfilter `edit` preset.
+- Three line-editor widgets: recursive directory search (`shift-left`), recursive file search (`shift-right`), and full-text search (`shift-down`).
+
+Append `--aliases` to `fs :tool shell` to also define `lz` (`fs :tool liza`), `l` (`display` preset), `la` (`extended` preset), `ll` (`info` preset), `n` (`edit` preset), and `o` (`fs :open`). See [Shell integration](./shell-integration) for customization and keybinding overrides.
+
+## Initialize configuration
+
+Run `fs --dump-config` in an interactive terminal to write the default configuration files into `~/.config/fist`:
+
+```shell
+fs --dump-config
+```
+
+This creates `config.toml`, `mm.toml`, `lessfilter.toml`, `pager.toml`, and `actions.toml`, skipping any file that already exists. When standard output is piped (`fs --dump-config > resolved.toml`), `fs` prints the merged `config.toml` instead of writing files to disk. On debug builds, `fs` reads `dev.toml`, `mm.dev.toml`, `lessfilter.dev.toml`, `pager.dev.toml`, and `actions.dev.toml` when present.
+
+## Get menu actions
+
+Optional [menu action](./menu-actions) bundles for archiving (`compress.toml`), diffing (`diff.toml`), media and document conversion (`conversion.toml`), directory organization (`organize.toml`), and file sharing (`share.toml`) live in [`assets/actions/`](https://github.com/Squirreljetpack/fist/tree/main/assets/actions) in the repository. Copy the bundles you want into `~/.config/fist/actions/` and validate your setup:
+
+```shell
+fs :tool check
+```
+
+## First run
+
+Launch `fs` with no arguments to open the Nav pane in your current working directory, `fs :: <PATTERN>` to find files recursively, or `fs : <PATTERN>` to search file contents:
 
 ```shell
 fs
+fs :: auth
+fs : TODO
 ```
 
-You're in the **Nav** pane, listing the current directory.
+<video controls preload="none" poster="./images/nav-pane.png" src="./images/nav-pane.mp4"></video>
 
-![Nav pane](images/02-nav-pane.png)
+Type immediately to fuzzy-filter the current rows. Pressing `up` at the first row moves focus into the [prompt](./navigation-in-depth#prompt-locking), where the query bar displays the current working directory and actions target that directory instead of a row. In query-heavy panes or while in the prompt, the prompt locks (indicated by a red underline) so `left` and `right` move the text caret instead of navigating directories.
 
-- Type to fuzzy-filter the listing. `Esc` clears the query.
-- `Enter` **accepts** the current row: the path is handed to the system opener (`xdg-open`), or printed instead when `--alt-accept` is set.
-- `→` **advances**: a directory opens as a new Nav pane, a file runs the [lessfilter](lessfilter.md) **edit** preset (your `$EDITOR` for text). `←` goes back to the parent.
-- `ctrl-z` / `ctrl-shift-z` undo and redo your navigation.
-- `?` previews the current item.
+Press `alt-h` inside any pane or overlay to open its contextual help document, or run `fs --help` and `fs <subcommand> --help` on the command line.
 
 ## Core keybindings
 
-The complete list is always available in-app (`alt-h`) or from the shell (`fs :tool showbinds`). These are the ones you'll reach for daily:
+| Category | Keys | Effect |
+| --- | --- | --- |
+| Movement | `up` / `down`, `left` / `right` | Move cursor, climb to parent (`Parent`), enter directory or edit file (`Advance`) |
+| Accepting | `enter`, `alt-enter`, `ctrl-enter` | System open, print path to stdout, detached open |
+| Panes | `ctrl-f`, `ctrl-r`, `ctrl-g`, `alt-s` | Switch to Find, Search, History (Folders/Files), or Stash pane |
+| Stack | `ctrl-z` / `alt-z` | Undo or redo pane and directory transitions |
+| Overlays | `alt-e`, `alt-u`, `alt-p`, `alt-h` | Open Menu, Queue, Options, or Help overlay |
+| File ops | `ctrl-c`, `ctrl-x`, `ctrl-v`, `f2`, `delete`, `shift-delete` | Enqueue copy, enqueue move, paste builtins, rename, trash, permanent delete |
+| Selection | `tab`, `ctrl-a`, `ctrl-shift-a` | Toggle row and move down, cycle selection group, clear selection |
+| Preview | `?`, `alt-/`, `alt-i`, `ctrl-l` | Cycle preview layout, preview preset, info preset, or open in pager |
 
-| Keys | Action |
-| --- | --- |
-| `↑` / `↓` | Move the cursor |
-| `Enter` | **Accept** — open the item with the system opener (print it with `--alt-accept`) |
-| `←` / `→` | Parent directory / advance into the item |
-| `ctrl-z` / `ctrl-shift-z` | Undo / Redo pane history |
-| `ctrl-f` | **Find** — recursive search (fd) |
-| `ctrl-r` | **Search** — full-text search (rg) |
-| `ctrl-g` | **History** — visited folders & files |
-| `alt-enter` | **Print** the current path (scripting) |
-| `tab` | Toggle selection on the current row |
-| `ctrl-e` / `alt-e` | **Menu** of context-aware actions |
-| `alt-u` | **Queue** overlay (pending copy/cut operations) |
-| `ctrl-x` / `ctrl-c` / `ctrl-v` | Cut / Copy / Paste |
-| `delete` / `shift-delete` | Trash / Permanently delete |
-| `ctrl-n` / `ctrl-shift-n` | New file / New directory |
-| `ctrl-s` | Toggle hidden files |
-| `ctrl-d` | Toggle "only directories" |
-| `?` | Preview current item |
-| `alt-h` | Help overlay |
-| `ctrl-esc` | Open a shell in the current directory |
+Run `fs :tool showbinds` to view the complete resolved keymap, or customize bindings in [mm.toml](./mm.toml#binds).
 
-## Command line
+## Tour
 
-The same features are subcommands. In the find pane, the **last** positional argument is the pattern; earlier ones are search roots.
+The clip below walks through a single continuous session: jumping to a repository with `z`, running a full-text search, advancing into `$EDITOR` at the matched line, reviewing `git diff`, extracting a file from an archive into an inbox via the transfer queue, previewing images, and jumping back.
+
+<video controls preload="none" poster="./images/reel.png" src="./images/reel.mp4"></video>
+
+## Keeping it up to date
+
+Upgrade `fs` by re-running the install script, `cargo install fist --force`, or your package manager's upgrade command. Upgrading the binary never overwrites files in `~/.config/fist`; if you cache the output of `fs :tool shell`, regenerate that cache after upgrading.
+
+## Uninstall
+
+Remove the binary, delete the `fs :tool shell` line from your shell startup file, and remove the configuration, state, and cache directories:
 
 ```shell
-fs                      # nav pane (directory browser)
-fs pattern              # interactive find (fd)
-fs path pattern         # find under a path
-fs -t d .               # only directories, current tree
-fs :open file.pdf       # open files, record history      (alias :o)
-fs :rg "TODO" -p src    # full-text search                (alias :)
-fs :file                # recent files
-fs :dir                 # recent folders
-fs :custom              # browse a piped list of paths    (alias :c)
-fs :tool                # utilities                       (alias :t)
-fs :info                # database stats
+rm -f ~/.cargo/bin/fs ~/.local/bin/fs /usr/local/bin/fs
+rm -rf ~/.config/fist ~/.local/state/fist ~/.cache/fist
 ```
 
-`fs --help` and per-subcommand help (`fs :rg --help`) document every flag. `fs :tool types` prints the full catalog of `-t` types.
-
-## Next steps
-
-- [Core workflows](core-workflows.md) — the everyday loop.
-- [Panes](panes.md) — what each list view is for.
-- [Configuration](configuration.md) — make f:ist yours.
-
-## FAQ
-
-**Where do my config and data live?**
-
-Config: `~/.config/fist/`. Database and logs: `~/.local/state/fist/`. Helper scripts: `~/.cache/fist/`.
-
-**Why is the binary called `fs`?**
-
-Fist was designed to sit beside the other two-letter commands (`fd`, `rg`, `ls`). The name is a backronym: **F**ist: **I**nteractive **S**earch **T**ool.
-
-**Does it work in bash/fish/nushell?**
-
-Full shell integration (directory jumping, hooks, aliases, and line-editor widgets) is supported for **Zsh**, **Bash** (4.3+), **Fish**, and **Nushell**, with core `z`/`x`/`zz` functions available for standard **POSIX** shells (`sh`, `dash`, `ash`, `ksh`).
+Next: [Panes](./panes) · [Shell integration](./shell-integration) · [config.toml](./configuration)

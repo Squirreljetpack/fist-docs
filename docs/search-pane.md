@@ -1,115 +1,101 @@
-# The search pane (`rg`)
+# Search pane
 
-The **Search** pane runs full-text search through `ripgrep`. Every result is an ordinary pane row, with a second **context column** showing the matching lines.
+Powered by `ripgrep`, the Search pane searches file contents across a directory tree, pairs each matched file path with its surrounding line context, and switches on the fly between live full-text querying and in-memory fuzzy filtering.
 
-![Search pane](images/06-search.png)
+## Invocation
 
-## Overview
-
-- **Query mode** re-runs ripgrep as you type; **filter mode** narrows already-loaded results.
-- `%` switches the filter to the context column.
-- Advancing on a match exports `HIGHLIGHT_LINE` / `HIGHLIGHT_COLUMN`, so editors open at the exact match.
-
-## Opening a search
-
-| Way | Command |
-| --- | --- |
-| In-app | `ctrl-r` |
-| Subcommand | `fs :rg` (alias `:`) |
-| With args | `fs :rg "pattern" -p path1 -p path2` |
+Launch the Search pane from the command line or from inside any pane:
 
 ```shell
-fs :rg "TODO" -p src                    # pattern + paths
-fs :rg -c -C 2 "error" .                # ignore case, 2 lines of context
-fs :rg -- --glob '!vendor/**' "fix"     # anything after `--` goes to rg raw
-echo -e "src\nlib" | fs :rg "foo"       # paths can come from stdin
+fs : [PATTERNS]...
+fs :rg -p src -p tests TODO
 ```
 
-## Query and filter mode
+- **Subcommand (`fs :` or `fs :rg`)** — starts a full-text search with any positional `[PATTERNS]...`.
+- **In-app (`ctrl-r`)** — opens the Search pane rooted at the current working directory. If rows are selected in the current pane when you press `ctrl-r`, the search is scoped strictly to those selected paths.
+- **Target paths and stdin (`-p` / `--path`, `--rebase`, `--no-read`)** — pass one or more `-p <PATH>` flags to restrict the search roots, or pipe newline-delimited file paths into `fs :` on standard input (pass `--no-read` to ignore piped stdin). Passing `--rebase` shifts the pane's working directory to the deepest common parent of all target paths.
+- **Starting in filter mode (`--filtering`)** — opens the pane directly in filter mode rather than query mode; pair with `--query <TEXT>` to seed the initial filter string.
+- **Output and sorting (`--list`, `--cd`, `--sort`)** — `--list` (`-l`) prints matching file paths to stdout without opening the TUI, `--cd` prints the accepted path on exit, and `--sort` orders matches by `name`, `mtime`, `atime`, or `none`. See `fs : --help` for all flags.
 
-Toggled with `ctrl-r`:
+## Two columns
 
-**Query mode** — your input is the *pattern*. Every change re-runs ripgrep, streaming results in. Multiple whitespace-separated queries are OR'd; wrap a query containing spaces in single quotes, escape a literal quote as `\'`.
+The Search pane populates column 1 with the file path and column 2 (the tail) with the matched line text and syntax/match highlights. Two layout modes control how multiple matches inside the same file appear:
 
-**Filter mode** — results are *already loaded*; your input is a fuzzy nucleo filter over them. Instant, no re-search.
+- **One-line mode (`--one-line` / `-1`, or `one_line = true`)** — every matched line is its own row, with the file path in column 1 and the single match line (or sliding context window when `-A`/`-B`/`-C` is used) in column 2.
+- **Stacked context mode (`--one-line=false`, or `one_line = false`)** — all matches within a single file are grouped into one row, rendering the file path on top and the stacked match blocks underneath separated by a horizontal rule.
 
-The two modes keep separate inputs; the inactive one is shown in the status line (`rg_status_template` / `fs_status_template`).
+Set your preferred default via `one_line` under `[panes.search]` in [config.toml](./configuration#search).
 
-Tip: start in query mode to search the tree, then `ctrl-r` into filter mode to drill down through thousands of matches.
+## Query mode and filter mode
 
-### Filtering the context column
+Pressing `ctrl-r` inside the Search pane toggles between **query mode** (live full-text search) and **filter mode** (in-memory fuzzy narrowing of current matches):
 
-The filter targets the **path** column by default. Prefix the query with `%` to filter the **context** column instead:
+<video controls preload="none" poster="./images/search.png" src="./images/search.mp4"></video>
 
-```text
-path_filter % context_filter
-```
+In filter mode, typing `%` splits the filter so text before `%` matches the file path in column 1 and text after `%` fuzzy-matches the line content in column 2 (`src/api % Bearer`).
 
-`%` (percent + space) selects the context column, `%_` the path column. Queries are regexes in query mode, literal matches in filter mode.
+## Patterns and quoting
 
-## Flags
+In query mode, the prompt text can express multiple OR-combined patterns at once:
 
-| Flag | Meaning |
-| --- | --- |
-| `-i` / `-s` / `-S` | Ignore case / case-sensitive / smart case |
-| `-A n` / `-B n` / `-C n` | Context lines after / before / both sides |
-| `--one-line`, `-1` | One line per match (`--no-heading`) |
-| `--fixed-strings` / `--no-fixed-strings` | Literal patterns (default: regex) |
-| `--preserve-whitespace` | Prefix the query with `'` so it isn't split |
-| `--rebase` | Run rg from the deepest common directory of the given paths |
-| `--filtering` | Start in filter mode |
-| `--no-read` | Don't read paths from stdin |
-| `--sort <sort>` | `name` `mtime` `atime` `none` (size is not available) |
+- **Whitespace splitting** — unquoted spaces split the query into separate patterns (`fn struct` matches lines containing either `fn` or `struct`).
+- **Single quotes** — wrap a phrase in single quotes (`'fn main'`) to keep spaces inside a single pattern; escape a literal single quote inside or outside quotes as `\'`.
+- **`preserve_whitespace`** — passing `--preserve-whitespace` or setting `preserve_whitespace = true` in `[panes.search]` automatically prepends a leading `'` to the prompt so spaces stay in one pattern without manual quoting.
+- **Regex vs literal filter** — query mode evaluates patterns as regular expressions by default, whereas filter mode always performs literal fuzzy matching.
 
-In-app, the same knobs live in the options overlay (`ctrl-p` / `alt-p`): context before/after, case, one-line, regex/fixed, and sort.
+## Regex versus fixed strings
 
-## What rg actually runs
+- **Fixed strings (`--fixed-strings` / `--no-fixed-strings`)** — treats query-mode patterns as literal strings instead of regular expressions. Press `ctrl-s` inside the Search pane (or set `fixed_strings = true` in `[panes.search]`) to toggle between `regex` and `fixed` at runtime.
+- **Case sensitivity (`-S` smart, `-s` sensitive, `-c` ignore)** — defaults to smart case; press `ctrl-d` inside the Search pane to cycle `smart → sensitive → ignore` with a status toast.
+- **Context lines (`-A`, `-B`, `-C`)** — include trailing, leading, or surrounding lines around each match.
+- **`empty_pattern`** — when the query bar is empty in query mode, `[panes.search] empty_pattern` provides the fallback pattern (shipped config uses `"-v ^ *$"`, where the leading `-v ` inverts matching so every non-blank line is listed; omitting `empty_pattern` leaves the pane blank until you type).
 
-F:ist builds a deterministic rg command: `--line-number --column --heading|--no-heading --null` plus visibility flags, patterns as repeated `-e` arguments, paths at the end. `--color=ansi` and `--trim` come from `[rg] base_args`; `--sortr=modified|accessed` / `--sort=path` handle sorting.
+## Visibility, ignores and iglobs
 
-- Arguments after `--` are appended last and override internal flags.
-- `-v` (invert match) is detected from extra args; results lose column info so the context column still makes sense.
-- `[rg] empty_pattern` (default `-v ^ *$`) runs when the query is empty — everything except blank lines.
+The Search pane honors the shared [visibility flags](./visibility) (`hidden`, `ignored`, `all`, `follow`) and `-t` filetype filters, pruning VCS directories (`.git`, `.jj`, `.hg`, `.svn`) automatically unless `all` (`-u`) is active.
 
-Not supported through the wrapper (use `--` to pass them raw): `--pre` / `--pre-glob`, `-z` zip search, `--count-matches`, `--passthru`, `--multiline`.
-
-## Opening at the match
-
-When you **advance** on a single-line search hit, f:ist exports:
-
-| Variable | Meaning |
-| --- | --- |
-| `HIGHLIGHT_LINE` | Line number of the match |
-| `HIGHLIGHT_COLUMN` | Byte column (when non-zero) |
-
-The lessfilter **edit** preset consumes these and opens the file at the right spot when your editor is supported (`micro`, `vim`, `nvim`, `nano`); other editors get plain paths. The same variables let the previewer jump to the matching line.
-
-## Sorting and stability
-
-The search pane sorts by `name`, `mtime`, `atime`, or `none` (match order — the default); `size` is not available here (see [Sorting](sorting.md#per-pane-notes)). Sort options translate to rg flags (`--sort=path`, `--sortr=modified|accessed`). In filter mode, sorting is nucleo-side with a stability threshold so live results don't thrash.
-
-## Status templates
-
-While searching, the status line shows the active mode and input. Shipped defaults:
+In addition, `[panes.search.iglobs]` in [config.toml](./configuration#search) defines directory-scoped case-insensitive globs:
 
 ```toml
-[panes.search]
-rg_status_template = '{blue:filter: {}} \s\m/\t'   # shown in query mode
-fs_status_template = '{red:query: {}} \s\m/\t'     # shown in filter mode
+[panes.search.iglobs]
+"" = ["!*.lock", "!*.min.js"]
+"~/work/harborlight" = ["!fixtures/**"]
 ```
 
-`{}` is replaced with the active input. Both are text templates with style directives.
+Globs under `""` apply to every search; globs keyed by a directory path (`~` is supported) apply when searching from that directory. Enabling `all` visibility (`-u`) bypasses `iglobs`.
 
-## FAQ
+## Configuration
 
-**What's the difference between query mode and filter mode?**
+`[panes.search]` in [config.toml](./configuration#search) configures the pane's defaults:
 
-Query mode searches the tree (re-runs ripgrep); filter mode narrows the results already loaded. `ctrl-r` toggles.
+| Key | Default | Effect |
+| --- | --- | --- |
+| `one_line` | `false` (`true` in shipped config) | One row per match line vs stacked per-file blocks |
+| `fixed_strings` | `false` | Literal patterns instead of regular expressions |
+| `preserve_whitespace` | `false` | Keep whitespace in a single pattern without quoting |
+| `empty_pattern` | none (`"-v ^ *$"` in shipped config) | Pattern run when the query is empty |
+| `iglobs` | `{}` | Folder-keyed glob rules |
+| `rg_status_template` | `""` | Status line template in query mode |
+| `fs_status_template` | `""` | Status line template in filter mode |
 
-**How do I search for a phrase with spaces?**
+The common pane keys (`prompt`, `prompt_style`, `show_preview`, `lock_prompt`, `preview_layout_index`, `default_visibility`, `default_sort`) also apply.
 
-Single quotes in query mode: `'search this'`.
+## Sorting
 
-**How do I exclude files?**
+The Search pane supports `none` (parallel stream order), `name` (alphabetical by path), `mtime`, and `atime`. There is no `size` sort because rows represent individual line matches rather than whole files or directories; passing `--sort size` returns an error, and entering the Search pane from a size-sorted pane resets the sort to `none`.
 
-Pass rg flags raw: `fs :rg -- --glob '!vendor/**' pattern`.
+## Status line templates
+
+Because the prompt only displays one mode's text at a time, `[panes.search]` provides two matchmaker display templates that show the *other* mode's active input in place of `{}`:
+
+- **`rg_status_template`** — rendered while in **query mode**, with `{}` replaced by the saved fuzzy filter string.
+- **`fs_status_template`** — rendered while in **filter mode**, with `{}` replaced by the active search patterns.
+
+## Acting on a match
+
+Every search row records the 1-based line and column of the match (`HIGHLIGHT_LINE` and `HIGHLIGHT_COLUMN`):
+
+- **Preview** — the preview pane automatically centers its viewport on `HIGHLIGHT_LINE` and highlights the matched line via `bat --highlight-line`.
+- **Advancing or accepting** — pressing `right` (`Advance`) or `enter` exports `HIGHLIGHT_LINE` and `HIGHLIGHT_COLUMN` to `[interface] advance_command` and the [lessfilter](./lessfilter) `edit` preset, which translates them into native line-and-column jump arguments (`+line:col`, `+line,col`, `file:line:col`) for `nvim`, `vim`, `hx`, `kak`, `nano`, `emacs`, `zed`, `code`, and `subl`.
+
+Next: [Find pane](./find-pane) · [lessfilter](./lessfilter) · [Visibility](./visibility)

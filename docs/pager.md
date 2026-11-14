@@ -1,84 +1,97 @@
-# The Pager
+# Pager
 
-`fs` includes a pager which wraps [bat](https://github.com/sharkdp/bat) when present, feeding it into a fork of [minus](https://github.com/AMythicDev/minus). This pager includes a few modifications required by `fs` for a smooth experience: it skips starting on empty (non-file) inputs, writes to /dev/tty in `fist` (so that `fs` can still write to stdout), and reads environment variables to propogate options such as bat arguments so that it fits as a configurable `$PAGER` in scripts (if so desired) with maximal compatibility.
+f:st includes a built-in terminal pager based on [minus](https://docs.rs/minus/latest/minus/) that wraps `bat` for syntax highlighting when installed, renders on `/dev/tty` so stdout stays clean for path printing, and exits immediately on empty non-file streams.
 
 ## When output gets paged
 
-- **Actions**: `ExecPaged` and`LfPaged` run the command with its stdout streamed into an interactive
-  minus pager drawn on `/dev/tty`. Quitting the pager (`q`) kills the command
-  and returns to the TUI.
-- **Lessfilter**: The `preview`, `display` and `extract` presets render a compatible files' content into the preview pane.
-- **`fs :tool pager`**: Behaves similarly to standard pagers, but provides syntax highlighting through bat, and reads options through environment variables.
+Output enters the pager from three places:
 
-## Configuration — `pager.toml`
+- **Bind and menu actions** — `ExecPaged`, `LFPaged(preset)`, and menu actions with `strategy = "ExecPaged"` stream standard output into the interactive pager on `/dev/tty`. Pressing `q` terminates the child process and returns to the active pane.
+- **lessfilter presets** — the `Text` built-in action in `display`, `extended`, and `LFPaged` runs renders through the pager, while `preview` streams the same highlighted output into the preview pane.
+- **`fs :tool pager`** — standalone CLI pager (alias `pg`) that can also serve as `$PAGER`.
+
+<video controls preload="none" poster="./images/paged.png" src="./images/paged.mp4"></video>
+
+## pager.toml
+
+`~/.config/fist/pager.toml` configures both the embedded pager and `fs :tool pager`:
 
 ```toml
-bat_opts = ["--color=always", "--style=changes"]
+bat_opts = ["--color=always", "--style=rule"]
 line_numbers = false
-follow = false
 horizontal_scroll = false
-smart_case = false
-# prompt = "" # disable prompt text
+smart_case = true
+smart_changes = true
+display_directory = ["fs", ":tool", "liza", ":u2", "--", "{}"]
 ```
 
-| Field               | Type            | Meaning                                                                                               |
-| ------------------- | --------------- | ----------------------------------------------------------------------------------------------------- |
-| `bat_opts`          | list of strings | Extra arguments passed to `bat`.                                                                      |
-| `line_numbers`      | bool            | Show line numbers in the pager.                                                                       |
-| `follow`            | bool            | Auto-scroll as new output arrives (follow mode).                                                      |
-| `horizontal_scroll` | bool            | Always enable horizontal scrolling (Ctrl+h still toggles it).                                         |
-| `prompt`            | string          | Footer prompt text shown by the pager.                                                                |
-| `smart_case`        | bool            | Queries with no uppercase chars match case-insensitively; queries with uppercase stay case-sensitive. |
+| Field | Type | Default | Meaning |
+| --- | --- | --- | --- |
+| `bat_opts` | array of strings | `["--color=always", "--style=changes"]` | Arguments passed to `bat` (commenting out disables `bat`) |
+| `line_numbers` | bool | `false` | Show line numbers in the pager |
+| `prompt` | string | none | Custom footer prompt text |
+| `horizontal_scroll` | bool | `false` | Enable horizontal scrolling on start (`ctrl-h` toggles at runtime) |
+| `smart_case` | bool | `true` | Case-insensitive search unless the query contains uppercase letters |
+| `smart_changes` | bool | `false` (`true` in shipped config) | Append `--style=+changes` or `--style=-changes` based on unstaged git changes |
+| `copy_on_select` | bool | `false` | Copy mouse selections immediately on button release |
+| `display_directory` | array of strings | `["fs", ":tool", "liza", ":u2", "--", "{}"]` | Command argv run when given a directory (`{}` expands to the raw path) |
 
-`bat` is only used when the `bat` binary is on `PATH`; without it, output
-passes through uncolored.
+When `bat` is not on `PATH`, text streams directly into the pager without syntax highlighting.
 
-## `fs :tool pager` (alias `pg`)
+## `fs :tool pager +OFFSET`
 
-Page one file, or stdin when no file is given:
+`fs :tool pager` (alias `pg`) pages a file, a directory (via `display_directory`), or standard input when no path is given:
 
-```sh
+```shell
 fs :tool pager Cargo.toml
-cat Cargo.toml | fs :tool pager
-fs :tool pager -- Cargo.toml
+fs :tool pager +120 src/main.rs
+fs :tool pager +50p src/main.rs
+fs :tool pager +F /var/log/syslog
+fs :tool pager +200F /var/log/syslog
 ```
 
-- Bat arguments come from the environment (see below) — the same options the
-  lessfilter renderer honors.
-- Empty non-file input produces skips the pager and exits 0.
-- On a terminal, output is paged interactively (minus), with bat colors when
-  bat is installed. When stdout is a pipe or file, content passes through
-  with colors but no paging UI.
+An initial `+OFFSET` argument controls where the pager opens:
 
-## Environment variables
+| Offset | Meaning |
+| --- | --- |
+| `+N` | Open with 1-based line `N` at the top of the screen |
+| `+Np` | Open `N` percent into the file (requires a file path) |
+| `+F` | Jump to the end of the file and follow new lines (`ctrl-f` toggles) |
+| `+NF` | Load only the last `N` lines, then follow new output |
 
-These apply to `fs :tool pager` and every paged lessfilter output (`preview`,
-`display`, `extract`):
+Passing `-C <NUM>` pads `+N` with `NUM` lines of leading context above the target line. See `fs :tool pager --help` for all flags.
 
-| Variable         | Effect                                                                                                    |
-| ---------------- | --------------------------------------------------------------------------------------------------------- |
-| `PG_RAW=true`    | Skip bat entirely; pass the raw stream through.                                                           |
-| `PG_FLAGS`       | Comma-separated bat flags that replace the default argument set (a doubled `,,` escapes a literal comma). |
-| `PG_LANG`        | Bat language override: `-l <value>` (e.g. `PG_LANG=ini`).                                                 |
-| `PG_FILENAME`    | Bat file name hint: `--file-name <value>` (used for language detection on stdin input).                   |
-| `HIGHLIGHT_LINE` | Number: bat `--highlight-line <value>`.                                                                   |
+## Env vars
 
-### minus keybindings
+Environment variables override `pager.toml` per invocation and are also read by paged [lessfilter](./lessfilter) actions:
 
-These are the defaults of minus 5.7. A keybinding table for all of
-minus's actions lives in the [minus documentation](https://docs.rs/minus/latest/minus/).
+| Variable | Effect |
+| --- | --- |
+| `PG_RAW=true` | Bypass `bat` and stream raw input into the pager |
+| `PG_FLAGS` | Comma-separated `bat` flags replacing `bat_opts` (`,,` escapes a literal comma) |
+| `PG_LANG` | Language override passed as `bat -l <value>` |
+| `PG_FILENAME` | File name hint passed as `bat --file-name <value>` when paging stdin |
+| `HIGHLIGHT_LINE` | 1-based line number passed as `bat --highlight-line <value>` |
 
-| Key                            | Action                                      |
-| ------------------------------ | ------------------------------------------- |
-| `q`, `Ctrl-c`                  | Quit the pager (always resumes the picker)  |
-| `j` / `↓`, `k` / `↑`           | Scroll one line (prefix a number to repeat) |
-| `Space`, `PageDown` / `PageUp` | Scroll one page                             |
-| `u`, `Ctrl-u` / `d`, `Ctrl-d`  | Scroll half a page                          |
-| `g` / `G`                      | Go to the top / bottom (or to line N)       |
-| `Enter`                        | Scroll N lines                              |
-| `h` / `←`, `l` / `→`           | Scroll horizontally                         |
-| `Ctrl-l`                       | Toggle line numbers                         |
-| `Ctrl-f`                       | Toggle follow mode                          |
-| `Ctrl + H`                     | Toggle line wrap                            |
-| `/`, `?`                       | Search forward / backward                   |
-| `n`, `p`                       | Jump to the next / previous match           |
+## minus keybindings
+
+| Key | Action |
+| --- | --- |
+| `q`, `ctrl-c` | Quit the pager and return to f:st |
+| `j` / `Down`, `k` / `Up` | Scroll one line (prefix a count to repeat) |
+| `space`, `pagedown` / `pageup` | Scroll one full page |
+| `d`, `ctrl-d` / `u`, `ctrl-u` | Scroll half a page down or up |
+| `g` / `G` | Jump to top, bottom, or prefixed line `N` |
+| `h` / `Left`, `l` / `Right` | Scroll horizontally |
+| `ctrl-l` | Toggle line numbers |
+| `ctrl-f` | Toggle follow mode |
+| `ctrl-h` | Toggle line wrapping / horizontal scroll |
+| `/`, `?` | Search forward or backward |
+| `n`, `p` | Jump to next or previous search match |
+
+## Files
+
+- `~/.config/fist/pager.toml` — user pager configuration.
+- `assets/config/pager.toml` — shipped defaults written by `fs --dump-config`.
+
+Next: [lessfilter](./lessfilter) · [config.toml](./configuration) · [Tools](./tools)

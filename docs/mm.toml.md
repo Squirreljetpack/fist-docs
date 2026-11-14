@@ -1,81 +1,140 @@
 # mm.toml
 
-`mm.toml` configures the **matchmaker** UI layer on top of f:ist's pane model: layout, preview, overlays, and keybindings. It is one of the TOML files f:ist reads (see [Configuration](configuration.md)); `--mm-config <path>` selects a different file, and `fs :tool check` validates everything including every bind.
+`mm.toml` configures the matchmaker UI layer: the results table, preview layouts, terminal dimensions, overlays, and key bindings. Application logic lives in [config.toml](./configuration).
 
-Below is the complete set of options matchmaker understands. For what each one does, the up-to-date definitions live in the matchmaker documentation: [matchmaker-docs/configuration](https://squirreljetpack.github.io/matchmaker-docs/configuration). This page only lists them, so you can see what exists and where it goes.
-
-## Available options
-
-Each row is a section you can put in `mm.toml`, together with the options (and their short aliases) that section accepts.
-
-| Section | Options |
+| File | Purpose |
 | --- | --- |
-| `[start]` | `command` (`x`, `cmd`), `input_separator` (`is`, `n`), `output_separator` (`os`), `output_template` (`ot`, `o`), `on_accept`, `sync`, `additional_commands` (`ax`), `mode`, `directory` (`d`), `save_orphans`, `skip_invalid_lines`, `shell` |
-| `[exit]` | `first`, `allow_empty`, `abort_empty`, `last_key_path` |
-| `[matcher]` | `normalize`, `ignore_case`, `prefer_prefix`, `match_paths`, `trim` (`t`), `ansi` (`a`), `sanitize`, `require_column`, `raw`, `track` — plus `[matcher.sort]`: `reverse`, `mode`, `column`, `threshold` |
-| `[columns]` | `split` (`s`), `names` (`n`), `max_columns` (`max`), `default` (`i`) |
-| `[ui]` | `tick_rate`, `mouse_events`, `mouse_scroll_debounce_ms`, `border` |
-| `[query]` | `prompt`, `initial`, `style`, `prompt_style`, `scroll_padding`, `cursor`, `border`, `reset_cursor_on_query_change`, `word_boundaries` |
-| `[results]` | `multi_prefix`, `default_prefix`, `current_prefix`, `multi`, `style`, `inactive_style` (`inactive`), `inactive_current_style`, `match_style` (`match`), `current_style` (`current`), `prefix_style` (`prefix`), `inactive_prefix_style` (`inactive_prefix`), `row_connection`, `scroll_wrap` (`cycle`), `scroll_padding` (`sp`), `reverse` (`r`), `wrap` (`w`), `width_overrides`, `min_width`, `min_width_from_cols`, `column_spacing`, `right_align_last`, `active_column_min_percentage_hint` (`acp`), `max_height`, `show_skipped`, `vscroll_current_only`, `uniformly_truncate_columns`, `vertical`/`stacked_columns` (`v`), `separator` (`hr`), `separator_style`, `autoscroll` (`a`: `enabled`, `initial_preserved`, `context`, `end`, `always`), `resize_col_thresholds` (`rct`), `border` |
-| `[status]` | `style`, `show`, `match_indent`, `template`, `row_connection`, `interactions` |
-| `[header]` / `[footer]` | `content` (`h`), `style`, `match_indent`, `wrap`, `row_connection`, `interactions`, `border` — header also adds `header_lines` |
-| `[preview]` | `show`, `scroll_wrap`, `wrap`, `layout` (`l`), `border`, `initial` (`i`), `initial_layout`, `trim_ends`, `reevaluate_show_on_resize`, `drag_width` |
-| `[[preview.layout]]` | per layout: `command` (`x`, `px`), `side`, `percentage`, `min`, `max`, `scroll`, `border` |
-| `[previewer]` | `try_lossy`, `delay_clear`, `debounce_ms`, `max_procs`, `always_trigger`, `shell`, `trim_commands`, `help` (`colors`, `seq_brackets`, `hide_semantic`, `quote_traces`, `max_item_len`, `ellipsize_center`, `event_trigger_prefix`, `show_events`, `sort_fn_last`, `combine_keys`), `cache` |
-| `[pager]` | `line_numbers` (`ln`), `follow`, `prompt`, `horizontal_scroll` |
-| `[tui]` | `stream`, `restore_fullscreen`, `extended_keys`, `sleep_ms`, `clear_on_exit`, `clear_after_execute`, `layout` (`percentage`, `min`, `max`), `osc52`, `copy_trailing_newline` |
-| `[overlay]` | `border`, `outer_dim`, `layout` (`percentage`, `min`, `max`, `y_offset`) |
-| `[envs]` | arbitrary `name = value` pairs injected into spawned commands |
-| `[binds]` | keys mapped to actions — see [Keybindings](#keybindings) |
+| `config.toml` | Pane behavior, history, transfers, watcher, path styles — see [config.toml](./configuration) |
+| `mm.toml` | Columns, previews, TUI layout, overlays, key bindings |
 
-### Shared blocks
+Because `mm.toml` uses matchmaker's configuration schema, this page covers the sections specific to f:st. For shared matchmaker tables—`[ui]`, `[query]`, `[results]`, `[status]`, `[preview]`, `[preview.image]`, `[header]`, `[footer]`, `[tui]`, `[overlay]`, `[previewer]`, and `[help]`—consult the [matchmaker configuration reference](https://squirreljetpack.github.io/matchmaker-docs/configuration).
 
-Some options are structured blocks that recur across sections:
+## Binds
 
-- **`style`** — `fg`, `bg`, `modifier`.
-- **`border`** — `type`, `color`, `bg`, `sides`, `padding`, `title`, `title_modifier`, `modifier`.
-
-## Keybindings
-
-The `[binds]` table maps keys to actions. It defaults to the shipped set, and anything you write here overrides a matching default. Actions come from two places:
-
-- **f:ist's built-in file actions**, for example `ToggleHidden`, `Find`, `CopyPath`.
-- **matchmaker's own builtins**, such as `Accept`, `Down`, `HScroll`, `AutoJump`, `LockPrompt`.
-
-A single key can trigger one action, or a chain of several run in order. The value is a string for one action, or an array for a chain:
+`[binds]` maps keys, mouse events, and lifecycle triggers to bind actions or action sequences. Bindings defined here merge over the built-in keymap; run `fs :tool showbinds` to inspect the resolved bindings after overrides.
 
 ```toml
 [binds]
-"ctrl-f" = "Find"                    # a single action
-"tab" = ["ToggleSelection", "Down"]  # two actions, run in order
-"alt-s" = "PushStash"                # your own bind overrides the default
+"tab" = ["ToggleSelection", "Down"]
+"nav^^alt-n" = "Execute($EDITOR .)"
 ```
 
-Some actions take an argument, written in parentheses after the name:
+Mode prefixes before `^^` scope a binding to a pane or state (`nav`, `find`, `search`, `files`, `dirs`, `app`, `custom`, `stash`, `in_prompt`, `locked_prompt`). For the full list of bind actions and trigger syntax, see [actions.md](https://github.com/Squirreljetpack/fist/blob/main/user_docs/actions.md).
+
+<video controls preload="none" poster="./images/fileops.png" src="./images/fileops.mp4"></video>
+
+## Preview layouts
+
+`[[preview.layout]]` declares the preview geometries cycled by `SwitchPreviewLayout` (`?`) and indexed by `preview_layout_index` in [config.toml](./configuration):
 
 ```toml
-"ctrl-2" = "AutoJump(2)"         # jump to the second result
-"alt-b" = "PushStash(bookmark)"  # push onto a named stash
-"alt-8" = "LFPaged(Alternate)"   # a specific lessfilter preset
+[[preview.layout]]
+side = "right"
+percentage = 40
+min = 30
+max = 120
+
+[[preview.layout]]
+side = "top"
+percentage = 50
+min = 5
+max = 50
 ```
 
-To see the *fully resolved* map — every key with the action or actions it fires, defaults and your overrides merged — run:
+## Overlays
 
-```sh
-fs :tool showbinds
+### Queue and app views
+
+`[queue]` styles the [queue overlay](./queue); `[app]` styles the app pane's pending-files overlay. Both tables accept the same keys:
+
+| Key | Type | Default | Meaning |
+| --- | --- | --- | --- |
+| `frame` | frame | inherits `[overlay].frame` | Border and padding |
+| `column_spacing` | integer | `2` | Spaces between columns |
+| `cell` | style | default | Normal cell style |
+| `current_style` | style | black background | Highlight style of the cursor row |
+| `selected_style` | style | yellow foreground | Style of marked rows |
+| `editing_style` | style | black background | Style of the cell being edited |
+| `editing_row_style` | style | default | Style of non-edited cells on the row being edited |
+
+### Options
+
+`[options]` styles the options overlay (`alt-p`):
+
+| Key | Type | Default | Meaning |
+| --- | --- | --- | --- |
+| `frame` | frame | title `Options` | Outer border and padding |
+| `item_fg` | color | `"DarkGray"` | Foreground color of option labels |
+| `item_modifier` | modifier | none | Text modifiers on option labels |
+| `alignment` | alignment | left | Column alignment |
+
+`[options.filter]`, `[options.sort]`, and `[options.pane]` style the three inner columns and each accept `frame` and `alignment`.
+
+### Prompt
+
+`[prompt]` styles the text-entry overlay used by actions such as `New`, `Rename`, and `Set alias`:
+
+| Key | Type | Default | Meaning |
+| --- | --- | --- | --- |
+| `frame` | frame | all sides | Border and padding |
+| `scroll_padding_left` | integer | `3` | Minimum characters kept visible to the left of the caret |
+
+### Menu
+
+`[menu]` styles the action menu overlay (`alt-e` / `ctrl-e`):
+
+| Key | Type | Default | Meaning |
+| --- | --- | --- | --- |
+| `frame` | frame | title `Menu`, all sides, padding `2,2,0,1` | Border and padding |
+| `no_default_aliases` | bool | `false` | Hide built-in key aliases on builtin rows while keeping custom action aliases |
+| `compact` | bool | `false` | Omit `Move`, `Copy`, `Open`, and `Trash` from the menu |
+| `min_width` | integer | `16` | Minimum overlay width |
+| `min_height` | integer | `12` | Minimum overlay height |
+| `[menu.results]` | table | `min_width_from_cols = false` | Matchmaker results table settings for the menu list |
+
+### Confirmation
+
+`[confirm]` styles destructive confirmation overlays:
+
+| Key | Type | Default | Meaning |
+| --- | --- | --- | --- |
+| `frame` | frame | all sides, white border, padding `2,2,0,1` | Outer border and padding |
+| `content_frame` | frame | light double-dashed border | Inner frame around listed target paths |
+| `button_fg` / `button_bg` | color | reset | Unfocused button colors |
+| `selected_fg` / `selected_bg` | color | black on white | Focused button colors |
+| `hotkey_modifier` | modifier | `BOLD` | Modifier applied to button hotkey letters |
+| `options_alignment` | alignment | center | Button row alignment |
+| `options_gap` | integer | `2` | Horizontal gap between buttons |
+
+### Mounts
+
+`[mount]` styles the mount overlay:
+
+| Key | Type | Default | Meaning |
+| --- | --- | --- | --- |
+| `frame` | frame | title `Mounts`, all sides, padding `2,2,0,1` | Border and padding |
+| `[mount.results]` | table | `min_width_from_cols = false` | Matchmaker results table settings |
+
+### Locked prompt
+
+`[query_locked]` overrides the query bar and status line while the prompt is locked (see [Prompt locking](./navigation-in-depth#prompt-locking)):
+
+```toml
+[query_locked.query]
+frame = { sides = "BOTTOM", fg = "red" }
+
+[query_locked.status]
+# partial [status] settings
 ```
 
-The in-app help (`Alt-h`) shows the same list.
+`[query_locked.query]` accepts any partial `[query]` configuration and `[query_locked.status]` any partial `[status]` configuration.
 
-### Keys that need terminal enhancement
+## Defaults
 
-A few keys require **keyboard enhancement** (CSI-u) for the terminal to report them at all. They're flagged that way in the shipped `mm.toml`:
+At startup, f:st applies several defaults on top of raw matchmaker settings:
 
-- `Ctrl-[` and `Ctrl-]`
-- `Ctrl-Shift-Z`
-- `` Ctrl-` ``
-- `Ctrl-Esc`
+- Overlay frames (`[queue]`, `[app]`, `[options]`, `[menu]`, `[confirm]`, `[mount]`) inherit `[overlay].frame` when omitted.
+- When no `[[preview.layout]]` is configured, f:st installs a right-side preview layout (70% initial size) backed by the `preview` lessfilter preset.
+- Unless `--fullscreen` is passed, `[tui].layout` defaults to `60%` height when unset.
 
-On terminals without CSI-u these keys are often indistinguishable from ordinary letters. Where an `Alt-`-prefixed variant exists, use that instead (for example `Alt-Z` for redo, or `` Alt-` `` for jump).
-
-A reference of the binds that belong to matchmaker lives here: [matchmaker-docs/binds-and-actions](https://squirreljetpack.github.io/matchmaker-docs/binds-and-actions).
+Next: [config.toml](./configuration) · [lessfilter](./lessfilter) · [Menu actions](./menu-actions)

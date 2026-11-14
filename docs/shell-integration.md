@@ -1,151 +1,134 @@
 # Shell integration
 
-`fs :tool shell` prints shell initialization code: a **`z`** jump function (type a folder name, `cd` to your best match), **`x`** (jump and navigate in f:st), **`zz`** (jump and open), directory hooks that feed the history database, and three line-editing **widgets** that browse with f:ist right in your prompt.
+`fs :tool shell` generates shell functions, directory-change hooks, and line-editor widgets that connect your interactive shell to f:st's history database and panes.
 
-Supports **Zsh**, **Bash** (4.3+), **Fish**, **Nushell**, and standard **POSIX** shells (`sh`, `dash`, `ash`, `ksh`).
+## Supported shells and installing
 
-![Shell integration](images/11-shell.png)
+f:st generates native integration scripts for Zsh, Bash 4.3+, Fish, Nushell, and POSIX shells (`sh`, `dash`, `ash`, `ksh`). Try the integration in your current session by evaluating the output directly, then add the line to your startup file:
 
-## Overview
-
-- `z` jumps: existing directories `cd` directly; keywords resolve through the history database or an interactive picker.
-- `x` jumps and opens the interactive nav pane to continue navigating.
-- `zz` jumps *and* opens — the file version of `z`.
-- The directory hook bumps `$PWD` into the database on every `cd`, which is what makes `z` smarter over time.
-- Widgets bind `shift-←` / `shift-→` / `shift-↓` to interactive pickers that insert paths into the command line.
-
-## Install
-
-### Zsh / Bash
 ```shell
-eval "$(fs :tool shell)"
+# Zsh (~/.zshrc)
+eval "$(fs :tool shell --shell=zsh)"
+
+# Bash (~/.bashrc)
+eval "$(fs :tool shell --shell=bash)"
+
+# POSIX shells (~/.profile)
+eval "$(fs :tool shell --shell=sh)"
 ```
 
-### Fish
 ```fish
+# Fish (~/.config/fish/config.fish)
 fs :tool shell --shell=fish | source
 ```
 
-### Nushell
 ```nushell
-# 1. Generate the script once in your terminal:
-fs :tool shell --shell=nu --aliases | save -f ~/.config/nushell/fist.nu
-
-# 2. Add to your config.nu ($nu.config-path):
+# Nushell: save the generated module and source it in $nu.config-path
+fs :tool shell --shell=nu | save -f ~/.config/nushell/fist.nu
 source ~/.config/nushell/fist.nu
 ```
 
-### POSIX (`sh`, `dash`, `ash`, `ksh`)
-```shell
-eval "$(fs :tool shell --shell=posix)"
-```
+Always pass your actual shell via `--shell` (`zsh`, `bash`, `fish`, `nu`, or `sh`) rather than relying on `$SHELL` detection so subshells and non-login shells receive the right syntax. For faster shell startup, cache the output of `fs :tool shell --shell=<shell>` to a file and `source` it directly, regenerating the file whenever you upgrade `fs`. To remove the integration, delete the startup line and open a new shell.
 
-## `z` — jump
+## The jump function
 
-```shell
-z docs          # cd to the best "docs" match from history
-z ~/code        # direct cd — the arg is an existing directory
-z .             # interactive: pick a directory under the current one
-z ./            # interactive: browse the current directory (all files)
-z               # interactive: recent-folders picker
-```
+`z` replaces `cd` with frecency-ranked jumps backed by f:st's unified [history database](./history-database). How `z` resolves its arguments depends on the shape of the query:
 
-The last argument decides the behavior:
-
-| Trailing arg | Command run | Result |
-| --- | --- | --- |
-| an existing directory | — | `cd` directly |
-| `.` or `..` | `fs :: -F --style=colors --cd -- …` | Interactive picker of directories (find pane, dirs only) |
-| `./` | `fs :: -u --cd -- …` | Nav pane at the current directory |
-| anything else | `fs :dir --sort atime --style=colors --lock-prompt=false --cd -- …` | Best match from the database, printed + `cd`; no match falls back to the interactive `fs :dir` picker |
-
-The picked path is printed by f:ist (`alt-accept` prints instead of opening) and piped back into `cd`.
-
-## `x` — navigate
-
-```shell
-x docs          # jump to the best "docs" match and open f:ist nav pane
-x ~/code        # navigate ~/code directly in the nav pane
-x               # navigate the current directory in the nav pane
-```
-
-Within the shell, this is probably about as useful as z. This is just a simple wrapper around z:
-- called with no arguments, it starts f:st on your current directory.
-- otherwise, it jumps with z, and starts you in the resulting directory.
-
-Like z, this is also a shell function, so accepting any result drops you in its directory.
-
-## `zz` — jump and open
-
-```shell
-zz report.md    # open the file (lessfilter edit preset)
-zz notes        # jump to the best "notes" match, then open it
-zz              # bump the current dir and open it
-```
-
-The open command is `fs :tool lessfilter edit` by default — point it at a file (via `paths`), and the preset picks the program (`$EDITOR` for text, etc.). Widgets and the `--opener` flag use the same command.
-
-## Feeding the database
-
-Every directory you `cd` into is recorded in the history database (a `chpwd` hook runs `fs :tool bump "$PWD"` for you). Combined with the event-clock scoring (see [History & the database](history-database.md)), the folders you visit regularly become the fastest to jump to.
-
-## Widgets
-
-Three line-editing widgets run f:ist from the prompt and insert the result into the current line:
-
-| Bind | Behavior |
+| Invocation | Behavior |
 | --- | --- |
-| `shift-←` | Browse a directory to `cd` into — or a file, inserting its name for you |
-| `shift-→` | Pick a file and append it (quoted) to the current line |
-| `shift-↓` | Full-text search and append the matching lines |
+| `z /existing/dir` | Single argument is an existing directory on disk: `cd` directly |
+| `z` | No arguments: open the Folders history pane interactively |
+| `z <terms> .` | Trailing `.`: find the best history match for `<terms>` and open a recursive Find pane (`-t d`) rooted there |
+| `z <terms> ./` | Trailing `./`: find the best history match for `<terms>` and open the Nav pane rooted there |
+| `z <terms>` | Plain query: `cd` directly to the highest-scoring history match |
 
-Each widget leaves the prompt alone until you pick something; the inserted paths are shell-quoted.
+Each branch has its own default flags on `fs :tool shell` (`--z-no-args`, `--z-dot-args`, `--z-slash-args`, `--z-default-args`); run `fs :tool shell --help` for the flag names.
 
-## `--aliases`
+When a plain query has no match in the database—or when the top match is already your current directory—`[history] refind` in [config.toml](./configuration) decides what happens next:
 
-`fs :tool shell --aliases` appends a block of convenience wrappers:
+- `"Next"` (default) skips the current directory and jumps to the next-best match, or opens the interactive Folders pane if no match exists.
+- `"Search"` opens the interactive Folders pane seeded with your query.
+- `"None"` returns the current directory or exits with status `22` when no match exists.
+
+## The nav function
+
+`x` is a shorthand for `z <terms> ./` that opens the Nav pane inside the best matching directory from history (or the current directory when called with no arguments):
 
 ```shell
-l  file          # fs :tool lessfilter display   — rich terminal preview
-la file          # fs :tool lessfilter extended
-ll file          # fs :tool lessfilter info      — metadata
-n  file          # edit via lessfilter edit ($EDITOR fallback: nano)
-o  files…        # fs :o — open with the system handler, record history
-zf               # fs :file --sort atime --lock-prompt=false — recent files
-lessfilter / lz / tra   # direct wrappers for the :tool subcommands
+x
+x src
 ```
 
-## Customizing the output
+<video controls preload="none" poster="./images/nav.png" src="./images/nav.mp4"></video>
 
-Every embedded default is a flag on `fs :tool shell`:
+If a previous interactive `z` or `x` run was cancelled, re-running `x` with no arguments seeds the prompt from `FS_INITIAL_INPUT`.
 
-| Flag | Default | Meaning |
-| --- | --- | --- |
-| `--z-name` | `z` | Jump function name |
-| `--z-dot-args` | `-F --style=colors` | Args for the `.`/`..` picker |
-| `--z-slash-args` | `-u` | Args for the `./` picker |
-| `--z-dir-args` | `--sort atime --style=colors --lock-prompt=false` | Args for the keyword jump |
-| `--nav-name` | `x` | Nav function name |
-| `--open-name` | `zz` | Open function name |
-| `--open-cmd` | `fs :tool lessfilter edit` | Open command (`{}` = the picked path) |
-| `--file-open-cmd` / `--rg-open-cmd` | `--open-cmd` | Per-widget open commands |
-| `--dir-widget-bind` / `--file-widget-bind` / `--rg-widget-bind` | `⇧+←` / `⇧+→` / `⇧+↓` | Widget key sequences (resolves to shell-specific escape defaults) |
-| `--dir-widget-args` / `--file-widget-args` / `--rg-widget-args` | see Widgets | Per-widget picker args |
-| `--aliases` | `false` | Append the alias block |
-| `--shell` | auto | Filter the output for this shell tag |
+## The open function
 
-The `FS_INITIAL_INPUT` environment variable pre-fills the keyword picker's query — the `x` function uses it to pass your typed keywords through.
+`Z` searches the Files history table and opens the selected row through the [lessfilter](./lessfilter) `edit` preset (`fs :tool lessfilter edit`). Adding a trailing `.` switches the search to the Folders history table instead:
 
-## FAQ
+```shell
+Z config
+Z work .
+```
 
-**Which shells are supported?**
+Override the opener command passed to `fs :tool shell` with `--open-cmd`, or change the function name with `--open-name` (and its flags with `--open-args`).
 
-Full integration (including line-editor widgets, directory hooks, and aliases) is supported in **Zsh**, **Bash** (4.3+), **Fish**, and **Nushell**. Standard **POSIX** shells (`sh`, `dash`, `ash`, `ksh`) support the core `z`, `x`, and `zz` jump functions and aliases.
+## Line-editor widgets
 
-**Does `z` work without the database?**
+In Zsh, Bash, Fish, and Nushell, `fs :tool shell` binds three interactive widgets that launch `fs` on `/dev/tty` and insert or act on the result without clearing your current command line:
 
-Yes — existing directories `cd` directly, and the `.`/`./` pickers use `fd`, not history.
+| Widget | Default key | Command | Effect on accept |
+| --- | --- | --- | --- |
+| Directory search | `shift-left` | `fs -F` | `cd` into the selected directory (or append file path if you accept a file) |
+| File search | `shift-right` | `fs` | Append shell-quoted file path(s) to the command line |
+| Full-text search | `shift-down` | `fs :` | Open `$EDITOR` at the matched line and column (`alt-enter` appends the path instead) |
 
-**Can I use a different opener than `lessfilter edit`?**
+<video controls preload="none" poster="./images/shell.png" src="./images/shell.mp4"></video>
 
-`--open-cmd 'code --add {}'` or `--file-open-cmd` / `--rg-open-cmd` for the widgets.
+Multi-selecting rows with `tab` before accepting in the file search widget pushes every selected path onto the command line, shell-quoted and separated by spaces. In the full-text search widget, `enter` / `right` opens the matched file at `HIGHLIGHT_LINE` and `HIGHLIGHT_COLUMN` via the `edit` preset and returns to your shell prompt when the editor exits, while `alt-enter` prints the matched path into the command line buffer.
+
+Override any widget's keybinding, flags, or disable it completely by passing an empty bind string to `fs :tool shell`:
+
+```shell
+eval "$(fs :tool shell --shell=zsh --dir-widget-bind='^T' --rg-widget-bind='')"
+```
+
+See `fs :tool shell --help` for the full set of `--dir-widget-*`, `--file-widget-*`, and `--rg-widget-*` flags. Pressing `esc` or `ctrl-c` inside a widget leaves the command line untouched.
+
+## History recording hooks
+
+The integration installs a directory-change hook (`chpwd_functions` in Zsh, `PROMPT_COMMAND` in Bash, `--on-variable PWD` in Fish, `env_change.PWD` in Nushell, and a `cd` wrapper in POSIX shells) that runs `fs :tool bump "$PWD" dirs` in the background whenever your working directory changes. Because both shell navigation and in-app navigation bump the same SQLite database, directories you `cd` into in the shell immediately rank in `ctrl-g`, and directories you enter inside `fs` immediately rank in `z`.
+
+Paths matching `[history] exclude` or outside `[history] base_dir` in [config.toml](./configuration) are ignored by the hook.
+
+## Aliases and environment assumptions
+
+Passing `--aliases` to `fs :tool shell` defines convenience wrappers around subcommands and [lessfilter presets](./lessfilter#presets):
+
+| Alias | Expansion |
+| --- | --- |
+| `lz` | `fs :tool liza` (eza directory listing wrapper) |
+| `l` | `fs :tool lessfilter display` |
+| `la` | `fs :tool lessfilter extended` |
+| `ll` | `fs :tool lessfilter info` |
+| `n` | `fs :tool lessfilter edit` |
+| `o` | `fs :open` |
+
+With both `--aliases` and `--cd`, it also defines `c` (interactive `fs --cd`), `cf` (`fs :file --cd`), and `cdi` (`fs :dir --cd`).
+
+Environment variables read by the shell integration and `fs`:
+
+| Variable | Meaning |
+| --- | --- |
+| `FS_VERBOSITY` | Default log and toast verbosity (`quiet`, `normal`, `verbose`, `debug`) |
+| `FS_INITIAL_INPUT` | Initial query string when `--initial-input` is active |
+| `FS_EDITOR`, `FS_VISUAL`, `EDITOR` | Editor command resolved by the `edit` preset and `proc.editor` |
+
+## Conflicts and workarounds
+
+- **fzf keybinding overlap** — when `fzf` is configured with `shift-left`, `shift-right`, or `shift-down`, load `fs :tool shell` after `fzf` or pass custom `--dir-widget-bind`, `--file-widget-bind`, and `--rg-widget-bind` flags.
+- **Existing `z`, `Z`, or `x` commands** — rename any of the generated functions with `--z-name`, `--open-name`, and `--nav-name` (for example, `fs :tool shell --z-name=j --nav-name=jj`).
+- **POSIX shells** — `sh`, `dash`, `ash`, and `ksh` lack a programmable line-editor widget API, so `--shell=sh` installs `z`, `x`, `Z`, and the `cd` hook without keybindings.
+
+Next: [History database](./history-database) · [Command line](./command-line) · [Tools](./tools)

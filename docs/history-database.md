@@ -1,130 +1,99 @@
-# History & the database
+# History database
 
-F:ist keeps a single SQLite database of everything you've visited — directories, files, and applications — and uses it for the **Files / Folders** panes, the **Apps** pane, and the `z` jump function.
+f:st records the directories, files, and applications you use in a single SQLite database, ranking them with an event-clock frecency algorithm that powers both the in-app History panes and the shell's `z`, `x`, and `Z` functions.
 
-![Folders pane](images/07-history.png)
+## What gets recorded
 
-## Overview
+Three kinds of entries are tracked in one database:
 
-- One database, four tables: `dirs`, `files`, `apps`, `stashes`.
-- Ranking uses an **event clock** — scores decay per visit, not per second.
-- `fs :tool bump` adjusts entries manually; pruning is lazy and automatic.
+- **Directories (`dirs`)** — bumped when you enter a directory in the TUI (`Advance`, `Parent`, `Jump`), accept or print a directory, jump via `z` / `--cd`, pass search roots to `fs ::`, or change directories in an integrated shell.
+- **Files (`files`)** — bumped when you accept or open a file (`enter`, `fs :open`), edit a file via `Advance`, enter an archive, or run a [lessfilter](./lessfilter) preset listed in `tracked_presets`.
+- **Applications (`apps`)** — seeded when the App pane scans desktop launchers and bumped whenever you launch an application from f:st.
+
+Two optional settings under `[interface]` in [config.toml](./configuration#interface) record additional activity: `bump_menu_action_paths` bumps targets of custom [menu actions](./menu-actions), and `bump_transfer_destinations` bumps destination directories of completed [queue](./queue) transfers.
+
+Any path matching a glob in `[history] exclude` (or outside `[history] base_dir`) is never recorded or bumped.
 
 ## Where the database lives
 
-| Path | Contents |
-| --- | --- |
-| `~/.local/state/fist/record.db` | The database |
-| `~/.cache/fist/` | Helper scripts used by lessfilter (including `liza`) |
-| `fist.log` / `fist.tools.log` | Logs, next to the database |
+The database is stored at `<state_dir>/record.db` (`~/.local/state/fist/record.db` on Linux, `~/Library/Application Support/fist/record.db` on macOS, `%LOCALAPPDATA%\fist\record.db` on Windows; debug builds use `dev.db`).
 
-All four tables share a schema: `name`, `path`, `alias`, `cmd`, `atime`, `count`, `score` (stashes: `name`, `path`, `tail`, `add_time`).
+`record.db` holds four tables:
 
-## What records a visit
-
-| Event | Bumps |
-| --- | --- |
-| Entering a directory (Advance, `z`, `--cd`, shell chpwd hook) | `dirs` |
-| Opening a file (`fs :open`, Advance, tracked lessfilter presets) | `files` |
-| Successful menu actions | the target |
-| `fs :tool bump <path>` | manually |
-
-The default tracked lessfilter presets are `edit`, `alternate`, and `extended` — running them records the file.
-
-## Ranking: the event clock
-
-Ranking is what makes `z` and the Files/Folders panes feel right. Instead of zoxide's wall-clock decay, f:ist uses an **event clock**: every visit is one tick (`atime = max(atime) + 1`), and scores decay per tick. Inactivity doesn't rot your history — only other activity does.
-
-The decay constant `history.lambda` (default `8e-3`) sets a half-life of about **87 visits**: each tick multiplies the stored score by `exp(-λ·Δt)` before adding the new visit. Set `lambda = none` for wall-clock, zoxide-compatible bucketed scoring.
-
-## History configuration (`[history]` in config.toml)
-
-| Setting | Default | Meaning |
+| Table | Columns | Purpose |
 | --- | --- | --- |
-| `lambda` | `8e-3` | Event-clock decay; `none` = wall clock |
-| `refind` | `Search` | What `z` does when the best match is the current directory |
-| `exclude` | `[]` | Glob patterns never bumped (`["**/node_modules"]`) |
-| `base_dir` | `null` | Only track paths under this root |
-| `show_missing` | `false` | Hide entries whose path no longer exists |
-| `query_strategy` | `substring` | `substring` or `monotonic` matching |
-| `case_sensitive` | `null` | `null` = smart (caps → case-sensitive) |
-| `resolve_symlinks` | `true` | Resolve symlinks before recording |
+| `dirs` | `name`, `path`, `alias`, `cmd`, `atime`, `count`, `score` | Visited directories |
+| `files` | `name`, `path`, `alias`, `cmd`, `atime`, `count`, `score` | Visited and edited files |
+| `apps` | `name`, `path`, `alias`, `cmd`, `atime`, `count`, `score` | Discovered and launched desktop applications |
+| `stashes` | `id`, `name`, `stash`, `tail`, `add_time` | Database-backed [stash panes](./stash-panes) |
 
-### `refind`
+In `dirs` and `files`, `cmd` caches the canonical path when `path` traverses a symlink; in `apps`, `cmd` stores the launch command template. When `record.db` is created for the first time, f:st seeds `dirs` with standard existing directories under your home folder (`~`, `Documents`, `Downloads`, `Desktop`, `.config`, and platform equivalents) at an initial count of `5`.
 
-When `z`'s best match *is* the current directory (or there's no match), `refind` picks the fallback:
+## Frecency scoring
 
-| Value | Behavior |
+Wall-clock frecency algorithms decay every score over real time, which means returning from a week away collapses historical scores toward zero and lets the first directory you visit dominate the rankings. f:st replaces the wall clock with an **event clock** controlled by `[history] lambda` (default `0.008`):
+
+- **Logical ticks** — each table (`dirs`, `files`, `apps`) uses `MAX(atime)` as an integer tick counter that advances by `1` only when a visit is recorded in that table.
+- **Exponential decay + visit increment** — when an entry is visited with weight `c` (normally `1`), its stored score updates to:
+  $$\text{score}_{\text{new}} = \text{score}_{\text{old}} \times e^{-\lambda (\text{tick}_{\text{new}} - \text{atime}_{\text{old}})} + c$$
+- **Half-life** — the half-life in visits is $\ln(2) / \lambda$. At the default `lambda = 0.008`, an entry's score halves every ~87 visits in that table.
+- **Zero idle decay** — while you are not visiting entries in a table, its event clock stands still and relative rankings never decay. (Setting `lambda` to `None` / commenting it out falls back to classic wall-clock age buckets).
+
+Pruning happens lazily: whenever a table is queried in frecency order and exceeds `prune_max` rows (default `10000`), f:st deletes the lowest-ranked tail so `prune_min` rows (default `8000`) remain. To sweep entries whose paths no longer exist on disk, run `fs :tool bump --prune`.
+
+## History configuration
+
+`[history]` in [config.toml](./configuration#history) configures matching, decay, and pruning:
+
+| Key | Default | Meaning |
+| --- | --- | --- |
+| `resolve_symlinks` | `false` | Follow symlinks when verifying whether a recorded path still matches its file/directory type |
+| `query_strategy` | `"Substring"` | Keyword matching mode: `"Substring"` or `"Monotonic"` |
+| `case_sensitive` | smart case | Force case sensitivity (`true` / `false`), or omit for smart case |
+| `lambda` | `0.008` | Exponential decay rate per event tick |
+| `exclude` | `[]` | Globs excluded from recording (`~` expands to home) |
+| `prune_max` | `10000` | Row count that triggers lazy tail pruning |
+| `prune_min` | `8000` | Row count kept after lazy pruning |
+| `refind` | `"Next"` (`"Search"` in shipped config) | Action when `--cd` matches the current directory or finds nothing: `"Search"`, `"Next"`, or `"None"` |
+| `show_missing` | `false` | Include database rows whose paths no longer exist on disk |
+| `base_dir` | none | Only record and query paths inside this directory |
+
+## Query matching
+
+When resolving command-line keywords (`z foo bar`, `fs :dir --cd foo bar`, `fs :file -l foo`), f:st matches keywords against path components from right to left:
+
+- **Anchored final keyword** — the last keyword must match the final component of the path; earlier keywords must match earlier path components in order.
+- **Separators force adjacency** — a keyword containing `/` (such as `src/api`) splits into sub-components that must match adjacent path components contiguously.
+- **Substring vs monotonic** — with `query_strategy = "Substring"` (default), each keyword must appear as a contiguous substring of the component; with `"Monotonic"`, the keyword's characters must appear in order within the component.
+- **Smart case** — unless `case_sensitive` is set explicitly, a keyword containing uppercase letters matches case-sensitively and an all-lowercase keyword matches case-insensitively.
+- **`refind` fallback** — when `--cd` resolves to the directory you are already in, `"Next"` skips to the second-best match, `"Search"` opens the interactive History pane seeded with your query, and `"None"` returns the current directory as-is.
+
+## History panes
+
+Pressing `ctrl-g` from any pane opens the **Folders** pane (`dirs` table). Pressing `ctrl-g` again switches in place to the **Files** pane (`files` table), and subsequent presses toggle between the two; pressing `ctrl-z` (`Undo`) backs out to the pane you started from.
+
+<video controls preload="none" poster="./images/history.png" src="./images/history.mp4"></video>
+
+The **App** pane (`fs :open` or Menu → `open with`) queries the `apps` table using the same frecency engine.
+
+History panes do not use filesystem visibility filters (`hidden` / `ignored`). Instead, they expose five SQL-backed sort orders in the Options overlay (`alt-p`) and via `ctrl-d` (`CycleFilter`), with `ctrl-s` toggling between `frecency` and `atime`:
+
+| Sort label | SQL ordering |
 | --- | --- |
-| `Search` | Launch the interactive `fs :dir` picker (shipped default) |
-| `Next` | Return the second-best match |
-| `None` | Return the current directory as-is |
+| `frecency` (`none`) | Decayed frecency score descending |
+| `atime` (`recent`) | Most recently visited tick descending |
+| `count` (`size`) | Total visit count descending |
+| `name` | Entry basename alphabetically |
+| `mtime` | Database insertion order (`rowid` descending) |
 
-## Pruning
+## Records, aliases and tooling
 
-Pruning is lazy. When a frecency listing exceeds `prune_max` entries (default 10,000), the tail past `prune_min` (default 8,000) is removed. Missing paths are swept on demand:
+- **Set alias** — choosing `set alias` from the menu (`alt-e`) opens a prompt that edits the entry's `alias` column, rendered in column 2 (the tail) and searchable via `%`.
+- **Removing database rows vs disk files** — `[interface] remove_db_record_action` (`"None"`, `"Trash"`, or `"Delete"`) in [config.toml](./configuration#interface) chooses which bind action deletes the database record in History and Stash panes while leaving the other action to operate on the real file on disk.
+- **CLI subcommands** — `fs :dir` and `fs :file` open the Folders and Files panes directly (or list rows with `--list`). `fs :info` prints the database tables and their paths, and `fs :info --help` lists its flags. `fs :tool bump` manually increments, resets (`--reset`), or prunes (`--prune`) database entries; see [Tools](./tools#bump).
 
-```shell
-fs :tool bump --prune
-```
+## Ambient integration
 
-This removes entries whose path no longer exists and whose score is below the `--count` threshold.
+The shell integration (`fs :tool shell`) wires `z` (`fs :dir --cd`), `x` (`z ... ./`), and `Z` (`fs :file --cd`) directly to `record.db` and installs a `PWD` change hook so shell navigation and interactive TUI sessions share a single unified history. See [Shell integration](./shell-integration).
 
-## The Files and Folders panes
-
-- `ctrl-g` opens both; `fs :file` / `fs :dir` from the shell.
-- Sort options are **name / atime / count / frecency** (keys `n` / `t` / `c` / `f` in the options overlay); toggling the active sort off lands on insertion order.
-- `fs :dir --cd query` prints the best match and exits — this is what `z` calls.
-- `fs :dir -l` prints matching folders non-interactively.
-
-## The Apps pane
-
-Prepopulated from your system:
-
-| Platform | Sources |
-| --- | --- |
-| Linux | `.desktop` entries: `/usr/share/applications`, `~/.local/share/applications`, `~/Desktop` |
-| macOS | `.app` bundles |
-
-Use it as a launcher for a set of files: `fs :open` (or menu → **Open With**), then pick a program. `fs :open -w prog files` skips the picker. Applications rank like anything else once used; `SetAlias` in the menu sets a display-name override.
-
-## Inspecting with `:info`
-
-```shell
-fs :info                  # config paths (config, mm config, logs)
-fs :info dirs             # the folders table, frecency-sorted
-fs :info files --sort atime --limit 20
-fs :info apps --minimal   # bare paths, one per line
-```
-
-| Flag | Meaning |
-| --- | --- |
-| `--sort <sort>` | `name` `mtime` `atime` `size` (count) `none` (frecency) |
-| `-l, --limit N` | Max rows (default 50; `0` = all) |
-| `-m, --minimal` | Bare paths only, no table decorations |
-
-## `:tool bump` quick reference
-
-```shell
-fs :tool bump /some/path                 # +1 visit
-fs :tool bump --count 5 --glob '*.rs'    # +5 to every .rs entry
-fs :tool bump --count 0 --glob 'old*'    # remove matching entries
-fs :tool bump --prune                    # sweep missing paths (all tables)
-fs :tool bump --reset                    # wipe a table (or the whole db)
-```
-
-Note: bumping honors `history.exclude` — excluded paths are skipped, not recorded.
-
-## FAQ
-
-**Why do my scores decay even when I do nothing?**
-
-They don't — decay is per-visit (event clock), not per-second. Only activity moves the clock forward.
-
-**How do I stop `z` from jumping to deleted folders?**
-
-`show_missing = false` hides entries whose paths are gone; `fs :tool bump --prune` sweeps them from the database.
-
-**Can I have frecency instead of the event clock?**
-
-Set `history.lambda = none` for wall-clock, zoxide-style scoring.
+Next: [Stash panes](./stash-panes) · [Shell integration](./shell-integration) · [Tools](./tools)
