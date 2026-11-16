@@ -92,4 +92,4 @@ Once results stream into the table, every standard pane operation is available:
 - **Sorting and filter cycling** — press `alt-p` to sort by `name`, `mtime`, `atime`, or `size`, `ctrl-s` to toggle hidden files, or `ctrl-d` to cycle all / directories-only / files-only.
 - **Previews, selections, and actions** — mark rows with `tab`, enqueue copies or moves with `ctrl-c` / `ctrl-x`, run contextual [menu actions](./menu-actions) with `alt-e`, or press `right` (`Advance`) to enter a directory or open a file in your editor.
 - **Row transforms (`--transform`)** — passing `--transform <LUA>` on `fs ::` runs a Lua chunk on every found path to filter rows, rewrite display names, or populate the tail column; see [Transforming rows with Lua](./custom-pane#transforming-rows-with-lua).
-- **Missing `fd`** — if the `fd` binary is not installed on `PATH`, the pane stays empty and surfaces a startup error toast.
+- **Missing `fd`** — if the `fd` binary is not installed on `PATH`, the pane stays empty.

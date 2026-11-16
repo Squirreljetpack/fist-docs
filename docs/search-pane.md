@@ -46,7 +46,7 @@ In query mode, the prompt text can express multiple OR-combined patterns at once
 ## Regex versus fixed strings
 
 - **Fixed strings (`--fixed-strings` / `--no-fixed-strings`)** — treats query-mode patterns as literal strings instead of regular expressions. Press `ctrl-s` inside the Search pane (or set `fixed_strings = true` in `[panes.search]`) to toggle between `regex` and `fixed` at runtime.
-- **Case sensitivity (`-S` smart, `-s` sensitive, `-c` ignore)** — defaults to smart case; press `ctrl-d` inside the Search pane to cycle `smart → sensitive → ignore` with a status toast.
+- **Case sensitivity (`-S` smart, `-s` sensitive, `-c` ignore)** — defaults to smart case; press `ctrl-d` inside the Search pane to cycle `smart → sensitive → ignore`.
 - **Context lines (`-A`, `-B`, `-C`)** — include trailing, leading, or surrounding lines around each match.
 - **`empty_pattern`** — when the query bar is empty in query mode, `[panes.search] empty_pattern` provides the fallback pattern (shipped config uses `"-v ^ *$"`, where the leading `-v ` inverts matching so every non-blank line is listed; omitting `empty_pattern` leaves the pane blank until you type).
 

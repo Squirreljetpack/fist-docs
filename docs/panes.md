@@ -2,11 +2,9 @@
 
 Every view in f:st is a pane: a self-contained listing with its own working directory, query, sort order, visibility filters, and preview state.
 
-## What a pane is
+## Single pane
 
-Only one pane is drawn at a time. Opening a new pane or changing directories pushes a snapshot onto the navigation stack so you can step backward and forward with `ctrl-z` and `alt-z` (`Undo` and `Redo`). Overlays sit above the active pane without altering the navigation stack.
-
-When you leave a pane and later return to it via `Undo`/`Redo` or a toggle action, the pane restores its saved query, cursor index, sort order, and marked selections.
+f:st makes the case that only one pane is needed. Whenever you navigate a directory or open a different pane type, the previous pane is saved in history, so that you can step backward and forward with `ctrl-z` and `alt-z` (`Undo` and `Redo`). Panes such as the history pane allow you to quickly access your target files and recent directories, and once found, the navigation stack makes it easy to access all the contexts involved.
 
 ## Pane kinds and overlays
 

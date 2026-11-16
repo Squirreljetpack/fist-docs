@@ -42,15 +42,16 @@ source ~/.config/nushell/fist.nu
 | `z` | No arguments: open the Folders history pane interactively |
 | `z <terms> .` | Trailing `.`: find the best history match for `<terms>` and open a recursive Find pane (`-t d`) rooted there |
 | `z <terms> ./` | Trailing `./`: find the best history match for `<terms>` and open the Nav pane rooted there |
+| `z <dir> .` / `z <dir> ./` | `<dir>` is an existing directory: root the pane inside it directly instead of looking it up in history |
 | `z <terms>` | Plain query: `cd` directly to the highest-scoring history match |
 
-Each branch has its own default flags on `fs :tool shell` (`--z-no-args`, `--z-dot-args`, `--z-slash-args`, `--z-default-args`); run `fs :tool shell --help` for the flag names.
+Each branch has its own default flags on `fs :tool shell` (`--z-dot-args` for a trailing `.`, `--z-slash-args` for `./`, and `--z-dir-args` for the Folders branch); run `fs :tool shell --help` for the flag names.
 
 When a plain query has no match in the database—or when the top match is already your current directory—`[history] refind` in [config.toml](./configuration) decides what happens next:
 
-- `"Next"` (default) skips the current directory and jumps to the next-best match, or opens the interactive Folders pane if no match exists.
-- `"Search"` opens the interactive Folders pane seeded with your query.
-- `"None"` returns the current directory or exits with status `22` when no match exists.
+- `"Search"` (the shipped default) opens the interactive Folders pane seeded with your query.
+- `"Next"` (the built-in default when `refind` is unset) skips the current directory and jumps to the next-best match, and exits with status `22` when nothing matches.
+- `"None"` keeps the current directory when that is the top match, and exits with status `22` when nothing matches.
 
 ## The nav function
 
@@ -60,6 +61,8 @@ When a plain query has no match in the database—or when the top match is alrea
 x
 x src
 ```
+
+When `z` exits with status `22` (a miss under `"Next"` or `"None"`), `x` re-runs it with your terms as the Folders pane's input, so the pane opens on them either way.
 
 <video controls preload="none" poster="./images/nav.png" src="./images/nav.mp4"></video>
 

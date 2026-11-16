@@ -1,58 +1,36 @@
 #!/usr/bin/env python3
+import shutil
+import subprocess
 import sys
 from pathlib import Path
-from PIL import Image
 
 root = Path(__file__).resolve().parent.parent
+public_dir = root / "docs" / "public"
 
-# Source must be icon.png only
-source = root / "icon.png"
+# The vector logo is the single source; every raster icon is rendered from it.
+source = public_dir / "logo.svg"
+targets = [(public_dir / "favicon.png", 64)]
 
 if not source.exists():
-    print(f"Error: {source.name} not found in repository root ({root}).", file=sys.stderr)
+    print(f"Error: {source.relative_to(root)} not found.", file=sys.stderr)
     sys.exit(1)
 
-print(f"Using source image: {source.name} ({source})")
+if shutil.which("resvg") is None:
+    print("Error: resvg not found on PATH (cargo install resvg).", file=sys.stderr)
+    sys.exit(1)
 
-im = Image.open(source)
-if im.mode not in ("RGB", "RGBA"):
-    im = im.convert("RGBA")
+print(f"Using source vector: {source.relative_to(root)}")
 
-public_dir = root / "docs" / "public"
-public_dir.mkdir(parents=True, exist_ok=True)
+for dest, size in targets:
+    result = subprocess.run(
+        ["resvg", str(source), str(dest), "--width", str(size)],
+        capture_output=True,
+        text=True,
+    )
+    if result.returncode != 0:
+        print(result.stderr.strip() or f"resvg failed rendering {dest.name}", file=sys.stderr)
+        sys.exit(result.returncode)
 
-# Determine prefix for custom icon (e.g. im, mm, fs)
-existing_pngs = set(p.name for p in public_dir.glob("*.png"))
-standard_pngs = {"logo.png", "favicon.png"}
-
-targets = [
-    (public_dir / "logo.png", 256, False),
-    (public_dir / "favicon.png", 64, True),
-]
-
-# Include any other existing PNGs in docs/public (e.g. im.png, mm.png, fs.png)
-extra_pngs = existing_pngs - standard_pngs
-if not extra_pngs:
-    # Default to repo prefix if no extra PNG exists
-    repo_name = root.name.removesuffix("-docs")
-    extra_pngs = {f"{repo_name}.png"}
-
-for name in sorted(extra_pngs):
-    targets.append((public_dir / name, 512, False))
-
-for dest, max_dim, square_pad in targets:
-    cur = im.copy()
-    cur.thumbnail((max_dim, max_dim), Image.Resampling.LANCZOS)
-
-    if square_pad:
-        canvas = Image.new("RGBA", (max_dim, max_dim), (0, 0, 0, 0))
-        offset = ((max_dim - cur.width) // 2, (max_dim - cur.height) // 2)
-        canvas.paste(cur, offset, cur if cur.mode == "RGBA" else None)
-        canvas.save(dest, format="PNG", optimize=True)
-    else:
-        cur.save(dest, format="PNG", optimize=True)
-
-    rel_path = dest.relative_to(root)
-    print(f"✓ Generated {rel_path} ({dest.stat().st_size} bytes)")
+    print(f"✓ Generated {dest.relative_to(root)} ({size}px, {dest.stat().st_size} bytes)")
 
 print("All icons successfully generated!")

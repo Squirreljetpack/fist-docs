@@ -153,7 +153,7 @@ Nine built-in action names are recognized (case-sensitively):
 | `Extract` | Extracts plain text from PDF and office documents with `kreuzberg` and streams it into the pager |
 | `Metadata` | Prints `file -bL` description plus character/word/line counts for text files (and `liza :l` in `extended` / `info`) |
 | `Open` | Launches the path with the OS default opener in every preset |
-| `Header` | Prints a dim italic path header when standard output is piped |
+| `Header` | Prints a dim italic path header before the rest of the rule's output |
 | `None` | No-op that succeeds immediately |
 
 ## Custom actions
@@ -193,7 +193,7 @@ When rendering `Image` or `Application` inside the TUI preview pane, `lessfilter
 ## Paging and headers
 
 - **`Text` and `pager.toml`** — the `Text` action formats files with `bat` using the options in [pager.toml](./pager) (`bat_opts`, `smart_changes`, and `PG_*` environment variables), streaming directly to stdout in the preview pane or opening the interactive `minus` pager when stdout is a terminal.
-- **Headers (`--header` and `Header`)** — `--header=true` prints the file path header once before running any actions; `--header=false` suppresses all headers; omitting `--header` prints a header only when the winning rule includes the `Header` action (such as in `extended` and `info`).
+- **Headers (`--header` and `Header`)** — `--header=true` prints the file path header once before running any actions; `--header=false` suppresses all headers; omitting `--header` prints a header only when the winning rule includes the `Header` action (`Text`, `Image`, and `Application` in `extended`; `Image` and `Application` in `info`).
 - **Highlighting** — `HIGHLIGHT_LINE` is forwarded automatically as `bat --highlight-line`.
 
 <video controls preload="none" poster="./images/paged.png" src="./images/paged.mp4"></video>

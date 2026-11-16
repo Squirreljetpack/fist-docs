@@ -48,7 +48,7 @@ The chunk returns up to three values:
 
 Prefix the argument with `@` (`--transform @~/.config/fist/transforms/notes.lua`) to load the script from a file. The exact same `--transform` contract is also supported on `fs ::` (`fs --transform <LUA>`) where incoming `tail` is `""`.
 
-If a transform fails to compile at startup, f:st logs the error and populates the pane untransformed; if a transform raises a runtime error on a row, stream ingestion stops at that row and surfaces the error toast.
+A transform that fails to compile at startup leaves the pane untransformed; a transform that raises a runtime error stops stream ingestion at that row.
 
 ## The second column
 
@@ -58,24 +58,26 @@ The tail string populates column 2 of the results table:
 - **`display` overrides** — when `--transform` returns a non-empty `display` string, column 1 renders `display` (and uses it for fuzzy matching and alphabetical sorting) while previews, editors, and file operations continue to act on the underlying `path`.
 - **Sort metadata** — when a hard sort (`mtime`, `atime`, `size`) is engaged and a row's tail is empty, column 2 displays the formatted sort value instead.
 
-## Example: a markdown notes manager
+## A markdown notes manager
 
 Combining a shell producer, `--tail-sep`, and `--transform` turns a folder of Markdown files into a categorized notes browser:
 
 <video controls preload="none" poster="./images/custom.png" src="./images/custom.mp4"></video>
 
 ```shell
-fs -t .md --list --format '{=}\t{-1.}' ~/vault | \
+cd ~/vault
+fs -i -t .md --list --format '{=}\t{-1.}' . |
   fs :custom --tail-sep $'\t' --transform '
-local path, tail = ...
-local title = path:match("([^/]+)%.md$") or path
-return path, title, lunacolors.cyan(tail)
+local path, vault = ...
+local rel = ("/" .. path):match("^.-/" .. vault:gsub("%W", "%%%1") .. "/(.*)") or path
+rel = rel:gsub("%.md$", "")
+return path, rel, rel:match("^(.-)/") or ""
 '
 ```
 
-- `fs -t .md --list --format '{=}\t{-1.}' ~/vault` emits each note's path followed by a tab and its parent folder name.
-- `--transform` strips the directory prefix and `.md` extension for `display` in column 1 and colors the project folder in column 2.
-- Inside the pane, typing fuzzy-matches note titles, typing `% Prog` filters to notes in `Programming`, pressing `right` (`Advance`) opens the note in `$EDITOR`, `ctrl-x` / `ctrl-v` moves notes between folders, and a custom [menu action](./menu-actions) can prompt for a title and create a new note in the current project.
+- `fs -i -t .md --list --format '{=}\t{-1.}' .` emits each note's path, a tab, and the vault's folder name.
+- `--transform` strips the vault prefix and `.md` extension for `display` in column 1 and returns the note's top-level folder for column 2, so `% Prog` filters to `Programming`.
+- Inside the pane, typing fuzzy-matches note paths, pressing `right` (`Advance`) opens the note in `$EDITOR`, `ctrl-x` / `ctrl-v` moves notes between folders, and a custom [menu action](./menu-actions) can prompt for a title and create a new note in the current project.
 
 ## The usual pane operations
 
@@ -86,11 +88,5 @@ Because every row resolves to a real filesystem path, standard navigation, file 
 By default, `fs :custom` caches streamed rows in memory once the producer finishes (`stored`):
 
 - **Command-backed panes** replay their cached rows instantly when you return to them via `Undo`. Pressing the reload bind (`alt-r`) re-runs the command to pick up fresh output.
-- **Stdin-backed panes** retain their cached rows across `Undo` / `Redo` stack transitions, but cannot re-read a closed pipe: pressing `alt-r` shows a `"Cannot reload streams"` toast.
+- **Stdin-backed panes** retain their cached rows across `Undo` / `Redo` stack transitions, but cannot re-read a closed pipe.
 - **`--no-store`** disables the in-memory row cache so command-backed panes re-execute their command on every stack revisit or reload instead of holding rows in memory.
-
-## Caveats and escaping
-
-- **Textual separators** — `--input-sep` and `--tail-sep` split on literal characters; choose a `--tail-sep` (such as `\t`) that never appears inside your file paths, because each record splits on the first occurrence of `--tail-sep`.
-- **Per-row transform work** — the Lua transform runs synchronously as each record is ingested; keep transform functions lightweight (string matching and `lunacolors` rather than spawning subprocesses per row).
-- **Relative vs absolute paths** — relative paths emitted by a command resolve against the pane's working directory, so actions and previews remain valid even after you navigate to other directories on the stack.
