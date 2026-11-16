@@ -7,7 +7,7 @@
 | `config.toml` | Pane behavior, history, transfers, watcher, path styles — see [config.toml](./configuration) |
 | `mm.toml` | Columns, previews, TUI layout, overlays, key bindings |
 
-Because `mm.toml` uses matchmaker's configuration schema, this page covers the sections specific to f:st. For shared matchmaker tables—`[ui]`, `[query]`, `[results]`, `[status]`, `[preview]`, `[preview.image]`, `[header]`, `[footer]`, `[tui]`, `[overlay]`, `[previewer]`, and `[help]`—consult the [matchmaker configuration reference](https://squirreljetpack.github.io/matchmaker-docs/configuration).
+Because `mm.toml` uses matchmaker's configuration schema, this page covers the sections specific to f:st. For shared matchmaker tables—`[ui]`, `[query]`, `[results]`, `[status]`, `[preview]`, `[preview.image]`, `[header]`, `[footer]`, `[tui]`, `[overlay]`, `[previewer]`, and `[help]`—consult the [matchmaker configuration reference](https://squirreljetpack.github.io/matchmaker-docs/options).
 
 ## Binds
 
@@ -19,7 +19,7 @@ Because `mm.toml` uses matchmaker's configuration schema, this page covers the s
 "nav^^alt-n" = "Execute($EDITOR .)"
 ```
 
-Mode prefixes before `^^` scope a binding to a pane or state (`nav`, `find`, `search`, `files`, `dirs`, `app`, `custom`, `stash`, `in_prompt`, `locked_prompt`). For the full list of bind actions and trigger syntax, see [actions.md](https://github.com/Squirreljetpack/fist/blob/main/user_docs/actions.md).
+Mode prefixes before `^^` scope a binding to a pane or state (`nav`, `find`, `search`, `files`, `dirs`, `app`, `custom`, `stash`, `in_prompt`, `locked_prompt`). For the full list of bind actions and trigger syntax, see [matchmaker actions](https://squirreljetpack.github.io/matchmaker-docs/library-actions).
 
 ## Preview layouts
 
