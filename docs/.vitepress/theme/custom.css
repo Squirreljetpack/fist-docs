@@ -10,23 +10,23 @@
 
   --zen-ease: cubic-bezier(0.22, 1, 0.36, 1);
 
-  /* Light mode — Pale gravel & river stone */
-  --vp-c-bg: #f4f5f6;
-  --vp-c-bg-alt: #eceef0;
-  --vp-c-bg-elv: #f9fafb;
-  --vp-c-bg-soft: #e6e8eb;
-  --vp-c-border: rgba(24, 26, 30, 0.09);
-  --vp-c-divider: rgba(24, 26, 30, 0.07);
-  --vp-c-gutter: rgba(24, 26, 30, 0.04);
+  /* Light mode — Misty morning fog & cool river stone (no yellow) */
+  --vp-c-bg: #e4e8ec;
+  --vp-c-bg-alt: #dae0e5;
+  --vp-c-bg-elv: #ebeff2;
+  --vp-c-bg-soft: #d5dbe1;
+  --vp-c-border: rgba(24, 29, 36, 0.11);
+  --vp-c-divider: rgba(24, 29, 36, 0.08);
+  --vp-c-gutter: rgba(24, 29, 36, 0.045);
 
-  --vp-c-text-1: #1d1f23;
-  --vp-c-text-2: #545861;
-  --vp-c-text-3: #838892;
+  --vp-c-text-1: #1e2329;
+  --vp-c-text-2: #4b525c;
+  --vp-c-text-3: #747c87;
 
-  --vp-c-brand-1: #55626e;
-  --vp-c-brand-2: #46525d;
-  --vp-c-brand-3: #38424b;
-  --vp-c-brand-soft: rgba(85, 98, 110, 0.08);
+  --vp-c-brand-1: #4a5a68;
+  --vp-c-brand-2: #3d4b58;
+  --vp-c-brand-3: #303c47;
+  --vp-c-brand-soft: rgba(74, 90, 104, 0.09);
 
   --vp-c-indigo-1: var(--vp-c-brand-1);
   --vp-c-indigo-2: var(--vp-c-brand-2);
@@ -38,32 +38,32 @@
   --vp-c-tip-3: var(--vp-c-brand-3);
   --vp-c-tip-soft: var(--vp-c-brand-soft);
 
-  --vp-c-mute: #e8eaed;
-  --vp-c-mute-hover: #dfe2e6;
-  --vp-c-default-soft: rgba(24, 26, 30, 0.04);
+  --vp-c-mute: #d8dee4;
+  --vp-c-mute-hover: #cfd6dd;
+  --vp-c-default-soft: rgba(24, 29, 36, 0.045);
 
-  --vp-code-block-bg: #eceef0;
-  --vp-code-line-highlight-color: rgba(85, 98, 110, 0.09);
-  --vp-code-copy-code-bg: #e3e6e9;
-  --vp-code-copy-code-hover-bg: #d9dde1;
-  --vp-code-copy-code-hover-border-color: rgba(24, 26, 30, 0.16);
+  --vp-code-block-bg: #dce1e6;
+  --vp-code-line-highlight-color: rgba(74, 90, 104, 0.09);
+  --vp-code-copy-code-bg: #d3d9df;
+  --vp-code-copy-code-hover-bg: #c9d0d8;
+  --vp-code-copy-code-hover-border-color: rgba(24, 29, 36, 0.18);
 
-  --vp-nav-bg-color: rgba(244, 245, 246, 0.88);
-  --vp-sidebar-bg-color: #f0f1f3;
-  --vp-local-search-bg: #f9fafb;
-  --vp-local-search-result-bg: #f4f5f6;
-  --vp-local-search-result-border: rgba(24, 26, 30, 0.09);
-  --vp-local-search-result-selected-bg: #eceef0;
-  --vp-local-search-result-selected-border: #55626e;
-  --vp-local-search-highlight-bg: rgba(85, 98, 110, 0.16);
-  --vp-local-search-highlight-text: #1d1f23;
+  --vp-nav-bg-color: #e4e8ec;
+  --vp-sidebar-bg-color: #dce1e6;
+  --vp-local-search-bg: #ebeff2;
+  --vp-local-search-result-bg: #e4e8ec;
+  --vp-local-search-result-border: rgba(24, 29, 36, 0.10);
+  --vp-local-search-result-selected-bg: #dae0e5;
+  --vp-local-search-result-selected-border: #4a5a68;
+  --vp-local-search-highlight-bg: rgba(74, 90, 104, 0.16);
+  --vp-local-search-highlight-text: #1e2329;
 
   /* Surface tokens */
-  --zen-card-bg: #f7f8f9;
-  --zen-card-border: rgba(24, 26, 30, 0.09);
-  --zen-card-hover-border: rgba(85, 98, 110, 0.28);
-  --zen-card-hover-bg: #fafbfc;
-  --zen-media-shadow: 0 8px 24px rgba(24, 26, 30, 0.07);
+  --zen-card-bg: #e9edf1;
+  --zen-card-border: rgba(24, 29, 36, 0.10);
+  --zen-card-hover-border: rgba(74, 90, 104, 0.30);
+  --zen-card-hover-bg: #eef2f5;
+  --zen-media-shadow: 0 8px 24px rgba(24, 29, 36, 0.08);
 }
 
 html.dark {
@@ -105,7 +105,7 @@ html.dark {
   --vp-code-copy-code-hover-bg: #262626;
   --vp-code-copy-code-hover-border-color: rgba(255, 255, 255, 0.14);
 
-  --vp-nav-bg-color: rgba(22, 22, 22, 0.88);
+  --vp-nav-bg-color: #161616;
   --vp-sidebar-bg-color: #161616;
   --vp-local-search-bg: #1c1c1c;
   --vp-local-search-result-bg: #161616;
@@ -163,21 +163,12 @@ body {
 /* --- Nav Bar ------------------------------------------------------------- */
 
 .VPNavBar {
-  background-color: var(--vp-c-bg) !important;
+  background-color: var(--vp-nav-bg-color) !important;
   border-bottom: 1px solid var(--vp-c-divider) !important;
 }
 
 .VPNavBar.has-sidebar .content-body {
   background-color: transparent !important;
-}
-
-@supports (backdrop-filter: blur(16px)) or (-webkit-backdrop-filter: blur(16px)) {
-  .VPNavBar,
-  .VPNavBar.has-sidebar .content-body {
-    background-color: var(--vp-nav-bg-color) !important;
-    backdrop-filter: blur(16px);
-    -webkit-backdrop-filter: blur(16px);
-  }
 }
 
 .VPNavBarTitle .title {
@@ -206,7 +197,6 @@ body {
 .VPLocalNav {
   background-color: var(--vp-nav-bg-color) !important;
   border-bottom: 1px solid var(--vp-c-divider) !important;
-  backdrop-filter: blur(12px);
 }
 
 /* --- Search Bar ---------------------------------------------------------- */
@@ -540,8 +530,8 @@ kbd,
 }
 
 .vp-doc .custom-block.warning {
-  border-color: rgba(164, 152, 138, 0.30);
-  background: rgba(164, 152, 138, 0.08);
+  border-color: rgba(110, 122, 136, 0.30);
+  background: rgba(110, 122, 136, 0.08);
 }
 
 .vp-doc .custom-block.danger {
